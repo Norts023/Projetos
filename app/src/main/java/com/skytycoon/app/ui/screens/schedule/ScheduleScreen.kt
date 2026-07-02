@@ -1,6 +1,5 @@
 package com.skytycoon.app.ui.screens.schedule
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,18 +8,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -31,19 +31,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,8 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.skytycoon.app.domain.model.Airport
+import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.domain.model.Contract
-import com.skytycoon.app.domain.model.ContractStatus
+import com.skytycoon.app.domain.model.EmployeeType
 import com.skytycoon.app.domain.model.Flight
 import com.skytycoon.app.domain.model.FlightStatus
 import com.skytycoon.app.domain.model.OperationType
@@ -64,7 +67,6 @@ import com.skytycoon.app.domain.model.OwnedAircraft
 import com.skytycoon.app.domain.usecase.ScheduleFlightRequest
 import com.skytycoon.app.ui.components.SkyCard
 import com.skytycoon.app.ui.theme.SkyAccentBlue
-import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
 import com.skytycoon.app.ui.theme.SkyAccentRed
@@ -72,6 +74,7 @@ import com.skytycoon.app.ui.theme.SkyBlack
 import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyTextPrimary
 import com.skytycoon.app.ui.theme.SkyTextSecondary
+import com.skytycoon.app.ui.utils.toGameTimeString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,14 +83,21 @@ fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Flights", "Contracts")
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var showScheduleSheet by remember { mutableStateOf(false) }
+    var prefilledContractId by remember { mutableStateOf<Long?>(null) }
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            viewModel.onDismissError()
+    LaunchedEffect(uiState.successMsg) {
+        uiState.successMsg?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessages()
+        }
+    }
+    LaunchedEffect(uiState.errorMsg) {
+        uiState.errorMsg?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessages()
         }
     }
 
@@ -98,22 +108,25 @@ fun ScheduleScreen(
                 title = {
                     Text(
                         text = "Schedule",
+                        color = SkyTextPrimary,
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = SkyTextPrimary
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyDarkBlue)
             )
         },
-        bottomBar = { SkyBottomNavBar(navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = { SkyBottomNavBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.onShowScheduleSheet(true) },
+                onClick = {
+                    prefilledContractId = null
+                    showScheduleSheet = true
+                },
                 containerColor = SkyAccentBlue
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Schedule Flight")
+                Icon(Icons.Default.Add, contentDescription = "Schedule flight", tint = SkyTextPrimary)
             }
         }
     ) { paddingValues ->
@@ -122,28 +135,35 @@ fun ScheduleScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) }
-                    )
-                }
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = SkyDarkBlue,
+                contentColor = SkyAccentBlue
+            ) {
+                Tab(
+                    selected = selectedTabIndex == 0,
+                    onClick = { selectedTabIndex = 0 },
+                    text = { Text("Flights (${uiState.flights.size})") }
+                )
+                Tab(
+                    selected = selectedTabIndex == 1,
+                    onClick = { selectedTabIndex = 1 },
+                    text = { Text("Contracts (${uiState.contracts.size})") }
+                )
             }
-            when (selectedTab) {
+
+            when (selectedTabIndex) {
                 0 -> FlightsTab(
                     flights = uiState.flights,
-                    isLoading = uiState.isLoading,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                 )
                 1 -> ContractsTab(
                     contracts = uiState.contracts,
-                    isLoading = uiState.isLoading,
-                    onViewContract = { _ ->
-                        viewModel.onShowScheduleSheet(true)
+                    onAccept = { contractId ->
+                        prefilledContractId = contractId
+                        showScheduleSheet = true
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -153,31 +173,32 @@ fun ScheduleScreen(
         }
     }
 
-    if (uiState.showScheduleSheet) {
-        ScheduleBottomSheet(
-            ownedAircraft = uiState.ownedAircraft,
-            onDismiss = { viewModel.onShowScheduleSheet(false) },
-            onSchedule = { request -> viewModel.onScheduleFlight(request) }
+    if (showScheduleSheet) {
+        ScheduleFlightSheet(
+            uiState = uiState,
+            prefilledContractId = prefilledContractId,
+            onDismiss = { showScheduleSheet = false },
+            onSchedule = { request ->
+                viewModel.onScheduleFlight(request)
+                showScheduleSheet = false
+            }
         )
     }
 }
 
-// ── Flights tab ──────────────────────────────────────────────────────────────
+// ── Flights tab ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun FlightsTab(
     flights: List<Flight>,
-    isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
-    when {
-        isLoading -> Box(modifier = modifier, contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        flights.isEmpty() -> Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    if (flights.isEmpty()) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(text = "No flights scheduled yet", color = SkyTextSecondary)
         }
-        else -> LazyColumn(
+    } else {
+        LazyColumn(
             modifier = modifier,
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -191,97 +212,73 @@ private fun FlightsTab(
 
 @Composable
 private fun FlightCard(flight: Flight) {
+    val statusColor = when (flight.status) {
+        FlightStatus.SCHEDULED -> SkyAccentBlue
+        FlightStatus.IN_FLIGHT, FlightStatus.BOARDING -> SkyAccentOrange
+        FlightStatus.COMPLETED -> SkyAccentGreen
+        else -> SkyAccentRed
+    }
     SkyCard(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${flight.originIata} → ${flight.destinationIata}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = SkyTextPrimary,
-                modifier = Modifier.weight(1f)
-            )
-            FlightStatusChip(status = flight.status)
+            Column {
+                Text(
+                    text = "${flight.originIata} → ${flight.destinationIata}",
+                    color = SkyTextPrimary,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Dep: ${flight.departureGameMinutes.toGameTimeString()}  Arr: ${flight.arrivalGameMinutes.toGameTimeString()}",
+                    color = SkyTextSecondary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "Pax: ${flight.passengerCount}  Rev: ${flight.revenueCoins}¢",
+                    color = SkyTextSecondary,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+            Surface(
+                color = statusColor.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = flight.status.name,
+                    color = statusColor,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "${formatGameMinutes(flight.departureGameMinutes)} → ${formatGameMinutes(flight.arrivalGameMinutes)}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = SkyTextSecondary,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "AC: ${flight.aircraftId}",
-                style = MaterialTheme.typography.bodySmall,
-                color = SkyTextSecondary
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "${flight.passengerCount} pax  •  ${flight.revenueCoins} coins",
-            style = MaterialTheme.typography.bodySmall,
-            color = SkyTextSecondary
-        )
     }
 }
 
-@Composable
-private fun FlightStatusChip(status: FlightStatus) {
-    val color = when (status) {
-        FlightStatus.SCHEDULED -> SkyAccentBlue
-        FlightStatus.IN_FLIGHT -> SkyAccentGreen
-        FlightStatus.BOARDING -> SkyAccentOrange
-        FlightStatus.COMPLETED -> SkyTextSecondary
-        FlightStatus.CANCELLED -> SkyAccentRed
-        FlightStatus.DELAYED -> SkyAccentOrange
-    }
-    val label = when (status) {
-        FlightStatus.SCHEDULED -> "Scheduled"
-        FlightStatus.IN_FLIGHT -> "In Flight"
-        FlightStatus.BOARDING -> "Boarding"
-        FlightStatus.COMPLETED -> "Completed"
-        FlightStatus.CANCELLED -> "Cancelled"
-        FlightStatus.DELAYED -> "Delayed"
-    }
-    Surface(
-        color = color.copy(alpha = 0.18f),
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
-
-// ── Contracts tab ─────────────────────────────────────────────────────────────
+// ── Contracts tab ──────────────────────────────────────────────────────────────
 
 @Composable
 private fun ContractsTab(
     contracts: List<Contract>,
-    isLoading: Boolean,
-    onViewContract: (Long) -> Unit,
+    onAccept: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when {
-        isLoading -> Box(modifier = modifier, contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        contracts.isEmpty() -> Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    if (contracts.isEmpty()) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(text = "No contracts available", color = SkyTextSecondary)
         }
-        else -> LazyColumn(
+    } else {
+        LazyColumn(
             modifier = modifier,
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(contracts, key = { it.id }) { contract ->
-                ContractCard(contract = contract, onView = { onViewContract(contract.id) })
+                ContractCard(contract = contract, onAccept = { onAccept(contract.id) })
             }
         }
     }
@@ -290,84 +287,78 @@ private fun ContractsTab(
 @Composable
 private fun ContractCard(
     contract: Contract,
-    onView: () -> Unit
+    onAccept: () -> Unit
 ) {
     SkyCard(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${contract.originIata} → ${contract.destinationIata}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = SkyTextPrimary,
-                modifier = Modifier.weight(1f)
-            )
-            if (contract.status == ContractStatus.AVAILABLE) {
-                TextButton(onClick = onView) {
-                    Text("View", color = SkyAccentBlue)
-                }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${contract.originIata} → ${contract.destinationIata}",
+                    color = SkyTextPrimary,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${contract.passengerCount} pax | ${contract.totalValueCoins}¢ + ${contract.bonusOnTimeCoins}¢ bonus",
+                    color = SkyTextSecondary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "Deadline: ${contract.deadlineGameMinutes.toGameTimeString()}",
+                    color = SkyAccentOrange,
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "${contract.passengerCount} passengers  •  ${contract.operationType.name}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = SkyTextSecondary
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "${contract.totalValueCoins} coins + ${contract.bonusOnTimeCoins} bonus",
-                style = MaterialTheme.typography.bodyMedium,
-                color = SkyTextSecondary,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "Day ${contract.deadlineGameMinutes / 1440 + 1}",
-                style = MaterialTheme.typography.bodySmall,
-                color = SkyTextSecondary
-            )
-        }
-        if (contract.maxEarnings > 0) {
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Max: ${contract.maxEarnings} coins",
-                style = MaterialTheme.typography.labelSmall,
-                color = SkyAccentGreen
-            )
+            Button(
+                onClick = onAccept,
+                colors = ButtonDefaults.buttonColors(containerColor = SkyAccentGreen)
+            ) {
+                Text("Accept", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }
 
-// ── Schedule bottom sheet ─────────────────────────────────────────────────────
+// ── Schedule bottom sheet ──────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ScheduleBottomSheet(
-    ownedAircraft: List<OwnedAircraft>,
+private fun ScheduleFlightSheet(
+    uiState: ScheduleUiState,
+    prefilledContractId: Long?,
     onDismiss: () -> Unit,
     onSchedule: (ScheduleFlightRequest) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var selectedAircraft by remember { mutableStateOf(ownedAircraft.firstOrNull()) }
-    var selectedOperationType by remember { mutableStateOf(OperationType.AIRLINE) }
-    var originIata by remember { mutableStateOf("") }
-    var destinationIata by remember { mutableStateOf("") }
-    var departureTime by remember { mutableStateOf("") }
-    var passengerCount by remember { mutableStateOf("") }
-    var revenueCoins by remember { mutableStateOf("") }
+    var selectedAircraftId by remember { mutableStateOf<Long?>(null) }
+    var originQuery by remember { mutableStateOf("") }
+    var destQuery by remember { mutableStateOf("") }
+    var selectedOrigin by remember { mutableStateOf<Airport?>(null) }
+    var selectedDest by remember { mutableStateOf<Airport?>(null) }
+    var departureHour by remember {
+        mutableIntStateOf(
+            uiState.gameState?.currentGameMinutes?.let { ((it % 1440L) / 60L).toInt() } ?: 8
+        )
+    }
+    var departureMinute by remember { mutableIntStateOf(0) }
+    var ticketPrice by remember { mutableStateOf("100") }
+    var selectedPilotId by remember { mutableStateOf<Long?>(null) }
+    var expandedAircraft by remember { mutableStateOf(false) }
+    var expandedPilot by remember { mutableStateOf(false) }
+    var showOriginList by remember { mutableStateOf(false) }
+    var showDestList by remember { mutableStateOf(false) }
 
-    var aircraftExpanded by remember { mutableStateOf(false) }
-    var operationTypeExpanded by remember { mutableStateOf(false) }
+    val departureGameMinutes = (uiState.gameState?.currentGameMinutes ?: 0L) +
+            (departureHour * 60L) + departureMinute.toLong()
 
-    val isFormValid = selectedAircraft != null &&
-            originIata.length >= 3 &&
-            destinationIata.length >= 3 &&
-            departureTime.matches(Regex("\\d{1,2}:\\d{2}")) &&
-            passengerCount.toIntOrNull() != null
+    val pilots = uiState.availableEmployees.filter { it.type == EmployeeType.PILOT }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -377,59 +368,51 @@ private fun ScheduleBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 16.dp)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = "Schedule Flight",
+                color = SkyTextPrimary,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = SkyTextPrimary
+                fontWeight = FontWeight.Bold
             )
 
             // Aircraft picker
             ExposedDropdownMenuBox(
-                expanded = aircraftExpanded,
-                onExpandedChange = { aircraftExpanded = it }
+                expanded = expandedAircraft,
+                onExpandedChange = { expandedAircraft = it }
             ) {
                 OutlinedTextField(
-                    value = selectedAircraft?.registrationCode ?: "Select aircraft",
+                    value = uiState.ownedAircraft.find { it.id == selectedAircraftId }
+                        ?.registrationCode ?: "Select aircraft",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Aircraft") },
                     trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = aircraftExpanded)
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAircraft)
                     },
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
                 )
                 ExposedDropdownMenu(
-                    expanded = aircraftExpanded,
-                    onDismissRequest = { aircraftExpanded = false }
+                    expanded = expandedAircraft,
+                    onDismissRequest = { expandedAircraft = false }
                 ) {
-                    if (ownedAircraft.isEmpty()) {
+                    if (uiState.ownedAircraft.isEmpty()) {
                         DropdownMenuItem(
                             text = { Text("No aircraft available", color = SkyTextSecondary) },
-                            onClick = { aircraftExpanded = false }
+                            onClick = { expandedAircraft = false }
                         )
                     } else {
-                        ownedAircraft.forEach { aircraft ->
+                        uiState.ownedAircraft.forEach { aircraft ->
                             DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text(aircraft.registrationCode)
-                                        Text(
-                                            text = aircraft.model.displayName,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = SkyTextSecondary
-                                        )
-                                    }
-                                },
+                                text = { Text(aircraft.registrationCode, color = SkyTextPrimary) },
                                 onClick = {
-                                    selectedAircraft = aircraft
-                                    aircraftExpanded = false
+                                    selectedAircraftId = aircraft.id
+                                    expandedAircraft = false
                                 }
                             )
                         }
@@ -437,134 +420,203 @@ private fun ScheduleBottomSheet(
                 }
             }
 
-            // Operation type picker
+            // Origin and destination row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = originQuery,
+                        onValueChange = {
+                            originQuery = it
+                            showOriginList = true
+                            selectedOrigin = null
+                        },
+                        label = { Text("Origin IATA") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (showOriginList && originQuery.length >= 2) {
+                        val filtered = uiState.airports.filter {
+                            it.iata.contains(originQuery, ignoreCase = true) ||
+                                    it.city.contains(originQuery, ignoreCase = true)
+                        }
+                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                            items(filtered, key = { it.id }) { airport ->
+                                AirportSuggestionItem(airport = airport) {
+                                    selectedOrigin = airport
+                                    originQuery = airport.iata
+                                    showOriginList = false
+                                }
+                            }
+                        }
+                    }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = destQuery,
+                        onValueChange = {
+                            destQuery = it
+                            showDestList = true
+                            selectedDest = null
+                        },
+                        label = { Text("Destination IATA") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (showDestList && destQuery.length >= 2) {
+                        val filtered = uiState.airports.filter {
+                            it.iata.contains(destQuery, ignoreCase = true) ||
+                                    it.city.contains(destQuery, ignoreCase = true)
+                        }
+                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                            items(filtered, key = { it.id }) { airport ->
+                                AirportSuggestionItem(airport = airport) {
+                                    selectedDest = airport
+                                    destQuery = airport.iata
+                                    showDestList = false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Departure hour slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Dep. Hour", color = SkyTextSecondary, style = MaterialTheme.typography.labelMedium)
+                Slider(
+                    value = departureHour.toFloat(),
+                    onValueChange = { departureHour = it.toInt() },
+                    valueRange = 0f..23f,
+                    steps = 22,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "%02d:00".format(departureHour),
+                    color = SkyTextPrimary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            // Departure minute slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Dep. Minute", color = SkyTextSecondary, style = MaterialTheme.typography.labelMedium)
+                Slider(
+                    value = departureMinute.toFloat(),
+                    onValueChange = { departureMinute = ((it.toInt() / 5) * 5).coerceIn(0, 55) },
+                    valueRange = 0f..55f,
+                    steps = 10,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "%02d".format(departureMinute),
+                    color = SkyTextPrimary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            // Ticket price (only for non-contract flights)
+            if (prefilledContractId == null) {
+                OutlinedTextField(
+                    value = ticketPrice,
+                    onValueChange = { ticketPrice = it },
+                    label = { Text("Ticket Price ¢/pax") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Pilot picker
             ExposedDropdownMenuBox(
-                expanded = operationTypeExpanded,
-                onExpandedChange = { operationTypeExpanded = it }
+                expanded = expandedPilot,
+                onExpandedChange = { expandedPilot = it }
             ) {
                 OutlinedTextField(
-                    value = selectedOperationType.name,
+                    value = pilots.find { it.id == selectedPilotId }?.name ?: "Select Pilot (Optional)",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Operation Type") },
+                    label = { Text("Pilot") },
                     trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = operationTypeExpanded)
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPilot)
                     },
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
                 )
                 ExposedDropdownMenu(
-                    expanded = operationTypeExpanded,
-                    onDismissRequest = { operationTypeExpanded = false }
+                    expanded = expandedPilot,
+                    onDismissRequest = { expandedPilot = false }
                 ) {
-                    OperationType.values().forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text("None", color = SkyTextSecondary) },
+                        onClick = {
+                            selectedPilotId = null
+                            expandedPilot = false
+                        }
+                    )
+                    pilots.forEach { pilot ->
                         DropdownMenuItem(
-                            text = { Text(type.name) },
+                            text = { Text(pilot.name, color = SkyTextPrimary) },
                             onClick = {
-                                selectedOperationType = type
-                                operationTypeExpanded = false
+                                selectedPilotId = pilot.id
+                                expandedPilot = false
                             }
                         )
                     }
                 }
             }
 
-            // Route row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = originIata,
-                    onValueChange = { originIata = it.uppercase().take(4) },
-                    label = { Text("Origin IATA") },
-                    placeholder = { Text("GRU") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = destinationIata,
-                    onValueChange = { destinationIata = it.uppercase().take(4) },
-                    label = { Text("Destination IATA") },
-                    placeholder = { Text("CGH") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            // Departure time
-            OutlinedTextField(
-                value = departureTime,
-                onValueChange = { departureTime = it },
-                label = { Text("Departure Time") },
-                placeholder = { Text("HH:MM") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Passengers + revenue row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = passengerCount,
-                    onValueChange = { passengerCount = it },
-                    label = { Text("Passengers") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = revenueCoins,
-                    onValueChange = { revenueCoins = it },
-                    label = { Text("Revenue (coins)") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
             Button(
                 onClick = {
-                    val aircraft = selectedAircraft ?: return@Button
-                    val timeParts = departureTime.split(":")
-                    val hours = timeParts.getOrNull(0)?.toLongOrNull() ?: return@Button
-                    val minutes = timeParts.getOrNull(1)?.toLongOrNull() ?: return@Button
-                    val depMinutes = hours * 60 + minutes
-                    val passengers = passengerCount.toIntOrNull() ?: return@Button
-                    val ticketPrice = revenueCoins.toLongOrNull()
-
-                    onSchedule(
-                        ScheduleFlightRequest(
-                            aircraftId = aircraft.id,
-                            operationType = selectedOperationType,
-                            originIata = originIata,
-                            destinationIata = destinationIata,
-                            departureGameMinutes = depMinutes,
-                            passengerCount = passengers,
-                            ticketPricePerPax = ticketPrice
-                        )
+                    val req = ScheduleFlightRequest(
+                        aircraftId = selectedAircraftId!!,
+                        operationType = if (prefilledContractId != null) OperationType.CHARTER else OperationType.AIRLINE,
+                        originIata = selectedOrigin!!.iata,
+                        destinationIata = selectedDest!!.iata,
+                        departureGameMinutes = departureGameMinutes,
+                        ticketPricePerPax = ticketPrice.toLongOrNull(),
+                        contractId = prefilledContractId,
+                        assignedPilotId = selectedPilotId
                     )
+                    onSchedule(req)
                 },
-                enabled = isFormValid,
-                modifier = Modifier.fillMaxWidth()
+                enabled = selectedAircraftId != null && selectedOrigin != null && selectedDest != null,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = SkyAccentBlue)
             ) {
-                Text("Schedule Flight")
+                Text("Schedule")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.padding(bottom = 8.dp))
         }
     }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-private fun formatGameMinutes(gameMinutes: Long): String {
-    val totalInDay = gameMinutes % 1440
-    val hours = totalInDay / 60
-    val minutes = totalInDay % 60
-    return "%02d:%02d".format(hours, minutes)
+@Composable
+private fun AirportSuggestionItem(
+    airport: Airport,
+    onClick: () -> Unit
+) {
+    androidx.compose.material3.TextButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "${airport.iata} - ${airport.city}",
+            color = SkyTextPrimary,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

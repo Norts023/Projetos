@@ -1,6 +1,6 @@
 package com.skytycoon.app.ui.screens.employees
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,50 +12,56 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.FlightTakeoff
-import androidx.compose.material.icons.filled.ManageAccounts
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.skytycoon.app.R
 import com.skytycoon.app.domain.model.Employee
 import com.skytycoon.app.domain.model.EmployeeType
 import com.skytycoon.app.ui.components.SkyCard
@@ -63,22 +69,15 @@ import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentBlue
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
+import com.skytycoon.app.ui.theme.SkyAccentPurple
 import com.skytycoon.app.ui.theme.SkyAccentRed
 import com.skytycoon.app.ui.theme.SkyBlack
+import com.skytycoon.app.ui.theme.SkyCardBg
 import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyDivider
 import com.skytycoon.app.ui.theme.SkyGold
 import com.skytycoon.app.ui.theme.SkyTextPrimary
 import com.skytycoon.app.ui.theme.SkyTextSecondary
-import kotlin.math.roundToInt
-
-private val PILOT_TYPES = setOf(
-    EmployeeType.PILOT,
-    EmployeeType.HELICOPTER_PILOT,
-    EmployeeType.COPILOT
-)
-private val CREW_TYPES = setOf(EmployeeType.FLIGHT_ATTENDANT)
-private val MECHANIC_TYPES = setOf(EmployeeType.MECHANIC, EmployeeType.ADMIN)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,95 +86,114 @@ fun EmployeesScreen(
     viewModel: EmployeesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("All", "Pilots", "Crew", "Mechanics")
+    val filteredEmployees by viewModel.filteredEmployees.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.hireError) {
-        uiState.hireError?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            viewModel.onDismissError()
+    LaunchedEffect(uiState.successMsg) {
+        uiState.successMsg?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessages()
         }
     }
 
-    val filteredEmployees = remember(selectedTab, uiState.employees) {
-        when (selectedTab) {
-            1 -> uiState.employees.filter { it.type in PILOT_TYPES }
-            2 -> uiState.employees.filter { it.type in CREW_TYPES }
-            3 -> uiState.employees.filter { it.type in MECHANIC_TYPES }
-            else -> uiState.employees
+    LaunchedEffect(uiState.errorMsg) {
+        uiState.errorMsg?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessages()
         }
     }
 
     Scaffold(
         containerColor = SkyBlack,
+        bottomBar = { SkyBottomNavBar(navController) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Staff",
+                        color = SkyTextPrimary,
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = SkyTextPrimary
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyDarkBlue)
             )
         },
-        bottomBar = { SkyBottomNavBar(navController) },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.onShowHireDialog(true) },
+                onClick = { viewModel.onShowHireDialog() },
                 containerColor = SkyAccentBlue
             ) {
-                Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = "Hire Employee")
+                Icon(imageVector = Icons.Default.PersonAdd, contentDescription = "Hire employee")
             }
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(innerPadding)
         ) {
-            TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) }
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    FilterChip(
+                        selected = uiState.filterType == null,
+                        onClick = { viewModel.onFilterChange(null) },
+                        label = { Text("All") }
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.filterType == EmployeeType.PILOT ||
+                                uiState.filterType == EmployeeType.HELICOPTER_PILOT,
+                        onClick = { viewModel.onFilterChange(EmployeeType.PILOT) },
+                        label = { Text("Pilots") }
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.filterType == EmployeeType.FLIGHT_ATTENDANT,
+                        onClick = { viewModel.onFilterChange(EmployeeType.FLIGHT_ATTENDANT) },
+                        label = { Text("Crew") }
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.filterType == EmployeeType.MECHANIC,
+                        onClick = { viewModel.onFilterChange(EmployeeType.MECHANIC) },
+                        label = { Text("Mechanics") }
                     )
                 }
             }
-            when {
-                uiState.isLoading -> Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-                filteredEmployees.isEmpty() -> Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No employees in this category",
-                        color = SkyTextSecondary
+
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredEmployees, key = { it.id }) { employee ->
+                    EmployeeCard(
+                        employee = employee,
+                        onFire = { viewModel.onFire(employee.id) }
                     )
                 }
-                else -> LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(filteredEmployees, key = { it.id }) { employee ->
-                        EmployeeCard(employee = employee)
+                if (filteredEmployees.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 64.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.employees_empty),
+                                color = SkyTextSecondary,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
@@ -185,254 +203,232 @@ fun EmployeesScreen(
     if (uiState.showHireDialog) {
         HireDialog(
             isLoading = uiState.isLoading,
-            onDismiss = { viewModel.onShowHireDialog(false) },
-            onHire = { name, type, level -> viewModel.onHire(name, type, level) }
+            onHire = { name, type, level -> viewModel.onHire(name, type, level) },
+            onDismiss = { viewModel.onDismissDialog() }
         )
     }
 }
 
-// ── Employee card ─────────────────────────────────────────────────────────────
-
 @Composable
-private fun EmployeeCard(employee: Employee) {
-    SkyCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Icon(
-                imageVector = employeeTypeIcon(employee.type),
-                contentDescription = employee.type.name,
-                tint = SkyAccentBlue,
+private fun EmployeeCard(
+    employee: Employee,
+    onFire: () -> Unit
+) {
+    val typeColor: Color = when (employee.type) {
+        EmployeeType.PILOT, EmployeeType.HELICOPTER_PILOT, EmployeeType.COPILOT -> SkyAccentBlue
+        EmployeeType.FLIGHT_ATTENDANT -> SkyAccentPurple
+        EmployeeType.MECHANIC -> SkyAccentOrange
+        EmployeeType.ADMIN -> SkyAccentGreen
+    }
+    val statusColor: Color = when {
+        employee.isAvailable -> SkyAccentGreen
+        employee.fatigue < 80 -> SkyAccentOrange
+        else -> SkyAccentRed
+    }
+
+    SkyCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .padding(top = 2.dp)
-            )
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(typeColor.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = employee.name.first().uppercaseChar().toString(),
+                    color = typeColor,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = employee.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
                         color = SkyTextPrimary,
-                        modifier = Modifier.weight(1f)
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
-                    EmployeeStatusChip(employee = employee)
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Level stars
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    val filledStars = employee.level.coerceIn(0, 5)
-                    repeat(filledStars) {
-                        Text(text = "★", color = SkyGold, style = MaterialTheme.typography.bodyMedium)
-                    }
-                    repeat(5 - filledStars) {
-                        Text(text = "★", color = SkyDivider, style = MaterialTheme.typography.bodyMedium)
-                    }
                     Text(
-                        text = "  Lv.${ employee.level }  •  ${employeeTypeLabel(employee.type)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = SkyTextSecondary
+                        text = "★".repeat(employee.level),
+                        color = SkyGold,
+                        style = MaterialTheme.typography.bodySmall
                     )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Fatigue bar
-                val fatigue = employee.fatigue.coerceIn(0, 100)
-                val fatigueProgress = fatigue / 100f
-                val fatigueColor = when {
-                    fatigue < 30 -> SkyAccentGreen
-                    fatigue < 60 -> SkyAccentOrange
-                    else -> SkyAccentRed
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Fatigue",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = SkyTextSecondary
-                    )
-                    Text(
-                        text = employee.fatigueLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = fatigueColor
-                    )
+                    Surface(
+                        color = typeColor.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = employee.type.name.replace("_", " "),
+                            color = typeColor,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
+                    }
+                    Surface(
+                        color = statusColor.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = employee.fatigueLabel,
+                            color = statusColor,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 LinearProgressIndicator(
-                    progress = { fatigueProgress },
+                    progress = { employee.fatigue / 100f },
+                    color = if (employee.fatigue < 60) SkyAccentGreen
+                            else if (employee.fatigue < 80) SkyAccentOrange
+                            else SkyAccentRed,
+                    trackColor = SkyDivider,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(6.dp),
-                    color = fatigueColor,
-                    trackColor = SkyDivider
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                )
+                Text(
+                    text = "Fatigue: ${employee.fatigue}%  |  Salary: ${employee.dailySalaryCoins}¢/day",
+                    color = SkyTextSecondary,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+            IconButton(onClick = onFire) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Fire employee",
+                    tint = SkyAccentRed
                 )
             }
         }
     }
 }
 
-@Composable
-private fun EmployeeStatusChip(employee: Employee) {
-    val (label, color) = when {
-        employee.currentFlightId != null -> "Flying" to SkyAccentBlue
-        !employee.isAvailable -> "Fatigued" to SkyAccentRed
-        else -> "Available" to SkyAccentGreen
-    }
-    Surface(
-        color = color.copy(alpha = 0.18f),
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
-
-// ── Hire dialog ───────────────────────────────────────────────────────────────
-
-private val HIREABLE_TYPES = listOf(
-    EmployeeType.PILOT,
-    EmployeeType.COPILOT,
-    EmployeeType.FLIGHT_ATTENDANT,
-    EmployeeType.MECHANIC
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HireDialog(
     isLoading: Boolean,
-    onDismiss: () -> Unit,
-    onHire: (name: String, type: EmployeeType, level: Int) -> Unit
+    onHire: (name: String, type: EmployeeType, level: Int) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(EmployeeType.PILOT) }
-    var levelSlider by remember { mutableFloatStateOf(1f) }
-    val level = levelSlider.roundToInt()
+    var hireName by remember { mutableStateOf("") }
+    var hireType by remember { mutableStateOf(EmployeeType.PILOT) }
+    var hireLevel by remember { mutableIntStateOf(1) }
+    var expandedTypeMenu by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = { if (!isLoading) onDismiss() },
+        onDismissRequest = onDismiss,
+        containerColor = SkyCardBg,
         title = {
-            Text("Hire Employee", fontWeight = FontWeight.Bold, color = SkyTextPrimary)
+            Text(
+                text = "Hire Staff",
+                color = SkyTextPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-                // Employee type chips
-                Text(
-                    text = "Type",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = SkyTextSecondary
+                OutlinedTextField(
+                    value = hireName,
+                    onValueChange = { hireName = it },
+                    label = { Text("Full Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ExposedDropdownMenuBox(
+                    expanded = expandedTypeMenu,
+                    onExpandedChange = { expandedTypeMenu = it }
                 ) {
-                    HIREABLE_TYPES.forEach { type ->
-                        FilterChip(
-                            selected = selectedType == type,
-                            onClick = { selectedType = type },
-                            label = { Text(employeeTypeLabel(type)) }
-                        )
-                    }
-                }
-
-                // Level slider
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    OutlinedTextField(
+                        value = hireType.name.replace("_", " "),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Role") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTypeMenu)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedTypeMenu,
+                        onDismissRequest = { expandedTypeMenu = false }
                     ) {
-                        Text(
-                            text = "Level",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = SkyTextSecondary
-                        )
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            repeat(level) {
-                                Text("★", color = SkyGold, style = MaterialTheme.typography.bodySmall)
-                            }
-                            repeat(5 - level) {
-                                Text("★", color = SkyDivider, style = MaterialTheme.typography.bodySmall)
-                            }
+                        EmployeeType.values().forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type.name.replace("_", " ")) },
+                                onClick = {
+                                    hireType = type
+                                    expandedTypeMenu = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
                         }
                     }
-                    Slider(
-                        value = levelSlider,
-                        onValueChange = { levelSlider = it },
-                        valueRange = 1f..5f,
-                        steps = 3,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
-
-                // Name field
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    singleLine = true,
+                Text(
+                    text = "Level",
+                    color = SkyTextSecondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Slider(
+                    value = hireLevel.toFloat(),
+                    onValueChange = { hireLevel = it.toInt() },
+                    valueRange = 1f..5f,
+                    steps = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                // Salary preview
-                Surface(
-                    color = SkyAccentBlue.copy(alpha = 0.12f),
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Estimated salary: ${level * 100} coins / day",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = SkyAccentBlue,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                        text = "Level $hireLevel",
+                        color = SkyTextPrimary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "★".repeat(hireLevel),
+                        color = SkyGold,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
+                val dailySalary = hireLevel * 50L
+                val hiringFee = hireLevel * 200L
+                Text(
+                    text = "Daily salary: ${dailySalary}¢  |  Hiring fee: ${hiringFee}¢",
+                    color = SkyAccentGreen,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = { onHire(name.trim(), selectedType, level) },
-                enabled = name.isNotBlank() && !isLoading
+            Button(
+                onClick = { onHire(hireName, hireType, hireLevel) },
+                enabled = hireName.isNotBlank() && !isLoading
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                } else {
-                    Text("Hire")
-                }
+                Text("Hire")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isLoading) {
+            OutlinedButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         }
     )
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-private fun employeeTypeIcon(type: EmployeeType): ImageVector = when (type) {
-    EmployeeType.PILOT, EmployeeType.HELICOPTER_PILOT -> Icons.Filled.FlightTakeoff
-    EmployeeType.MECHANIC -> Icons.Filled.Build
-    EmployeeType.ADMIN -> Icons.Filled.ManageAccounts
-    EmployeeType.COPILOT, EmployeeType.FLIGHT_ATTENDANT -> Icons.Filled.Person
-}
-
-private fun employeeTypeLabel(type: EmployeeType): String = when (type) {
-    EmployeeType.PILOT -> "Pilot"
-    EmployeeType.HELICOPTER_PILOT -> "Heli Pilot"
-    EmployeeType.COPILOT -> "Co-Pilot"
-    EmployeeType.FLIGHT_ATTENDANT -> "Attendant"
-    EmployeeType.MECHANIC -> "Mechanic"
-    EmployeeType.ADMIN -> "Admin"
 }
