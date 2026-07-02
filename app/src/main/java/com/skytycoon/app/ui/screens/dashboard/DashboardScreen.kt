@@ -19,20 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.FlightTakeoff
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -54,6 +48,7 @@ import com.skytycoon.app.ui.components.SkyCard
 import com.skytycoon.app.ui.components.StatTile
 import com.skytycoon.app.ui.components.TimeAdvanceBar
 import com.skytycoon.app.ui.navigation.Screen
+import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentBlue
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
@@ -96,65 +91,7 @@ fun DashboardScreen(
                     )
                 )
             },
-            bottomBar = {
-                NavigationBar(containerColor = SkyDarkBlue) {
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Fleet.route) },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Flight,
-                                contentDescription = "Fleet"
-                            )
-                        },
-                        label = { Text("Fleet") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Schedule.route) },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = "Schedule"
-                            )
-                        },
-                        label = { Text("Schedule") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Employees.route) },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.People,
-                                contentDescription = "Staff"
-                            )
-                        },
-                        label = { Text("Staff") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Missions.route) },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.EmojiEvents,
-                                contentDescription = "Missions"
-                            )
-                        },
-                        label = { Text("Missions") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Map.route) },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Map,
-                                contentDescription = "Map"
-                            )
-                        },
-                        label = { Text("Map") }
-                    )
-                }
-            },
+            bottomBar = { SkyBottomNavBar(navController) },
             snackbarHost = {
                 TimeAdvanceBar(
                     timeDisplay = uiState.gameState?.timeDisplay ?: "00:00",
