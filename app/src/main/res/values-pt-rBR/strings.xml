@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyTycoon</string>
+    <string name="app_tagline">Construa seu império aéreo</string>
+
+    <string name="new_game_title">Novo Jogo</string>
+    <string name="new_game_company_name_hint">Nome da Empresa</string>
+    <string name="new_game_company_name_label">Nome da sua Companhia Aérea</string>
+    <string name="new_game_mode_realistic">Realista</string>
+    <string name="new_game_mode_realistic_desc">Custos reais, exigências de tripulação e demanda autêntica</string>
+    <string name="new_game_mode_fictional">Arcade</string>
+    <string name="new_game_mode_fictional_desc">Progressão mais rápida, regras flexíveis e recompensas maiores</string>
+    <string name="new_game_start_button">Ligar os Motores</string>
+
+    <string name="dashboard_title">Centro de Operações</string>
+    <string name="dashboard_balance">Saldo</string>
+    <string name="dashboard_reputation">Reputação</string>
+    <string name="dashboard_fleet">Frota</string>
+    <string name="dashboard_active_flights">Voos Ativos</string>
+    <string name="dashboard_day">Dia %d</string>
+    <string name="dashboard_alerts">Alertas</string>
+    <string name="dashboard_no_alerts">Todos os sistemas operacionais</string>
+
+    <string name="fleet_title">Frota</string>
+    <string name="fleet_tab_airliner">Aeronaves</string>
+    <string name="fleet_tab_charter">Charter</string>
+    <string name="fleet_tab_helicopter">Helicópteros</string>
+    <string name="fleet_buy">Comprar</string>
+    <string name="fleet_lease">Alugar</string>
+    <string name="fleet_buy_aircraft">Adquirir Aeronave</string>
+    <string name="fleet_condition">Condição</string>
+    <string name="fleet_maintenance_needed">Manutenção Necessária</string>
+    <string name="fleet_operational">Operacional</string>
+    <string name="fleet_registration">Prefixo</string>
+    <string name="fleet_range">Alcance</string>
+    <string name="fleet_speed">Velocidade</string>
+    <string name="fleet_capacity">Capacidade</string>
+    <string name="fleet_price_purchase">Preço de Compra</string>
+    <string name="fleet_price_lease">Aluguel / Hora</string>
+
+    <string name="schedule_title">Agenda</string>
+    <string name="schedule_tab_flights">Voos</string>
+    <string name="schedule_tab_contracts">Contratos</string>
+    <string name="schedule_new_flight">Novo Voo</string>
+    <string name="schedule_origin">Origem</string>
+    <string name="schedule_destination">Destino</string>
+    <string name="schedule_departure">Partida</string>
+    <string name="schedule_aircraft">Aeronave</string>
+    <string name="schedule_passengers">Passageiros</string>
+    <string name="schedule_price_per_pax">Tarifa / Pax</string>
+    <string name="schedule_contract_value">Valor do Contrato</string>
+    <string name="schedule_contract_bonus">+ Bônus pontualidade</string>
+    <string name="schedule_deadline">Prazo</string>
+    <string name="schedule_accept">Aceitar</string>
+
+    <string name="employees_title">Equipe</string>
+    <string name="employees_tab_all">Todos</string>
+    <string name="employees_tab_pilots">Pilotos</string>
+    <string name="employees_tab_crew">Tripulação</string>
+    <string name="employees_tab_mechanics">Mecânicos</string>
+    <string name="employees_hire">Contratar</string>
+    <string name="employees_fire">Demitir</string>
+    <string name="employees_name">Nome</string>
+    <string name="employees_type">Função</string>
+    <string name="employees_level">Nível</string>
+    <string name="employees_salary">Salário Diário</string>
+    <string name="employees_fatigue">Fadiga</string>
+    <string name="employees_available">Disponível</string>
+    <string name="employees_on_duty">Em Serviço</string>
+    <string name="employees_fatigued">Fatigado</string>
+
+    <string name="missions_title">Missões</string>
+    <string name="missions_tab_primary">Primárias</string>
+    <string name="missions_tab_secondary">Secundárias</string>
+    <string name="missions_tab_daily">Diárias</string>
+    <string name="missions_reward_coins">Moedas</string>
+    <string name="missions_reward_rep">Rep.</string>
+    <string name="missions_reward_research">Pesquisa</string>
+    <string name="missions_completed">Concluída</string>
+    <string name="missions_active">Em Andamento</string>
+    <string name="missions_expired">Expirada</string>
+
+    <string name="map_title">Mapa Mundial</string>
+    <string name="map_legend_airline">Linha Aérea</string>
+    <string name="map_legend_charter">Charter</string>
+    <string name="map_legend_helicopter">Helicóptero</string>
+
+    <string name="time_advance">+1h</string>
+    <string name="time_advance_fast">+8h</string>
+    <string name="coins_suffix">¢</string>
+    <string name="km_suffix"> km</string>
+    <string name="kmh_suffix"> km/h</string>
+    <string name="pax_suffix"> pax</string>
+
+    <string name="error_aircraft_not_found">Aeronave não encontrada</string>
+    <string name="error_route_exceeds_range">Rota excede o alcance da aeronave (%d km)</string>
+    <string name="error_schedule_conflict">Aeronave já agendada nesse horário</string>
+    <string name="error_crew_required">Piloto obrigatório no modo Realista</string>
+    <string name="error_insufficient_balance">Saldo insuficiente</string>
+    <string name="error_aircraft_not_operational">Aeronave precisa de manutenção</string>
+
+    <string name="success_flight_scheduled">Voo agendado!</string>
+    <string name="success_contract_accepted">Contrato aceito!</string>
+    <string name="success_aircraft_purchased">Aeronave adquirida!</string>
+    <string name="success_employee_hired">%s entrou para a equipe!</string>
+</resources>

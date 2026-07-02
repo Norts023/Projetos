@@ -18,7 +18,8 @@ data class Flight(
     val durationMinutes: Long get() = arrivalGameMinutes - departureGameMinutes
     val durationHours: Double get() = durationMinutes / 60.0
     val isActive: Boolean get() = status == FlightStatus.SCHEDULED ||
-            status == FlightStatus.BOARDING || status == FlightStatus.IN_FLIGHT
+            status == FlightStatus.BOARDING || status == FlightStatus.IN_FLIGHT ||
+            status == FlightStatus.DELAYED
     val isFinished: Boolean get() = status == FlightStatus.COMPLETED ||
             status == FlightStatus.CANCELLED
 }

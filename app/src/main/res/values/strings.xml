@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyTycoon</string>
+    <string name="app_tagline">Build your airline empire</string>
+    <string name="splash_tagline">Build your airline empire</string>
+
+    <string name="new_game_title">New Game</string>
+    <string name="new_game_company_name_hint">Company Name</string>
+    <string name="new_game_company_name_label">Your Airline Name</string>
+    <string name="new_game_mode_realistic">Realistic</string>
+    <string name="new_game_mode_realistic_desc">True-to-life costs, crew requirements, and demand</string>
+    <string name="new_game_mode_fictional">Arcade</string>
+    <string name="new_game_mode_fictional_desc">Faster progression, relaxed rules, bigger rewards</string>
+    <string name="mode_realistic_desc">True-to-life costs, crew requirements, and demand</string>
+    <string name="mode_arcade_desc">Faster progression, relaxed rules, bigger rewards</string>
+    <string name="new_game_start_button">Start Engine</string>
+
+    <string name="dashboard_title">Operations Center</string>
+    <string name="dashboard_balance">Balance</string>
+    <string name="dashboard_reputation">Reputation</string>
+    <string name="dashboard_fleet">Fleet</string>
+    <string name="dashboard_active_flights">Active Flights</string>
+    <string name="dashboard_day">Day %d</string>
+    <string name="dashboard_alerts">Alerts</string>
+    <string name="dashboard_no_alerts">All systems operational</string>
+
+    <string name="fleet_title">Fleet</string>
+    <string name="fleet_empty">No aircraft in this category.\nTap + to acquire your first aircraft.</string>
+    <string name="fleet_tab_airliner">Airliners</string>
+    <string name="fleet_tab_charter">Charter</string>
+    <string name="fleet_tab_helicopter">Helicopters</string>
+    <string name="fleet_buy">Buy</string>
+    <string name="fleet_lease">Lease</string>
+    <string name="fleet_buy_aircraft">Acquire Aircraft</string>
+    <string name="fleet_condition">Condition</string>
+    <string name="fleet_maintenance_needed">Maintenance Required</string>
+    <string name="fleet_operational">Operational</string>
+    <string name="fleet_registration">Registration Code</string>
+    <string name="fleet_range">Range</string>
+    <string name="fleet_speed">Speed</string>
+    <string name="fleet_capacity">Capacity</string>
+    <string name="fleet_price_purchase">Purchase Price</string>
+    <string name="fleet_price_lease">Lease / Hour</string>
+
+    <string name="schedule_title">Schedule</string>
+    <string name="schedule_tab_flights">Flights</string>
+    <string name="schedule_tab_contracts">Contracts</string>
+    <string name="schedule_new_flight">New Flight</string>
+    <string name="schedule_origin">Origin</string>
+    <string name="schedule_destination">Destination</string>
+    <string name="schedule_departure">Departure</string>
+    <string name="schedule_aircraft">Aircraft</string>
+    <string name="schedule_passengers">Passengers</string>
+    <string name="schedule_price_per_pax">Ticket Price / Pax</string>
+    <string name="schedule_contract_value">Contract Value</string>
+    <string name="schedule_contract_bonus">+ Bonus on time</string>
+    <string name="schedule_deadline">Deadline</string>
+    <string name="schedule_accept">Accept</string>
+
+    <string name="employees_title">Staff</string>
+    <string name="employees_empty">No staff in this category.\nTap + to hire your first employee.</string>
+    <string name="employees_tab_all">All</string>
+    <string name="employees_tab_pilots">Pilots</string>
+    <string name="employees_tab_crew">Crew</string>
+    <string name="employees_tab_mechanics">Mechanics</string>
+    <string name="employees_hire">Hire Staff</string>
+    <string name="employees_fire">Dismiss</string>
+    <string name="employees_name">Name</string>
+    <string name="employees_type">Role</string>
+    <string name="employees_level">Level</string>
+    <string name="employees_salary">Daily Salary</string>
+    <string name="employees_fatigue">Fatigue</string>
+    <string name="employees_available">Available</string>
+    <string name="employees_on_duty">On Duty</string>
+    <string name="employees_fatigued">Fatigued</string>
+
+    <string name="missions_title">Missions</string>
+    <string name="missions_empty">No missions available in this category.</string>
+    <string name="missions_daily_reset_notice">Daily missions reset every game day. Complete them for bonus rewards.</string>
+    <string name="missions_tab_primary">Primary</string>
+    <string name="missions_tab_secondary">Secondary</string>
+    <string name="missions_tab_daily">Daily</string>
+    <string name="missions_reward_coins">Coins</string>
+    <string name="missions_reward_rep">Rep</string>
+    <string name="missions_reward_research">Research</string>
+    <string name="missions_completed">Completed</string>
+    <string name="missions_active">In Progress</string>
+    <string name="missions_expired">Expired</string>
+
+    <string name="map_title">World Map</string>
+    <string name="map_legend_airline">Airline</string>
+    <string name="map_legend_charter">Charter</string>
+    <string name="map_legend_helicopter">Helicopter</string>
+
+    <string name="time_advance">+1h</string>
+    <string name="time_advance_fast">+8h</string>
+    <string name="coins_suffix">¢</string>
+    <string name="km_suffix"> km</string>
+    <string name="kmh_suffix"> km/h</string>
+    <string name="pax_suffix"> pax</string>
+
+    <string name="error_aircraft_not_found">Aircraft not found</string>
+    <string name="error_route_exceeds_range">Route exceeds aircraft range (%d km)</string>
+    <string name="error_schedule_conflict">Aircraft already scheduled during this time</string>
+    <string name="error_crew_required">Pilot required in Realistic mode</string>
+    <string name="error_insufficient_balance">Insufficient balance</string>
+    <string name="error_aircraft_not_operational">Aircraft needs maintenance</string>
+
+    <string name="success_flight_scheduled">Flight scheduled!</string>
+    <string name="success_contract_accepted">Contract accepted!</string>
+    <string name="success_aircraft_purchased">Aircraft acquired!</string>
+    <string name="success_employee_hired">%s joined your team!</string>
+</resources>
