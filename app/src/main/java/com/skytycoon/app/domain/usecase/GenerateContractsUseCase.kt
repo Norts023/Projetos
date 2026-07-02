@@ -33,11 +33,8 @@ class GenerateContractsUseCase @Inject constructor(
             // 60% charter, 40% helicopter
             val operationType = if (Random.nextFloat() < 0.6f) OperationType.CHARTER else OperationType.HELICOPTER
 
-            val eligibleAirports = if (operationType == OperationType.HELICOPTER && helipads.size >= 2) {
-                helipads
-            } else {
-                allAirports
-            }
+            if (operationType == OperationType.HELICOPTER && helipads.size < 2) return@repeat
+            val eligibleAirports = if (operationType == OperationType.HELICOPTER) helipads else allAirports
 
             val shuffled = eligibleAirports.shuffled(Random)
             val origin = shuffled[0]

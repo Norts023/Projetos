@@ -61,7 +61,7 @@ class AircraftModelRepositoryImpl @Inject constructor(
             id = id,
             manufacturer = manufacturer,
             model = model,
-            category = AircraftCategory.valueOf(category),
+            category = AircraftCategory.entries.firstOrNull { it.name == category } ?: AircraftCategory.AIRLINER,
             passengerCapacity = passengerCapacity,
             rangeKm = rangeKm,
             cruiseSpeedKmh = cruiseSpeedKmh,

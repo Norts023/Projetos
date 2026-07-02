@@ -54,6 +54,7 @@ fun SplashScreen(
             navController.navigate(route) {
                 popUpTo(0) { inclusive = true }
             }
+            viewModel.clearNavDestination()
         }
     }
 

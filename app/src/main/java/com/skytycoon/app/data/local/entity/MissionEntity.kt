@@ -24,7 +24,7 @@ data class MissionEntity(
 ) {
     fun toDomain(): Mission = Mission(
         id = id,
-        type = MissionType.valueOf(type),
+        type = MissionType.entries.firstOrNull { it.name == type } ?: MissionType.DAILY,
         title = title,
         description = description,
         rewardMoneyCoins = rewardMoneyCoins,
@@ -32,8 +32,8 @@ data class MissionEntity(
         rewardResearchPoints = rewardResearchPoints,
         targetValue = targetValue,
         currentValue = currentValue,
-        status = MissionStatus.valueOf(status),
-        operationType = operationType?.let { OperationType.valueOf(it) },
+        status = MissionStatus.entries.firstOrNull { it.name == status } ?: MissionStatus.ACTIVE,
+        operationType = operationType?.let { op -> OperationType.entries.firstOrNull { it.name == op } },
         expiresAtGameDay = expiresAtGameDay
     )
 

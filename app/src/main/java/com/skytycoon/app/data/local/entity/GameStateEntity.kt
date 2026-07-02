@@ -19,7 +19,7 @@ data class GameStateEntity(
     fun toDomain(): GameState = GameState(
         id = id,
         companyName = companyName,
-        gameMode = GameMode.valueOf(gameMode),
+        gameMode = GameMode.entries.firstOrNull { it.name == gameMode } ?: GameMode.REALISTIC,
         balanceCoins = balanceCoins,
         reputation = reputation,
         researchPoints = researchPoints,

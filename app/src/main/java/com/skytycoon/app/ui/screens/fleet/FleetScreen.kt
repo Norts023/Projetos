@@ -87,13 +87,13 @@ fun FleetScreen(
     LaunchedEffect(uiState.successMsg) {
         uiState.successMsg?.let {
             snackbarHostState.showSnackbar(it)
-            viewModel.clearMessages()
+            viewModel.clearSuccessMessage()
         }
     }
     LaunchedEffect(uiState.errorMsg) {
         uiState.errorMsg?.let {
             snackbarHostState.showSnackbar(it)
-            viewModel.clearMessages()
+            viewModel.clearErrorMessage()
         }
     }
 

@@ -91,13 +91,13 @@ fun ScheduleScreen(
     LaunchedEffect(uiState.successMsg) {
         uiState.successMsg?.let {
             snackbarHostState.showSnackbar(it)
-            viewModel.clearMessages()
+            viewModel.clearSuccessMessage()
         }
     }
     LaunchedEffect(uiState.errorMsg) {
         uiState.errorMsg?.let {
             snackbarHostState.showSnackbar(it)
-            viewModel.clearMessages()
+            viewModel.clearErrorMessage()
         }
     }
 
@@ -355,8 +355,8 @@ private fun ScheduleFlightSheet(
     var showOriginList by remember { mutableStateOf(false) }
     var showDestList by remember { mutableStateOf(false) }
 
-    val departureGameMinutes = (uiState.gameState?.currentGameMinutes ?: 0L) +
-            (departureHour * 60L) + departureMinute.toLong()
+    val dayStartMinutes = ((uiState.gameState?.currentGameMinutes ?: 0L) / 1440L) * 1440L
+    val departureGameMinutes = dayStartMinutes + (departureHour * 60L) + departureMinute.toLong()
 
     val pilots = uiState.availableEmployees.filter { it.type == EmployeeType.PILOT }
 
@@ -441,9 +441,9 @@ private fun ScheduleFlightSheet(
                         val filtered = uiState.airports.filter {
                             it.iata.contains(originQuery, ignoreCase = true) ||
                                     it.city.contains(originQuery, ignoreCase = true)
-                        }
-                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                            items(filtered, key = { it.id }) { airport ->
+                        }.take(6)
+                        Column(modifier = Modifier.heightIn(max = 150.dp)) {
+                            filtered.forEach { airport ->
                                 AirportSuggestionItem(airport = airport) {
                                     selectedOrigin = airport
                                     originQuery = airport.iata
@@ -469,9 +469,9 @@ private fun ScheduleFlightSheet(
                         val filtered = uiState.airports.filter {
                             it.iata.contains(destQuery, ignoreCase = true) ||
                                     it.city.contains(destQuery, ignoreCase = true)
-                        }
-                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                            items(filtered, key = { it.id }) { airport ->
+                        }.take(6)
+                        Column(modifier = Modifier.heightIn(max = 150.dp)) {
+                            filtered.forEach { airport ->
                                 AirportSuggestionItem(airport = airport) {
                                     selectedDest = airport
                                     destQuery = airport.iata
@@ -591,7 +591,8 @@ private fun ScheduleFlightSheet(
                     )
                     onSchedule(req)
                 },
-                enabled = selectedAircraftId != null && selectedOrigin != null && selectedDest != null,
+                enabled = selectedAircraftId != null && selectedOrigin != null && selectedDest != null &&
+                    (prefilledContractId != null || ticketPrice.toLongOrNull() != null),
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = SkyAccentBlue)
             ) {

@@ -24,7 +24,7 @@ data class FlightEntity(
 ) {
     fun toDomain(): Flight = Flight(
         id = id,
-        operationType = OperationType.valueOf(operationType),
+        operationType = OperationType.entries.firstOrNull { it.name == operationType } ?: OperationType.AIRLINE,
         aircraftId = aircraftId,
         originIata = originIata,
         destinationIata = destinationIata,
@@ -32,7 +32,7 @@ data class FlightEntity(
         arrivalGameMinutes = arrivalGameMinutes,
         passengerCount = passengerCount,
         revenueCoins = revenueCoins,
-        status = FlightStatus.valueOf(status),
+        status = FlightStatus.entries.firstOrNull { it.name == status } ?: FlightStatus.SCHEDULED,
         assignedPilotId = assignedPilotId,
         assignedCopilotId = assignedCopilotId,
         contractId = contractId

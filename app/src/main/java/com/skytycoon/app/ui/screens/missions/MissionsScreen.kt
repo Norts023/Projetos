@@ -84,7 +84,7 @@ fun MissionsScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = SkyDarkBlue,

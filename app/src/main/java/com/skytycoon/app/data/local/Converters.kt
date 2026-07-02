@@ -9,5 +9,6 @@ class Converters {
     fun fromAircraftCategory(value: AircraftCategory): String = value.name
 
     @TypeConverter
-    fun toAircraftCategory(value: String): AircraftCategory = AircraftCategory.valueOf(value)
+    fun toAircraftCategory(value: String): AircraftCategory =
+        AircraftCategory.entries.firstOrNull { it.name == value } ?: AircraftCategory.AIRLINER
 }

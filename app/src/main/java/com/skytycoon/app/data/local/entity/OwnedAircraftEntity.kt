@@ -25,7 +25,7 @@ data class OwnedAircraftEntity(
         modelId = modelId,
         model = model,
         registrationCode = registrationCode,
-        acquisitionType = AcquisitionType.valueOf(acquisitionType),
+        acquisitionType = AcquisitionType.entries.firstOrNull { it.name == acquisitionType } ?: AcquisitionType.PURCHASED,
         condition = condition,
         totalFlightHours = totalFlightHours,
         nextMaintenanceHours = nextMaintenanceHours

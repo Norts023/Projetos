@@ -97,12 +97,9 @@ class AdvanceTimeUseCase @Inject constructor(
                 }
                 balance = maxOf(0L, balance - leasingCost)
 
-                // Delete expired daily missions and generate new ones for each new day
+                // Delete expired daily missions and generate new ones for the current day only
                 missionRepository.deleteExpiredDailies(dayNumber)
-                repeat(daysPassed) { offset ->
-                    buildDailyMissions(dayNumber - daysPassed + offset + 1)
-                        .forEach { missionRepository.insert(it) }
-                }
+                buildDailyMissions(dayNumber).forEach { missionRepository.insert(it) }
             }
 
             // --- Update SCHEDULED → IN_FLIGHT ---
@@ -163,8 +160,9 @@ class AdvanceTimeUseCase @Inject constructor(
                         )
                     }
 
-                    // Recover pilot fatigue for newly free pilots
-                    val gameHoursElapsed = step / 60L
+                    // Recover pilot fatigue: only credit rest time after landing, not the full step
+                    val restMinutes = newMinutes - flight.arrivalGameMinutes
+                    val gameHoursElapsed = restMinutes / 60L
                     listOfNotNull(flight.assignedPilotId, flight.assignedCopilotId).forEach { crewId ->
                         val crew = employeeRepository.getById(crewId)
                         if (crew != null) {

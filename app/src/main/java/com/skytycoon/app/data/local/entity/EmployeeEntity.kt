@@ -18,7 +18,7 @@ data class EmployeeEntity(
     fun toDomain(): Employee = Employee(
         id = id,
         name = name,
-        type = EmployeeType.valueOf(type),
+        type = EmployeeType.entries.firstOrNull { it.name == type } ?: EmployeeType.PILOT,
         level = level,
         dailySalaryCoins = dailySalaryCoins,
         fatigue = fatigue,

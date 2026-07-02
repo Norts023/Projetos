@@ -21,14 +21,14 @@ data class ContractEntity(
 ) {
     fun toDomain(): Contract = Contract(
         id = id,
-        operationType = OperationType.valueOf(operationType),
+        operationType = OperationType.entries.firstOrNull { it.name == operationType } ?: OperationType.CHARTER,
         originIata = originIata,
         destinationIata = destinationIata,
         passengerCount = passengerCount,
         totalValueCoins = totalValueCoins,
         bonusOnTimeCoins = bonusOnTimeCoins,
         deadlineGameMinutes = deadlineGameMinutes,
-        status = ContractStatus.valueOf(status),
+        status = ContractStatus.entries.firstOrNull { it.name == status } ?: ContractStatus.AVAILABLE,
         assignedFlightId = assignedFlightId
     )
 

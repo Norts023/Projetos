@@ -32,4 +32,8 @@ class SplashViewModel @Inject constructor(
             }
         }
     }
+
+    fun clearNavDestination() {
+        _navDestination.value = null
+    }
 }

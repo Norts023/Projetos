@@ -98,4 +98,7 @@ class ScheduleViewModel @Inject constructor(
     fun clearMessages() {
         _uiState.update { it.copy(errorMsg = null, successMsg = null) }
     }
+
+    fun clearSuccessMessage() { _uiState.update { it.copy(successMsg = null) } }
+    fun clearErrorMessage() { _uiState.update { it.copy(errorMsg = null) } }
 }
