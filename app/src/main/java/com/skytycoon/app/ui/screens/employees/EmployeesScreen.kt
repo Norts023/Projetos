@@ -27,9 +27,12 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -56,10 +59,13 @@ import androidx.navigation.NavHostController
 import com.skytycoon.app.domain.model.Employee
 import com.skytycoon.app.domain.model.EmployeeType
 import com.skytycoon.app.ui.components.SkyCard
+import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentBlue
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
 import com.skytycoon.app.ui.theme.SkyAccentRed
+import com.skytycoon.app.ui.theme.SkyBlack
+import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyDivider
 import com.skytycoon.app.ui.theme.SkyGold
 import com.skytycoon.app.ui.theme.SkyTextPrimary
@@ -74,6 +80,7 @@ private val PILOT_TYPES = setOf(
 private val CREW_TYPES = setOf(EmployeeType.FLIGHT_ATTENDANT)
 private val MECHANIC_TYPES = setOf(EmployeeType.MECHANIC, EmployeeType.ADMIN)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeesScreen(
     navController: NavHostController,
@@ -101,10 +108,26 @@ fun EmployeesScreen(
     }
 
     Scaffold(
+        containerColor = SkyBlack,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Staff",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = SkyTextPrimary
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyDarkBlue)
+            )
+        },
+        bottomBar = { SkyBottomNavBar(navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.onShowHireDialog(true) }
+                onClick = { viewModel.onShowHireDialog(true) },
+                containerColor = SkyAccentBlue
             ) {
                 Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = "Hire Employee")
             }

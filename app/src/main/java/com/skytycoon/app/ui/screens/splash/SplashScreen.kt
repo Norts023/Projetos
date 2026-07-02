@@ -130,7 +130,7 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = stringResource(R.string.splash_tagline),
+                text = stringResource(R.string.app_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = SkyTextSecondary,
                 textAlign = TextAlign.Center,

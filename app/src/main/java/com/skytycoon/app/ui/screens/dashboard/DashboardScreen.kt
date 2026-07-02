@@ -1,10 +1,7 @@
 package com.skytycoon.app.ui.screens.dashboard
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,21 +11,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,12 +41,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.skytycoon.app.domain.model.GameMode
 import com.skytycoon.app.ui.components.RouteMapCanvas
 import com.skytycoon.app.ui.components.SkyCard
 import com.skytycoon.app.ui.components.StatTile
@@ -52,23 +58,10 @@ import com.skytycoon.app.ui.theme.SkyAccentBlue
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
 import com.skytycoon.app.ui.theme.SkyAccentPurple
+import com.skytycoon.app.ui.theme.SkyBlack
 import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyTextPrimary
 import com.skytycoon.app.ui.theme.SkyTextSecondary
-
-private data class BottomNavItem(
-    val label: String,
-    val icon: ImageVector,
-    val screen: Screen
-)
-
-private val bottomNavItems = listOf(
-    BottomNavItem("Fleet", Icons.Default.Flight, Screen.Fleet),
-    BottomNavItem("Schedule", Icons.Default.Schedule, Screen.Schedule),
-    BottomNavItem("Employees", Icons.Default.People, Screen.Employees),
-    BottomNavItem("Missions", Icons.Default.EmojiEvents, Screen.Missions),
-    BottomNavItem("Map", Icons.Default.Map, Screen.Map)
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,210 +71,263 @@ fun DashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = uiState.gameState?.companyName ?: "SkyTycoon",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = SkyTextPrimary
-                        )
-                        Column(horizontalAlignment = Alignment.End) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = SkyBlack,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
                             Text(
-                                text = uiState.gameState?.timeDisplay ?: "--:--",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = SkyTextPrimary
+                                text = uiState.gameState?.companyName ?: "SkyTycoon",
+                                color = SkyTextPrimary,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "Day ${uiState.gameState?.dayNumber ?: 1}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = SkyTextSecondary
+                                color = SkyTextSecondary,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = SkyDarkBlue
+                    )
+                )
+            },
+            bottomBar = {
+                NavigationBar(containerColor = SkyDarkBlue) {
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Fleet.route) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Flight,
+                                contentDescription = "Fleet"
+                            )
+                        },
+                        label = { Text("Fleet") }
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Schedule.route) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = "Schedule"
+                            )
+                        },
+                        label = { Text("Schedule") }
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Employees.route) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.People,
+                                contentDescription = "Staff"
+                            )
+                        },
+                        label = { Text("Staff") }
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Missions.route) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.EmojiEvents,
+                                contentDescription = "Missions"
+                            )
+                        },
+                        label = { Text("Missions") }
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Map.route) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Map,
+                                contentDescription = "Map"
+                            )
+                        },
+                        label = { Text("Map") }
+                    )
+                }
+            },
+            snackbarHost = {
+                TimeAdvanceBar(
+                    timeDisplay = uiState.gameState?.timeDisplay ?: "00:00",
+                    dayNumber = uiState.gameState?.dayNumber ?: 1,
+                    onAdvance = { fast -> viewModel.onAdvanceTime(fast) }
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // Time row
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = uiState.gameState?.timeDisplay ?: "00:00",
+                            color = SkyAccentBlue,
+                            style = MaterialTheme.typography.displaySmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        SkyCard(modifier = Modifier.align(Alignment.CenterEnd)) {
+                            Text(
+                                text = when (uiState.gameState?.gameMode) {
+                                    GameMode.REALISTIC -> "Realistic"
+                                    GameMode.FICTIONAL -> "Arcade"
+                                    null -> "—"
+                                },
+                                color = SkyAccentPurple,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SkyDarkBlue
-                )
-            )
-        },
-        bottomBar = {
-            Column {
-                TimeAdvanceBar(
-                    isAdvancing = uiState.isAdvancingTime,
-                    onAdvanceNormal = { viewModel.onAdvanceTime(fastMode = false) },
-                    onAdvanceFast = { viewModel.onAdvanceTime(fastMode = true) }
-                )
-                NavigationBar(
-                    containerColor = SkyDarkBlue
-                ) {
-                    bottomNavItems.forEach { item ->
-                        NavigationBarItem(
-                            selected = false,
-                            onClick = { navController.navigate(item.screen.route) },
-                            icon = {
-                                Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = item.label
-                                )
-                            },
-                            label = {
-                                Text(
-                                    text = item.label,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = SkyAccentBlue,
-                                unselectedIconColor = SkyTextSecondary,
-                                selectedTextColor = SkyAccentBlue,
-                                unselectedTextColor = SkyTextSecondary,
-                                indicatorColor = SkyDarkBlue
+                }
+
+                // Stat tiles
+                item {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        item {
+                            StatTile(
+                                icon = Icons.Default.AccountBalanceWallet,
+                                label = "Balance",
+                                value = uiState.gameState?.balanceDisplay ?: "0",
+                                valueColor = SkyAccentGreen,
+                                modifier = Modifier.width(160.dp)
                             )
-                        )
+                        }
+                        item {
+                            StatTile(
+                                icon = Icons.Default.Star,
+                                label = "Reputation",
+                                value = "${uiState.gameState?.reputation ?: 0} - ${uiState.gameState?.reputationLabel ?: ""}",
+                                valueColor = SkyAccentBlue,
+                                modifier = Modifier.width(160.dp)
+                            )
+                        }
+                        item {
+                            StatTile(
+                                icon = Icons.Default.Flight,
+                                label = "Fleet",
+                                value = "${uiState.fleetSize} aircraft",
+                                valueColor = SkyAccentPurple,
+                                modifier = Modifier.width(160.dp)
+                            )
+                        }
+                        item {
+                            StatTile(
+                                icon = Icons.Default.FlightTakeoff,
+                                label = "Active",
+                                value = "${uiState.activeFlightsCount} flights",
+                                valueColor = SkyAccentOrange,
+                                modifier = Modifier.width(160.dp)
+                            )
+                        }
                     }
                 }
-            }
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    StatTile(
-                        modifier = Modifier.weight(1f),
-                        label = "Balance",
-                        value = uiState.gameState?.balanceDisplay ?: "0",
-                        accentColor = SkyAccentGreen
-                    )
-                    StatTile(
-                        modifier = Modifier.weight(1f),
-                        label = "Rep.",
-                        value = uiState.gameState?.reputationLabel ?: "-",
-                        accentColor = SkyAccentPurple
-                    )
-                    StatTile(
-                        modifier = Modifier.weight(1f),
-                        label = "Fleet",
-                        value = uiState.fleetSize.toString(),
-                        accentColor = SkyAccentBlue
-                    )
-                    StatTile(
-                        modifier = Modifier.weight(1f),
-                        label = "Flights",
-                        value = uiState.activeFlightsCount.toString(),
-                        accentColor = SkyAccentOrange
-                    )
-                }
-            }
-
-            item {
-                SkyCard(modifier = Modifier.fillMaxWidth()) {
-                    Box(
+                // Route map
+                item {
+                    RouteMapCanvas(
+                        airports = emptyList(),
+                        routes = emptyList(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
-                    ) {
-                        RouteMapCanvas(
-                            modifier = Modifier.fillMaxSize(),
-                            airports = uiState.airports,
-                            routes = emptyList()
-                        )
-                    }
+                            .height(180.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
                 }
-            }
 
-            item {
-                AnimatedVisibility(
-                    visible = uiState.alerts.isNotEmpty(),
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically()
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        uiState.alerts.forEach { alert ->
-                            SkyCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                borderColor = SkyAccentOrange
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "⚠",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = SkyAccentOrange,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                    Text(
-                                        text = alert,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = SkyTextPrimary
-                                    )
+                // Alerts
+                item {
+                    AnimatedVisibility(visible = uiState.alerts.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = "Alerts",
+                                color = SkyAccentOrange,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            uiState.alerts.forEach { alert ->
+                                SkyCard {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = null,
+                                            tint = SkyAccentOrange,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = alert,
+                                            color = SkyTextPrimary,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            item {
-                SkyCard(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Available Contracts",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = SkyTextPrimary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "${uiState.availableContractsCount} contracts waiting",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = SkyTextSecondary
-                            )
-                        }
-                        Button(
-                            onClick = { navController.navigate(Screen.Schedule.route) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = SkyAccentBlue
-                            )
+                // Available contracts
+                if (uiState.availableContractsCount > 0) {
+                    item {
+                        SkyCard(
+                            onClick = { navController.navigate(Screen.Schedule.route) }
                         ) {
-                            Text(
-                                text = "View Contracts",
-                                color = SkyTextPrimary
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${uiState.availableContractsCount} contracts available",
+                                    color = SkyAccentGreen,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    tint = SkyAccentGreen
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+                item {
+                    Spacer(modifier = Modifier.height(80.dp))
+                }
+            }
+        }
+
+        if (uiState.isAdvancing) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SkyBlack.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = SkyAccentBlue)
+            }
         }
     }
 }

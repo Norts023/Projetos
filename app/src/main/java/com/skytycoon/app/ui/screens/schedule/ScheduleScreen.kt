@@ -31,6 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -62,9 +64,12 @@ import com.skytycoon.app.domain.model.OwnedAircraft
 import com.skytycoon.app.domain.usecase.ScheduleFlightRequest
 import com.skytycoon.app.ui.components.SkyCard
 import com.skytycoon.app.ui.theme.SkyAccentBlue
+import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentGreen
 import com.skytycoon.app.ui.theme.SkyAccentOrange
 import com.skytycoon.app.ui.theme.SkyAccentRed
+import com.skytycoon.app.ui.theme.SkyBlack
+import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyTextPrimary
 import com.skytycoon.app.ui.theme.SkyTextSecondary
 
@@ -87,10 +92,26 @@ fun ScheduleScreen(
     }
 
     Scaffold(
+        containerColor = SkyBlack,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Schedule",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = SkyTextPrimary
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyDarkBlue)
+            )
+        },
+        bottomBar = { SkyBottomNavBar(navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.onShowScheduleSheet(true) }
+                onClick = { viewModel.onShowScheduleSheet(true) },
+                containerColor = SkyAccentBlue
             ) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Schedule Flight")
             }
@@ -121,8 +142,8 @@ fun ScheduleScreen(
                 1 -> ContractsTab(
                     contracts = uiState.contracts,
                     isLoading = uiState.isLoading,
-                    onViewContract = { contractId ->
-                        navController.navigate("contract/$contractId")
+                    onViewContract = { _ ->
+                        viewModel.onShowScheduleSheet(true)
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -346,8 +367,7 @@ private fun ScheduleBottomSheet(
             originIata.length >= 3 &&
             destinationIata.length >= 3 &&
             departureTime.matches(Regex("\\d{1,2}:\\d{2}")) &&
-            passengerCount.toIntOrNull() != null &&
-            revenueCoins.toLongOrNull() != null
+            passengerCount.toIntOrNull() != null
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -401,7 +421,7 @@ private fun ScheduleBottomSheet(
                                     Column {
                                         Text(aircraft.registrationCode)
                                         Text(
-                                            text = aircraft.model.name,
+                                            text = aircraft.model.displayName,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = SkyTextSecondary
                                         )
@@ -515,7 +535,7 @@ private fun ScheduleBottomSheet(
                     val minutes = timeParts.getOrNull(1)?.toLongOrNull() ?: return@Button
                     val depMinutes = hours * 60 + minutes
                     val passengers = passengerCount.toIntOrNull() ?: return@Button
-                    val revenue = revenueCoins.toLongOrNull() ?: return@Button
+                    val ticketPrice = revenueCoins.toLongOrNull()
 
                     onSchedule(
                         ScheduleFlightRequest(
@@ -525,7 +545,7 @@ private fun ScheduleBottomSheet(
                             destinationIata = destinationIata,
                             departureGameMinutes = depMinutes,
                             passengerCount = passengers,
-                            revenueCoins = revenue
+                            ticketPricePerPax = ticketPrice
                         )
                     )
                 },

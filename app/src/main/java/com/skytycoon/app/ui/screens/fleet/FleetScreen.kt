@@ -46,12 +46,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.skytycoon.app.domain.model.AcquisitionType
 import com.skytycoon.app.domain.model.AircraftCategory
 import com.skytycoon.app.domain.model.AircraftModel
@@ -64,6 +64,8 @@ import com.skytycoon.app.ui.theme.SkyAccentRed
 import com.skytycoon.app.ui.theme.SkyCardBg
 import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyDivider
+import com.skytycoon.app.ui.navigation.SkyBottomNavBar
+import com.skytycoon.app.ui.theme.SkyBlack
 import com.skytycoon.app.ui.theme.SkyTextPrimary
 import com.skytycoon.app.ui.theme.SkyTextSecondary
 
@@ -82,6 +84,7 @@ private fun AircraftCategory.displayName(): String = when (this) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FleetScreen(
+    navController: NavHostController,
     viewModel: FleetViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -94,6 +97,7 @@ fun FleetScreen(
     }
 
     Scaffold(
+        containerColor = SkyBlack,
         topBar = {
             TopAppBar(
                 title = {
@@ -109,6 +113,7 @@ fun FleetScreen(
                 )
             )
         },
+        bottomBar = { SkyBottomNavBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { viewModel.onShowPurchaseDialog(true) },
@@ -506,8 +511,6 @@ private fun ModelSelectionCard(
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
-    val borderColor = if (isSelected) SkyAccentBlue else Color.Transparent
-
     SkyCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -516,7 +519,7 @@ private fun ModelSelectionCard(
                 onClick = onSelect,
                 role = Role.RadioButton
             ),
-        borderColor = borderColor
+        highlighted = isSelected
     ) {
         Column(
             modifier = Modifier

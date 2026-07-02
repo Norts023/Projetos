@@ -1,6 +1,5 @@
 package com.skytycoon.app.ui.screens.employees
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skytycoon.app.data.repository.EmployeeRepository
@@ -70,8 +69,9 @@ class EmployeesViewModel @Inject constructor(
     }
 
     fun onFire(id: Long) {
-        // FireEmployeeUseCase is not yet defined — log intent and no-op until use case is implemented
-        Log.d("EmployeesViewModel", "Fire employee requested for id=$id — not yet implemented")
+        viewModelScope.launch {
+            employeeRepository.delete(id)
+        }
     }
 
     fun onShowHireDialog(show: Boolean) {

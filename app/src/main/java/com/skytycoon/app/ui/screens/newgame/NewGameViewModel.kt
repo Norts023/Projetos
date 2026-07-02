@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.skytycoon.app.domain.model.GameMode
 import com.skytycoon.app.domain.usecase.SeedDataUseCase
 import com.skytycoon.app.domain.usecase.StartNewGameUseCase
-import com.skytycoon.app.domain.usecase.UseCaseResult
+import com.skytycoon.app.domain.model.UseCaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">SkyTycoon</string>
     <string name="app_tagline">Build your airline empire</string>
+    <string name="splash_tagline">Build your airline empire</string>
 
     <string name="new_game_title">New Game</string>
     <string name="new_game_company_name_hint">Company Name</string>
@@ -10,6 +11,8 @@
     <string name="new_game_mode_realistic_desc">True-to-life costs, crew requirements, and demand</string>
     <string name="new_game_mode_fictional">Arcade</string>
     <string name="new_game_mode_fictional_desc">Faster progression, relaxed rules, bigger rewards</string>
+    <string name="mode_realistic_desc">True-to-life costs, crew requirements, and demand</string>
+    <string name="mode_arcade_desc">Faster progression, relaxed rules, bigger rewards</string>
     <string name="new_game_start_button">Start Engine</string>
 
     <string name="dashboard_title">Operations Center</string>
@@ -22,6 +25,7 @@
     <string name="dashboard_no_alerts">All systems operational</string>
 
     <string name="fleet_title">Fleet</string>
+    <string name="fleet_empty">No aircraft in this category.\nTap + to acquire your first aircraft.</string>
     <string name="fleet_tab_airliner">Airliners</string>
     <string name="fleet_tab_charter">Charter</string>
     <string name="fleet_tab_helicopter">Helicopters</string>
@@ -54,6 +58,7 @@
     <string name="schedule_accept">Accept</string>
 
     <string name="employees_title">Staff</string>
+    <string name="employees_empty">No staff in this category.\nTap + to hire your first employee.</string>
     <string name="employees_tab_all">All</string>
     <string name="employees_tab_pilots">Pilots</string>
     <string name="employees_tab_crew">Crew</string>
@@ -70,6 +75,8 @@
     <string name="employees_fatigued">Fatigued</string>
 
     <string name="missions_title">Missions</string>
+    <string name="missions_empty">No missions available in this category.</string>
+    <string name="missions_daily_reset_notice">Daily missions reset every game day. Complete them for bonus rewards.</string>
     <string name="missions_tab_primary">Primary</string>
     <string name="missions_tab_secondary">Secondary</string>
     <string name="missions_tab_daily">Daily</string>
