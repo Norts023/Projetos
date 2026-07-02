@@ -41,7 +41,7 @@ class AdvanceTimeUseCase @Inject constructor(
                 ?: return@withContext AdvanceTimeResult(
                     newGameState = GameState(
                         companyName = "",
-                        gameMode = com.skytycoon.app.domain.model.GameMode.FICTIONAL,
+                        gameMode = GameMode.FICTIONAL,
                         balanceCoins = 0L,
                         reputation = 0,
                         researchPoints = 0,
@@ -201,10 +201,10 @@ class AdvanceTimeUseCase @Inject constructor(
             )
         }
 
-    private fun buildDailyMissions(dayNumber: Int): List<com.skytycoon.app.domain.model.Mission> = listOf(
-        com.skytycoon.app.domain.model.Mission(
+    private fun buildDailyMissions(dayNumber: Int): List<Mission> = listOf(
+        Mission(
             id = 0L,
-            type = com.skytycoon.app.domain.model.MissionType.DAILY,
+            type = MissionType.DAILY,
             title = "Daily Charter",
             description = "Complete 2 charter contracts today",
             rewardMoneyCoins = 2_000L,
@@ -212,13 +212,13 @@ class AdvanceTimeUseCase @Inject constructor(
             rewardResearchPoints = 3,
             targetValue = 2L,
             currentValue = 0L,
-            status = com.skytycoon.app.domain.model.MissionStatus.ACTIVE,
-            operationType = com.skytycoon.app.domain.model.OperationType.CHARTER,
+            status = MissionStatus.ACTIVE,
+            operationType = OperationType.CHARTER,
             expiresAtGameDay = dayNumber
         ),
-        com.skytycoon.app.domain.model.Mission(
+        Mission(
             id = 0L,
-            type = com.skytycoon.app.domain.model.MissionType.DAILY,
+            type = MissionType.DAILY,
             title = "Helicopter Day",
             description = "Complete 1 helicopter operation today",
             rewardMoneyCoins = 1_500L,
@@ -226,13 +226,13 @@ class AdvanceTimeUseCase @Inject constructor(
             rewardResearchPoints = 2,
             targetValue = 1L,
             currentValue = 0L,
-            status = com.skytycoon.app.domain.model.MissionStatus.ACTIVE,
-            operationType = com.skytycoon.app.domain.model.OperationType.HELICOPTER,
+            status = MissionStatus.ACTIVE,
+            operationType = OperationType.HELICOPTER,
             expiresAtGameDay = dayNumber
         ),
-        com.skytycoon.app.domain.model.Mission(
+        Mission(
             id = 0L,
-            type = com.skytycoon.app.domain.model.MissionType.DAILY,
+            type = MissionType.DAILY,
             title = "Punctual Today",
             description = "Complete 1 on-time landing today",
             rewardMoneyCoins = 1_000L,
@@ -240,7 +240,7 @@ class AdvanceTimeUseCase @Inject constructor(
             rewardResearchPoints = 1,
             targetValue = 1L,
             currentValue = 0L,
-            status = com.skytycoon.app.domain.model.MissionStatus.ACTIVE,
+            status = MissionStatus.ACTIVE,
             operationType = null,
             expiresAtGameDay = dayNumber
         )
