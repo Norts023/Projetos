@@ -14,7 +14,10 @@ data class GameStateEntity(
     val reputation: Int,
     val researchPoints: Int,
     val currentGameMinutes: Long,
-    val dayNumber: Int
+    val dayNumber: Int,
+    val uncollectedProfitCoins: Long = 0L,
+    val timeSpeedMultiplier: Int = 1,
+    val isAutoTimeRunning: Boolean = false
 ) {
     fun toDomain(): GameState = GameState(
         id = id,
@@ -24,7 +27,10 @@ data class GameStateEntity(
         reputation = reputation,
         researchPoints = researchPoints,
         currentGameMinutes = currentGameMinutes,
-        dayNumber = dayNumber
+        dayNumber = dayNumber,
+        uncollectedProfitCoins = uncollectedProfitCoins,
+        timeSpeedMultiplier = timeSpeedMultiplier,
+        isAutoTimeRunning = isAutoTimeRunning
     )
 
     companion object {
@@ -36,7 +42,10 @@ data class GameStateEntity(
             reputation = gameState.reputation,
             researchPoints = gameState.researchPoints,
             currentGameMinutes = gameState.currentGameMinutes,
-            dayNumber = gameState.dayNumber
+            dayNumber = gameState.dayNumber,
+            uncollectedProfitCoins = gameState.uncollectedProfitCoins,
+            timeSpeedMultiplier = gameState.timeSpeedMultiplier,
+            isAutoTimeRunning = gameState.isAutoTimeRunning
         )
     }
 }

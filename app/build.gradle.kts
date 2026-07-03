@@ -89,6 +89,9 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
 
+    // Lifecycle Compose
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 

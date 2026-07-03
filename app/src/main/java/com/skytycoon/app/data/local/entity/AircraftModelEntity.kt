@@ -22,7 +22,9 @@ data class AircraftModelEntity(
     val purchasePriceCoins: Long,
     val leasingCostPerHourCoins: Long,
     val maintenanceCostPerHourCoins: Long,
-    val imageResName: String
+    val imageResName: String,
+    val family: String = "",
+    val variantCode: String = ""
 ) {
     fun toDomain(): AircraftModel = AircraftModel(
         id = id,
@@ -36,7 +38,9 @@ data class AircraftModelEntity(
         purchasePriceCoins = purchasePriceCoins,
         leasingCostPerHourCoins = leasingCostPerHourCoins,
         maintenanceCostPerHourCoins = maintenanceCostPerHourCoins,
-        imageResName = imageResName
+        imageResName = imageResName,
+        family = family,
+        variantCode = variantCode
     )
 
     companion object {
@@ -52,7 +56,9 @@ data class AircraftModelEntity(
             purchasePriceCoins = aircraftModel.purchasePriceCoins,
             leasingCostPerHourCoins = aircraftModel.leasingCostPerHourCoins,
             maintenanceCostPerHourCoins = aircraftModel.maintenanceCostPerHourCoins,
-            imageResName = aircraftModel.imageResName
+            imageResName = aircraftModel.imageResName,
+            family = aircraftModel.family,
+            variantCode = aircraftModel.variantCode
         )
     }
 }

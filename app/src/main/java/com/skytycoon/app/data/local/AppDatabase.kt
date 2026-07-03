@@ -6,22 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.skytycoon.app.data.local.dao.AircraftModelDao
-import com.skytycoon.app.data.local.dao.AirportDao
-import com.skytycoon.app.data.local.dao.ContractDao
-import com.skytycoon.app.data.local.dao.EmployeeDao
-import com.skytycoon.app.data.local.dao.FlightDao
-import com.skytycoon.app.data.local.dao.GameStateDao
-import com.skytycoon.app.data.local.dao.MissionDao
-import com.skytycoon.app.data.local.dao.OwnedAircraftDao
-import com.skytycoon.app.data.local.entity.AircraftModelEntity
-import com.skytycoon.app.data.local.entity.AirportEntity
-import com.skytycoon.app.data.local.entity.ContractEntity
-import com.skytycoon.app.data.local.entity.EmployeeEntity
-import com.skytycoon.app.data.local.entity.FlightEntity
-import com.skytycoon.app.data.local.entity.GameStateEntity
-import com.skytycoon.app.data.local.entity.MissionEntity
-import com.skytycoon.app.data.local.entity.OwnedAircraftEntity
+import com.skytycoon.app.data.local.dao.*
+import com.skytycoon.app.data.local.entity.*
 
 @Database(
     entities = [
@@ -32,9 +18,14 @@ import com.skytycoon.app.data.local.entity.OwnedAircraftEntity
         EmployeeEntity::class,
         MissionEntity::class,
         ContractEntity::class,
-        GameStateEntity::class
+        GameStateEntity::class,
+        BoosterInventoryEntity::class,
+        ActiveBoosterEntity::class,
+        AchievementEntity::class,
+        UnlockEntity::class,
+        PurchaseRecordEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -48,6 +39,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun missionDao(): MissionDao
     abstract fun contractDao(): ContractDao
     abstract fun gameStateDao(): GameStateDao
+    abstract fun boosterDao(): BoosterDao
+    abstract fun achievementDao(): AchievementDao
+    abstract fun unlockDao(): UnlockDao
+    abstract fun purchaseRecordDao(): PurchaseRecordDao
 
     companion object {
         @Volatile
@@ -60,6 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "skytycoon.db"
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(DatabaseCallback())
                     .build()
                     .also { INSTANCE = it }
@@ -69,7 +65,6 @@ abstract class AppDatabase : RoomDatabase() {
     private class DatabaseCallback : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
-            // Seeding is handled by repositories via seedIfEmpty()
         }
     }
 }
