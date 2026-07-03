@@ -23,7 +23,6 @@ android {
         versionCode = 2
         versionName = "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -47,6 +46,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -85,9 +85,8 @@ dependencies {
     // Gson
     implementation(libs.gson)
 
-    // Google Maps
-    implementation(libs.maps.compose)
-    implementation(libs.play.services.maps)
+    // OSMDroid (OpenStreetMap — no API key required)
+    implementation(libs.osmdroid.android)
 
     // Lifecycle Compose
     implementation(libs.androidx.lifecycle.runtime.compose)

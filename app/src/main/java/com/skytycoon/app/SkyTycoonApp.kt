@@ -2,6 +2,12 @@ package com.skytycoon.app
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import org.osmdroid.config.Configuration
 
 @HiltAndroidApp
-class SkyTycoonApp : Application()
+class SkyTycoonApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+    }
+}
