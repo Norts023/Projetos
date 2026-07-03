@@ -55,7 +55,9 @@ class AircraftModelRepositoryImpl @Inject constructor(
         val purchasePriceCoins: Long,
         val leasingCostPerHourCoins: Long,
         val maintenanceCostPerHourCoins: Long,
-        val imageResName: String
+        val imageResName: String,
+        val family: String = "",
+        val variantCode: String = ""
     ) {
         fun toEntity(): AircraftModelEntity = AircraftModelEntity(
             id = id,
@@ -69,7 +71,9 @@ class AircraftModelRepositoryImpl @Inject constructor(
             purchasePriceCoins = purchasePriceCoins,
             leasingCostPerHourCoins = leasingCostPerHourCoins,
             maintenanceCostPerHourCoins = maintenanceCostPerHourCoins,
-            imageResName = imageResName
+            imageResName = imageResName,
+            family = family,
+            variantCode = variantCode
         )
     }
 }

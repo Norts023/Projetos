@@ -24,14 +24,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.skytycoon.app.ui.screens.achievements.AchievementsScreen
 import com.skytycoon.app.ui.screens.dashboard.DashboardScreen
+import com.skytycoon.app.ui.screens.purchaseaircraft.PurchaseAircraftScreen
 import com.skytycoon.app.ui.screens.employees.EmployeesScreen
 import com.skytycoon.app.ui.screens.fleet.FleetScreen
 import com.skytycoon.app.ui.screens.map.MapScreen
 import com.skytycoon.app.ui.screens.missions.MissionsScreen
 import com.skytycoon.app.ui.screens.newgame.NewGameScreen
 import com.skytycoon.app.ui.screens.schedule.ScheduleScreen
+import com.skytycoon.app.ui.screens.settings.SettingsScreen
 import com.skytycoon.app.ui.screens.splash.SplashScreen
+import com.skytycoon.app.ui.screens.store.StoreScreen
 import com.skytycoon.app.ui.theme.SkyAccentBlue
 import com.skytycoon.app.ui.theme.SkyDarkBlue
 import com.skytycoon.app.ui.theme.SkyTextSecondary
@@ -48,11 +52,11 @@ private data class BottomNavItem(
 
 private val bottomNavItems = listOf(
     BottomNavItem(Screen.Dashboard, "Dashboard", Icons.Filled.Home),
-    BottomNavItem(Screen.Fleet, "Fleet", Icons.Filled.FlightTakeoff),
-    BottomNavItem(Screen.Schedule, "Schedule", Icons.Filled.Schedule),
-    BottomNavItem(Screen.Employees, "Employees", Icons.Filled.People),
-    BottomNavItem(Screen.Missions, "Missions", Icons.Filled.EmojiEvents),
-    BottomNavItem(Screen.Map, "Map", Icons.Filled.Map),
+    BottomNavItem(Screen.Fleet, "Frota", Icons.Filled.FlightTakeoff),
+    BottomNavItem(Screen.Schedule, "Voos", Icons.Filled.Schedule),
+    BottomNavItem(Screen.Employees, "Equipe", Icons.Filled.People),
+    BottomNavItem(Screen.Achievements, "Conquistas", Icons.Filled.EmojiEvents),
+    BottomNavItem(Screen.Map, "Mapa", Icons.Filled.Map),
 )
 
 // ---------------------------------------------------------------------------
@@ -95,6 +99,21 @@ fun SkyTycoonNavGraph(navController: NavHostController = rememberNavController()
         }
         composable(Screen.Map.route) {
             MapScreen(navController = navController)
+        }
+        composable(Screen.Achievements.route) {
+            AchievementsScreen(navController = navController)
+        }
+        composable(Screen.Missions.route) {
+            MissionsScreen(navController = navController)
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(navController = navController)
+        }
+        composable(Screen.Store.route) {
+            StoreScreen(navController = navController)
+        }
+        composable(Screen.PurchaseAircraft.route) {
+            PurchaseAircraftScreen(navController = navController)
         }
     }
 }

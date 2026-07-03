@@ -21,12 +21,21 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,7 +55,6 @@ import com.skytycoon.app.domain.model.GameMode
 import com.skytycoon.app.ui.components.RouteMapCanvas
 import com.skytycoon.app.ui.components.SkyCard
 import com.skytycoon.app.ui.components.StatTile
-import com.skytycoon.app.ui.components.TimeAdvanceBar
 import com.skytycoon.app.ui.navigation.Screen
 import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.ui.theme.SkyAccentBlue
@@ -86,6 +94,22 @@ fun DashboardScreen(
                             )
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("settings") }) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = SkyTextPrimary
+                            )
+                        }
+                        IconButton(onClick = { navController.navigate("store") }) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Store",
+                                tint = SkyTextPrimary
+                            )
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = SkyDarkBlue
                     )
@@ -93,11 +117,69 @@ fun DashboardScreen(
             },
             bottomBar = { SkyBottomNavBar(navController) },
             snackbarHost = {
-                TimeAdvanceBar(
-                    timeDisplay = uiState.gameState?.timeDisplay ?: "00:00",
-                    dayNumber = uiState.gameState?.dayNumber ?: 1,
-                    onAdvance = { fast -> viewModel.onAdvanceTime(fast) }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(SkyDarkBlue)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = uiState.gameState?.timeDisplay ?: "00:00",
+                                color = SkyAccentBlue,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Day ${uiState.gameState?.dayNumber ?: 1}",
+                                color = SkyTextSecondary,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            listOf(1, 2, 5, 10).forEach { n ->
+                                FilterChip(
+                                    selected = uiState.speedMultiplier == n,
+                                    onClick = { viewModel.onSetSpeed(n) },
+                                    label = { Text("${n}×") }
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { viewModel.onToggleAutoTime() }) {
+                            Icon(
+                                imageVector = if (uiState.isAutoRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                contentDescription = if (uiState.isAutoRunning) "Pause" else "Play",
+                                tint = SkyAccentBlue
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { viewModel.onAdvanceTime(false) },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("+1h", color = SkyAccentBlue)
+                        }
+                        OutlinedButton(
+                            onClick = { viewModel.onAdvanceTime(true) },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("+8h", color = SkyAccentBlue)
+                        }
+                    }
+                }
             }
         ) { paddingValues ->
             LazyColumn(
@@ -176,6 +258,31 @@ fun DashboardScreen(
                                 valueColor = SkyAccentOrange,
                                 modifier = Modifier.width(160.dp)
                             )
+                        }
+                    }
+                }
+
+                // Uncollected profit
+                if (uiState.uncollectedProfitCoins > 0) {
+                    item {
+                        SkyCard {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "💰 Lucro a coletar: ${uiState.uncollectedProfitCoins}",
+                                    color = SkyAccentGreen,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Button(
+                                    onClick = { viewModel.onCollectProfit() },
+                                    colors = ButtonDefaults.buttonColors(containerColor = SkyAccentGreen)
+                                ) {
+                                    Text("Coletar", color = SkyBlack)
+                                }
+                            }
                         }
                     }
                 }

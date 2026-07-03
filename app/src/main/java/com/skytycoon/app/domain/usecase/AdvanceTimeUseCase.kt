@@ -36,7 +36,7 @@ class AdvanceTimeUseCase @Inject constructor(
     private val contractRepository: ContractRepository
 ) {
     // Primary entry point: accepts arbitrary deltaMinutes for auto-time loop
-    suspend operator fun invoke(deltaMinutes: Int = GameBalanceConfig.ADVANCE_STEP_MINUTES): AdvanceTimeResult =
+    suspend operator fun invoke(deltaMinutes: Int = GameBalanceConfig.ADVANCE_STEP_MINUTES.toInt()): AdvanceTimeResult =
         withContext(Dispatchers.IO) {
             val state = gameStateRepository.get().first()
                 ?: return@withContext AdvanceTimeResult(
@@ -136,7 +136,7 @@ class AdvanceTimeUseCase @Inject constructor(
 
     // Backward-compat overload for existing callers
     suspend fun invoke(fastMode: Boolean): AdvanceTimeResult =
-        invoke(if (fastMode) GameBalanceConfig.FAST_ADVANCE_STEP_MINUTES else GameBalanceConfig.ADVANCE_STEP_MINUTES)
+        invoke(if (fastMode) GameBalanceConfig.FAST_ADVANCE_STEP_MINUTES.toInt() else GameBalanceConfig.ADVANCE_STEP_MINUTES.toInt())
 
     private fun buildDailyMissions(dayNumber: Int): List<Mission> = listOf(
         Mission(id = 0L, type = MissionType.DAILY, title = "Fretamento Diário",
