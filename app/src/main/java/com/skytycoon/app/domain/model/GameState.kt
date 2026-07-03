@@ -8,7 +8,10 @@ data class GameState(
     val reputation: Int,
     val researchPoints: Int,
     val currentGameMinutes: Long,
-    val dayNumber: Int
+    val dayNumber: Int,
+    val uncollectedProfitCoins: Long = 0,
+    val timeSpeedMultiplier: Int = 1,
+    val isAutoTimeRunning: Boolean = false
 ) {
     val currentHour: Int get() = ((currentGameMinutes % 1440) / 60).toInt()
     val currentMinute: Int get() = (currentGameMinutes % 60).toInt()

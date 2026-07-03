@@ -12,7 +12,9 @@ data class AircraftModel(
     val purchasePriceCoins: Long,
     val leasingCostPerHourCoins: Long,
     val maintenanceCostPerHourCoins: Long,
-    val imageResName: String = ""
+    val imageResName: String = "",
+    val family: String = "",
+    val variantCode: String = ""
 ) {
     val displayName: String get() = "$manufacturer $model"
 

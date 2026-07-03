@@ -17,3 +17,11 @@ enum class MissionStatus { ACTIVE, COMPLETED, EXPIRED }
 enum class AcquisitionType { PURCHASED, LEASED }
 
 enum class ContractStatus { AVAILABLE, ACCEPTED, COMPLETED, FAILED, EXPIRED }
+
+enum class BoosterType { TIME_BOOST, MAINTENANCE_BOOST, MARKETING_BOOST, FUEL_DISCOUNT }
+enum class AchievementCategory { GETTING_STARTED, AIRCRAFT, ROUTES_AND_FLIGHTS }
+enum class MapType { STANDARD, SATELLITE }
+enum class ShowFlights { ALL, MY, NONE }
+enum class ShowAirports { ALL, HUB_ONLY, HIDDEN }
+enum class LabelMode { AIRLINE, TEXT, HIDDEN }
+enum class BillingProductType { COIN_PACK, WELCOME_PACK, AIRCRAFT_TOKEN }
