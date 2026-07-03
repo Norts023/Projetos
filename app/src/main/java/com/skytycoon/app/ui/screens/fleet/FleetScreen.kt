@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.skytycoon.app.R
+import com.skytycoon.app.ui.navigation.Screen
 import com.skytycoon.app.ui.navigation.SkyBottomNavBar
 import com.skytycoon.app.domain.model.AcquisitionType
 import com.skytycoon.app.domain.model.AircraftCategory
@@ -127,10 +128,7 @@ fun FleetScreen(
         bottomBar = { SkyBottomNavBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    val first = uiState.availableModels.firstOrNull { it.category == currentCategory }
-                    if (first != null) viewModel.onShowPurchaseDialog(first)
-                },
+                onClick = { navController.navigate(Screen.PurchaseAircraft.route) },
                 containerColor = SkyAccentBlue
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add aircraft", tint = SkyTextPrimary)
