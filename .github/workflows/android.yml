@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main", "claude/**" ]
+    branches: [ "main", "release/**", "claude/**" ]
   pull_request:
     branches: [ "main" ]
 
@@ -20,6 +20,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+
+      - name: Write local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" >> local.properties
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> local.properties
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
