@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app import config
-from app.models import Bank, Company, GameClock, InventoryItem, LandPlot, MarketGoodState
+from app.models import Bank, Company, Competitor, GameClock, InventoryItem, LandPlot, MarketGoodState
 
 
 def seed_if_empty(session: Session) -> None:
@@ -27,5 +27,9 @@ def seed_if_empty(session: Session) -> None:
     if session.query(LandPlot).count() == 0:
         for plot_data in config.LAND_PLOTS:
             session.add(LandPlot(**plot_data))
+
+    if session.query(Competitor).count() == 0:
+        for comp_data in config.COMPETITORS:
+            session.add(Competitor(cash=config.COMPETITOR_STARTING_CASH, **comp_data))
 
     session.commit()

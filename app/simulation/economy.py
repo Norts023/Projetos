@@ -53,23 +53,39 @@ def _clamp_price(good_name: str, price: float) -> float:
 
 
 def tick_market(session: Session, minutes: int) -> None:
-    """Advance every market good's dynamic price based on accumulated supply/demand."""
+    """Advance every market good's dynamic price based on accumulated supply/demand,
+    with a gentle pull back toward the base price so pressure that eases off doesn't
+    leave prices permanently pinned at an extreme."""
     for good_name in config.MARKET_GOODS:
         market = session.get(MarketGoodState, good_name)
-        baseline_demand = config.BASELINE_DEMAND_PER_HOUR.get(good_name, 0.0) * (minutes / 60.0)
-        market.recent_demand += baseline_demand
+        hours = minutes / 60.0
+        market.recent_demand += config.BASELINE_DEMAND_PER_HOUR.get(good_name, 0.0) * hours
+        market.recent_supply += config.BASELINE_SUPPLY_PER_HOUR.get(good_name, 0.0) * hours
 
         imbalance = market.recent_demand - market.recent_supply
         adjustment = config.PRICE_ELASTICITY * (imbalance / 100.0)
-        market.current_price = _clamp_price(good_name, market.current_price * (1 + adjustment))
+
+        base_price = config.MARKET_GOODS[good_name]["base_price"]
+        reversion = -config.PRICE_REVERSION_PER_HOUR * hours * (market.current_price - base_price) / base_price
+
+        market.current_price = _clamp_price(good_name, market.current_price * (1 + adjustment + reversion))
 
         # sliding-window decay so old trades stop influencing price forever
         market.recent_demand *= 0.95
         market.recent_supply *= 0.95
 
 
+def add_flow(market: MarketGoodState, quantity: float, is_buy: bool) -> None:
+    """Register background trade volume (e.g. AI competitors) that only nudges price
+    through the next periodic tick_market call, without an immediate price shock."""
+    if is_buy:
+        market.recent_demand += quantity
+    else:
+        market.recent_supply += quantity
+
+
 def apply_market_impact(market: MarketGoodState, quantity: float, is_buy: bool) -> None:
-    """Immediate price impact of a player trade, on top of the periodic tick drift."""
+    """Immediate price impact of a deliberate player trade, on top of the periodic tick drift."""
     reference_volume = 50.0
     impact = config.PRICE_ELASTICITY * (quantity / reference_volume)
     if is_buy:

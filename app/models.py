@@ -115,6 +115,17 @@ class Loan(Base):
     bank: Mapped["Bank"] = relationship(back_populates="loans")
 
 
+class Competitor(Base):
+    __tablename__ = "competitor"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+    production_rate_per_hour: Mapped[float] = mapped_column(Float)
+    cash: Mapped[float] = mapped_column(Float, default=0.0)
+    total_produced: Mapped[float] = mapped_column(Float, default=0.0)
+    total_revenue: Mapped[float] = mapped_column(Float, default=0.0)
+
+
 class LedgerEntry(Base):
     __tablename__ = "ledger_entry"
 

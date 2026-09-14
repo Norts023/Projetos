@@ -23,10 +23,16 @@ uvicorn app.main:app --reload
 
 Acesse `http://localhost:8000` no navegador. O relógio do jogo roda em
 tempo real (1 dia de jogo ≈ 144 segundos reais em velocidade 1x, ajustável
-até 50x, com pausa e um botão de avançar 1 dia manualmente).
+até 8x, com pausa e um botão de avançar 1 dia manualmente).
 
 Os dados ficam salvos em `data/game.db` (SQLite, ignorado pelo git).
-Para recomeçar o jogo do zero, apague esse arquivo com o servidor parado.
+Para recomeçar o jogo do zero, apague esse arquivo com o servidor parado
+(ou use o botão "Resetar jogo" no painel admin).
+
+Em `http://localhost:8000/admin.html` fica um painel para desenvolvedor
+editar diretamente caixa, score de crédito, estoque, preços de mercado,
+o relógio do jogo e os concorrentes — útil para testes, sem passar pelas
+regras normais do jogo.
 
 ## Mecânicas implementadas (v1)
 
@@ -48,12 +54,18 @@ Para recomeçar o jogo do zero, apague esse arquivo com o servidor parado.
 - **API REST**: todos os módulos acima são expostos via `/api/...` para
   consulta e análise externa dos seus dados (ex: puxar `/api/finance/dre`
   ou o CSV para montar seus próprios relatórios).
+- **Concorrentes simulados (IA leve)**: 3 empresas fictícias produzem e
+  vendem no mesmo mercado que você (afetando os preços de oferta/demanda)
+  e crescem aos poucos; painel de "Concorrência" ranqueia todo mundo por
+  valorização estimada, como um placar do Sim Companies.
+- **Painel admin para testes** (`/admin.html`): editar caixa, score,
+  estoque, preços de mercado, o relógio do jogo e os concorrentes
+  diretamente, ou resetar o jogo do zero.
 
 ## Ideias para próximos passos (não implementadas ainda)
 
 - Múltiplos produtos / cadeias de produção mais complexas
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
-- Concorrentes simulados (IA leve) disputando mercado
 - Metas/objetivos opcionais (marcos de progresso)
 - Reputação de mercado além do score de crédito bancário
 

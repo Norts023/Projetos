@@ -23,10 +23,10 @@ let isRunning = true;
 
 async function refreshAll() {
   try {
-    const [company, market, land, offers, loans, balance, dre, cashflow, gameState] = await Promise.all([
+    const [company, market, land, offers, loans, balance, dre, cashflow, gameState, competitors] = await Promise.all([
       api('/api/company'), api('/api/market'), api('/api/land'), api('/api/banks/offers'),
       api('/api/loans'), api('/api/finance/balance'), api('/api/finance/dre'),
-      api('/api/finance/cashflow'), api('/api/game/state'),
+      api('/api/finance/cashflow'), api('/api/game/state'), api('/api/competitors'),
     ]);
 
     document.getElementById('s-name').textContent = company.name;
@@ -52,6 +52,7 @@ async function refreshAll() {
     renderBalance(balance);
     renderDre(dre);
     renderCashflow(cashflow);
+    renderCompetitors(competitors);
   } catch (err) {
     console.error(err);
   }
@@ -119,6 +120,20 @@ function renderLoans(loans) {
     btn.textContent = 'Quitar antecipado';
     btn.onclick = () => payoffLoan(l.id);
     tr.lastElementChild.appendChild(btn);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderCompetitors(rows) {
+  const tbody = document.querySelector('#tbl-competitors tbody');
+  tbody.innerHTML = '';
+  rows.forEach((r) => {
+    const tr = document.createElement('tr');
+    if (r.is_player) tr.style.fontWeight = '700';
+    tr.innerHTML = `
+      <td>${r.is_player ? '⭐ ' : ''}${r.name}</td>
+      <td>${money(r.valuation)}</td>
+      <td>${r.total_produced === null ? '-' : r.total_produced}</td>`;
     tbody.appendChild(tr);
   });
 }

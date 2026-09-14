@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Business Sim — Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="topbar">
+  <div class="stat"><span class="label">Painel</span><span class="value">Admin (dev)</span></div>
+  <div class="controls">
+    <a href="/index.html"><button class="secondary">← Voltar ao jogo</button></a>
+  </div>
+</div>
+
+<p style="color:#9aa4b2; max-width: 640px;">
+  Estas ações alteram o estado salvo diretamente, sem passar pelas regras normais do jogo.
+  Use apenas para testes.
+</p>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>Empresa</h2>
+    <div class="row">
+      <label>Caixa</label>
+      <input type="number" id="adm-cash" step="0.01">
+    </div>
+    <div class="row">
+      <label>Score de crédito</label>
+      <input type="number" id="adm-score" step="1" min="300" max="850">
+    </div>
+    <button onclick="applyCompany()">Aplicar</button>
+    <div id="msg-company" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Estoque</h2>
+    <div class="row">
+      <select id="adm-inv-good">
+        <option value="materia_prima">Matéria-prima</option>
+        <option value="produto">Produto</option>
+      </select>
+      <input type="number" id="adm-inv-qty" step="0.1" min="0">
+    </div>
+    <button onclick="applyInventory()">Definir quantidade</button>
+    <div id="msg-inventory" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Preços de mercado</h2>
+    <div class="row">
+      <select id="adm-market-good">
+        <option value="materia_prima">Matéria-prima</option>
+        <option value="produto">Produto</option>
+      </select>
+      <input type="number" id="adm-market-price" step="0.01" min="0.01">
+    </div>
+    <button onclick="applyMarket()">Definir preço</button>
+    <div id="msg-market" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Relógio de jogo</h2>
+    <div class="row">
+      <label>Minutos totais de jogo</label>
+      <input type="number" id="adm-minutes" step="1" min="0" style="width:140px">
+    </div>
+    <button onclick="applyGameTime()">Definir tempo</button>
+    <div id="msg-game" class="msg"></div>
+  </div>
+
+  <div class="card wide">
+    <h2>Concorrentes</h2>
+    <table id="tbl-adm-competitors">
+      <thead><tr><th>Nome</th><th>Caixa</th><th>Produção/h</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="msg-competitors" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Reset</h2>
+    <p style="font-size:13px; color:#9aa4b2;">Apaga todo o progresso salvo e recomeça do zero.</p>
+    <button style="background:#c0392b" onclick="resetGame()">Resetar jogo</button>
+    <div id="msg-reset" class="msg"></div>
+  </div>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

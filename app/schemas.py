@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from app import config
+
 
 class QuantityRequest(BaseModel):
     quantity: float = Field(gt=0)
@@ -17,5 +19,24 @@ class AdvanceRequest(BaseModel):
 
 
 class SpeedRequest(BaseModel):
-    multiplier: float = Field(gt=0, le=50)
+    multiplier: float = Field(gt=0, le=config.MAX_SPEED_MULTIPLIER)
     running: bool = True
+
+
+class AdminCompanyUpdate(BaseModel):
+    cash: float | None = Field(default=None, ge=0)
+    credit_score: int | None = Field(default=None, ge=config.CREDIT_SCORE_MIN, le=config.CREDIT_SCORE_MAX)
+
+
+class AdminMarketUpdate(BaseModel):
+    good_name: str
+    price: float = Field(gt=0)
+
+
+class AdminCompetitorUpdate(BaseModel):
+    cash: float | None = None
+    production_rate_per_hour: float | None = Field(default=None, ge=0)
+
+
+class AdminGameUpdate(BaseModel):
+    game_minutes: int | None = Field(default=None, ge=0)

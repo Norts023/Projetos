@@ -9,6 +9,7 @@ DATABASE_URL = f"sqlite:///{DATA_DIR / 'game.db'}"
 MINUTES_PER_DAY = 24 * 60
 TICK_INTERVAL_SECONDS = 1.0
 GAME_MINUTES_PER_TICK = 10  # 1 game day passes every 144 real seconds at 1x speed
+MAX_SPEED_MULTIPLIER = 8.0
 
 # --- Starting conditions ---
 STARTING_CASH = 50_000.0
@@ -28,9 +29,14 @@ MARKET_GOODS = {
     PRODUCT: {"base_price": 45.0, "min_price": 5.0},
 }
 PRICE_ELASTICITY = 0.02  # how strongly price reacts to supply/demand imbalance per tick
+PRICE_REVERSION_PER_HOUR = 0.05  # price drifts back toward base_price at this rate when imbalance eases
 BASELINE_DEMAND_PER_HOUR = {
     RAW_MATERIAL: 0.0,  # only companies consume it
     PRODUCT: 8.0,  # simulated market demand for finished goods
+}
+BASELINE_SUPPLY_PER_HOUR = {
+    RAW_MATERIAL: 25.0,  # external miners/suppliers keep feeding the market
+    PRODUCT: 0.0,  # only companies supply it
 }
 
 # --- Banks / credit ---
@@ -64,6 +70,16 @@ BANKS = [
         "max_loan_to_cash_ratio": 10.0,
         "max_term_months": 72,
     },
+]
+
+# --- Simulated competitors (lightweight AI) ---
+COMPETITOR_STARTING_CASH = 40_000.0
+COMPETITOR_DAILY_GROWTH_MIN = 1.000  # production_rate multiplier per day, applied on day rollover
+COMPETITOR_DAILY_GROWTH_MAX = 1.010
+COMPETITORS = [
+    {"name": "Industrias Aurora", "production_rate_per_hour": 4.0},
+    {"name": "Grupo Vantage", "production_rate_per_hour": 6.0},
+    {"name": "Cooperativa Sertao", "production_rate_per_hour": 3.0},
 ]
 
 # --- Land ---

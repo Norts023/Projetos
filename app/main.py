@@ -5,7 +5,17 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.api import routes_bank, routes_company, routes_finance, routes_game, routes_land, routes_market, routes_production
+from app.api import (
+    routes_admin,
+    routes_bank,
+    routes_company,
+    routes_competitors,
+    routes_finance,
+    routes_game,
+    routes_land,
+    routes_market,
+    routes_production,
+)
 from app.database import Base, SessionLocal, engine
 from app.seed import seed_if_empty
 from app.simulation.clock import run_background_clock
@@ -36,5 +46,7 @@ app.include_router(routes_bank.router)
 app.include_router(routes_land.router)
 app.include_router(routes_finance.router)
 app.include_router(routes_game.router)
+app.include_router(routes_competitors.router)
+app.include_router(routes_admin.router)
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
