@@ -33,6 +33,7 @@ def get_recipes(session: Session = Depends(get_session)):
         result.append({
             "id": recipe_id, "label": recipe["label"], "output_good": recipe["output_good"],
             "output_label": config.GOODS[recipe["output_good"]]["label"], "tier": recipe["tier"],
+            "sector": recipe["sector"], "sector_icon": recipe["sector_icon"],
             "output_rate_per_hour": recipe["output_rate_per_hour"], "build_cost": recipe["build_cost"],
             "inputs": [
                 {"good": good, "label": config.GOODS[good]["label"], "ratio": ratio}

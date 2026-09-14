@@ -88,6 +88,20 @@ def cash_flow_statement(session: Session, company: Company, from_day: int, to_da
     }
 
 
+def recent_ledger(session: Session, company_id: int, query: str = "", limit: int = 50) -> list[dict]:
+    stmt = select(LedgerEntry).where(LedgerEntry.company_id == company_id)
+    if query:
+        stmt = stmt.where(LedgerEntry.description.ilike(f"%{query}%"))
+    rows = session.scalars(stmt.order_by(LedgerEntry.id.desc()).limit(limit)).all()
+    return [
+        {
+            "day": r.day, "game_minutes": r.game_minutes, "entry_type": r.entry_type,
+            "category": r.category, "amount": r.amount, "description": r.description,
+        }
+        for r in rows
+    ]
+
+
 def export_ledger_csv(session: Session, company: Company) -> str:
     rows = session.scalars(
         select(LedgerEntry).where(LedgerEntry.company_id == company.id).order_by(LedgerEntry.id)

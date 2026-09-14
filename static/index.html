@@ -11,28 +11,47 @@
   <div id="sidebar">
     <div class="brand"><span class="logo">🏭</span> Business Sim</div>
     <nav>
-      <button class="nav-btn active" data-page="overview"><span class="icon">📊</span> Visão Geral</button>
-      <button class="nav-btn" data-page="production"><span class="icon">🏗️</span> Produção</button>
-      <button class="nav-btn" data-page="market"><span class="icon">📦</span> Mercado</button>
-      <button class="nav-btn" data-page="retail"><span class="icon">🏪</span> Varejo</button>
-      <button class="nav-btn" data-page="land"><span class="icon">🗺️</span> Terrenos</button>
-      <button class="nav-btn" data-page="bank"><span class="icon">🏦</span> Bancos</button>
-      <button class="nav-btn" data-page="finance"><span class="icon">💹</span> Financeiro</button>
-      <button class="nav-btn" data-page="competitors"><span class="icon">🏆</span> Concorrência</button>
-      <button class="nav-btn" data-page="goals"><span class="icon">🎯</span> Metas</button>
+      <button class="nav-btn active" data-page="map"><span class="icon">🗺️</span> Mapa</button>
+      <button class="nav-btn" data-page="overview"><span class="icon">📊</span> Visão Geral</button>
+
+      <div class="nav-group">
+        <button class="nav-group-header" data-group="operacoes">🏗️ Operações <span class="chevron">▾</span></button>
+        <div class="nav-group-items" data-group-items="operacoes">
+          <button class="nav-btn" data-page="production"><span class="icon">🏭</span> Produção</button>
+          <button class="nav-btn" data-page="market"><span class="icon">📦</span> Mercado</button>
+          <button class="nav-btn" data-page="retail"><span class="icon">🏪</span> Varejo</button>
+          <button class="nav-btn" data-page="land"><span class="icon">🗺️</span> Terrenos</button>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-header" data-group="financas">💰 Finanças <span class="chevron">▾</span></button>
+        <div class="nav-group-items" data-group-items="financas">
+          <button class="nav-btn" data-page="bank"><span class="icon">🏦</span> Bancos</button>
+          <button class="nav-btn" data-page="finance"><span class="icon">💹</span> Financeiro</button>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-header" data-group="progresso">🏆 Progresso <span class="chevron">▾</span></button>
+        <div class="nav-group-items" data-group-items="progresso">
+          <button class="nav-btn" data-page="competitors"><span class="icon">🏆</span> Concorrência</button>
+          <button class="nav-btn" data-page="goals"><span class="icon">🎯</span> Metas</button>
+        </div>
+      </div>
     </nav>
     <div class="admin-link"><a href="/admin.html">⚙ Painel admin (dev)</a></div>
   </div>
 
   <div id="main">
     <div id="topbar">
-      <div class="stat"><span class="label">Empresa</span><span class="value" id="s-name">-</span></div>
-      <div class="stat"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
-      <div class="stat"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
-      <div class="stat"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
-      <div class="stat" id="s-boost-wrap" style="display:none">
+      <div class="pill"><span class="label">Empresa</span><span class="value" id="s-name">-</span></div>
+      <div class="pill pill-cash"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
+      <div class="pill pill-day"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
+      <div class="pill pill-score"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
+      <div class="pill pill-boost" id="s-boost-wrap" style="display:none">
         <span class="label">Bônus de iniciante</span>
-        <span class="value positive" id="s-boost">2x produção</span>
+        <span class="value" id="s-boost">2x produção</span>
       </div>
       <div class="controls">
         <button id="btn-pause" class="secondary">Pausar</button>
@@ -48,7 +67,17 @@
 
     <div id="content">
 
-      <section class="page active" id="page-overview">
+      <section class="page active" id="page-map">
+        <h1>Mapa</h1>
+        <p style="color:#9aa4b2; font-size:13px; max-width:640px; margin-top:-10px;">
+          Seus terrenos e fábricas, de relance. Clique num terreno livre pra comprar,
+          ou num espaço vazio dentro de um terreno seu pra construir uma fábrica ali.
+        </p>
+        <div class="map-grid" id="map-grid"></div>
+        <div id="msg-map" class="msg"></div>
+      </section>
+
+      <section class="page" id="page-overview">
         <h1>Visão Geral</h1>
         <div class="grid">
           <div class="card">
@@ -88,10 +117,9 @@
             </p>
             <div class="row">
               <select id="sel-build-plot"></select>
-              <select id="sel-build-recipe"></select>
-              <button onclick="buildFactory()">Construir</button>
             </div>
-            <div id="build-plan-preview" style="font-size:13px; color:#9aa4b2;"></div>
+            <div id="build-catalog-wrap"></div>
+            <div id="build-plan-preview" style="font-size:13px; color:#9aa4b2; margin-top:12px;"></div>
             <div id="msg-build" class="msg"></div>
           </div>
         </div>
@@ -103,6 +131,7 @@
           Venda instantânea pelo preço de mercado atual, com taxa de 3% (Bolsa).
           Para vender aos poucos por um preço que você escolhe, sem taxa, use a aba Varejo.
         </p>
+        <div id="price-ticker"></div>
         <div class="card wide">
           <div id="market-tiers"></div>
           <div id="msg-market" class="msg"></div>
@@ -222,6 +251,19 @@
       </section>
 
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="history-modal" onclick="if(event.target===this) closeHistoryModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="history-modal-title">Histórico</h2>
+      <button class="modal-close" onclick="closeHistoryModal()">×</button>
+    </div>
+    <table id="tbl-history">
+      <thead><tr><th>Dia</th><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
 

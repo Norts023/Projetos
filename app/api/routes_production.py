@@ -43,6 +43,7 @@ def list_factories(company: Company = Depends(get_company), session: Session = D
             "id": f.id, "land_plot_id": f.land_plot_id, "land_plot": f.land_plot.name,
             "recipe_id": f.recipe_id, "recipe_label": recipe["label"],
             "output_good": recipe["output_good"], "output_label": config.GOODS[recipe["output_good"]]["label"],
+            "sector": recipe["sector"], "sector_icon": recipe["sector_icon"],
             "level": f.level, "status": f.status,
             "construction_started_minutes": f.construction_started_minutes,
             "busy_until_minutes": f.busy_until_minutes,

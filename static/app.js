@@ -32,6 +32,14 @@ document.querySelectorAll('.nav-btn').forEach((btn) => {
   };
 });
 
+// --- Sidebar collapsible groups ---
+document.querySelectorAll('.nav-group-header').forEach((header) => {
+  header.onclick = () => {
+    header.classList.toggle('collapsed');
+    document.querySelector(`[data-group-items="${header.dataset.group}"]`).classList.toggle('collapsed');
+  };
+});
+
 let isRunning = true;
 let recipesCache = [];
 
@@ -67,6 +75,7 @@ async function refreshAll() {
     renderFactories(factories, 'tbl-overview-factories');
     renderBuildForm(land, factories, recipes);
     renderLand(land, factories);
+    renderMap(land, factories);
     renderOffers(offers);
     renderLoans(loans);
     renderBalance(balance, 'tbl-balance');
@@ -83,8 +92,54 @@ async function refreshAll() {
 
 let goodsLabelMap = {};
 
+let previousPrices = {};
+
+function renderTicker(goods) {
+  const ticker = document.getElementById('price-ticker');
+  ticker.innerHTML = '';
+  goods.forEach((g) => {
+    const prev = previousPrices[g.name];
+    let arrow = '';
+    let cls = '';
+    if (prev !== undefined && g.current_price !== prev) {
+      arrow = g.current_price > prev ? '▲' : '▼';
+      cls = g.current_price > prev ? 'positive' : 'negative';
+    }
+    const item = document.createElement('div');
+    item.className = 'ticker-item';
+    item.innerHTML = `<span class="t-name">${g.label}</span><span class="t-price ${cls}">${money(g.current_price)} ${arrow}</span>`;
+    ticker.appendChild(item);
+  });
+  goods.forEach((g) => { previousPrices[g.name] = g.current_price; });
+}
+
+async function openHistory(query, title) {
+  document.getElementById('history-modal-title').textContent = title;
+  document.getElementById('history-modal').classList.remove('hidden');
+  const tbody = document.querySelector('#tbl-history tbody');
+  tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+  try {
+    const rows = await api(`/api/finance/ledger?q=${encodeURIComponent(query)}&limit=50`);
+    tbody.innerHTML = '';
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="4">Nenhuma transação encontrada ainda.</td></tr>'; return; }
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      const cls = r.amount >= 0 ? 'positive' : 'negative';
+      tr.innerHTML = `<td>Dia ${r.day}</td><td>${r.entry_type}</td><td>${r.description}</td><td class="${cls}">${money(r.amount)}</td>`;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4">${err.message}</td></tr>`;
+  }
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-modal').classList.add('hidden');
+}
+
 function renderMarket(goods, company) {
   goods.forEach((g) => { goodsLabelMap[g.name] = g.label; });
+  renderTicker(goods);
   const container = document.getElementById('market-tiers');
   // The quantity inputs are rebuilt below; remember what the player already
   // typed so the periodic refresh doesn't wipe it out mid-edit.
@@ -123,8 +178,13 @@ function renderMarket(goods, company) {
       sellBtn.textContent = 'Vender';
       sellBtn.style.marginLeft = '4px';
       sellBtn.onclick = () => tradeGood(g.name, 'sell');
+      const histBtn = document.createElement('button');
+      histBtn.className = 'link';
+      histBtn.textContent = 'Histórico';
+      histBtn.onclick = () => openHistory(g.label, `Histórico — ${g.label}`);
       actionCell.appendChild(buyBtn);
       actionCell.appendChild(sellBtn);
+      actionCell.appendChild(histBtn);
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -266,6 +326,11 @@ function renderFactories(factories, tableId) {
       rushBtn.onclick = () => rushFactory(f.id);
       actionCell.appendChild(rushBtn);
     }
+    const histBtn = document.createElement('button');
+    histBtn.className = 'link';
+    histBtn.textContent = 'Histórico';
+    histBtn.onclick = () => openHistory(f.output_label, `Histórico — ${f.recipe_label}`);
+    actionCell.appendChild(histBtn);
     tbody.appendChild(tr);
   });
 }
@@ -286,16 +351,15 @@ async function rushFactory(factoryId) {
   } catch (err) { showMsg('msg-build', err.message, true); }
 }
 
+let selectedRecipeId = null;
+
 function renderBuildForm(land, factories, recipes) {
   const plotSelect = document.getElementById('sel-build-plot');
-  const recipeSelect = document.getElementById('sel-build-recipe');
   // Rebuilding the <select> options wipes out whatever the player had
   // clicked, so remember the selection and restore it afterwards instead
   // of always snapping back to the first option.
   const previousPlot = plotSelect.value;
-  const previousRecipe = recipeSelect.value;
   plotSelect.innerHTML = '';
-  recipeSelect.innerHTML = '';
 
   land.filter((p) => p.owned).forEach((p) => {
     const used = factories.filter((f) => f.land_plot_id === p.id).length;
@@ -306,41 +370,73 @@ function renderBuildForm(land, factories, recipes) {
     opt.disabled = free <= 0;
     plotSelect.appendChild(opt);
   });
+  if ([...plotSelect.options].some((o) => o.value === previousPlot)) plotSelect.value = previousPlot;
 
-  recipes.forEach((r) => {
-    const opt = document.createElement('option');
-    opt.value = r.id;
-    const profitLabel = r.profit_per_hour >= 0
-      ? `lucro est. ${money(r.profit_per_hour)}/h`
-      : `prejuízo est. ${money(r.profit_per_hour)}/h`;
-    opt.textContent = `${r.label} — ${money(r.build_cost)} (Tier ${r.tier}) — ${profitLabel}`;
-    recipeSelect.appendChild(opt);
+  const wrap = document.getElementById('build-catalog-wrap');
+  wrap.innerHTML = '';
+  const bySector = {};
+  recipes.forEach((r) => { (bySector[r.sector] = bySector[r.sector] || []).push(r); });
+
+  Object.keys(bySector).sort().forEach((sector) => {
+    const heading = document.createElement('div');
+    heading.className = 'sector-heading';
+    heading.innerHTML = `<span>${bySector[sector][0].sector_icon}</span><span>${sector}</span>`;
+    wrap.appendChild(heading);
+
+    const catalog = document.createElement('div');
+    catalog.className = 'build-catalog';
+    bySector[sector].forEach((r) => {
+      const card = document.createElement('div');
+      card.className = 'build-card' + (r.id === selectedRecipeId ? ' selected' : '');
+      card.dataset.recipeId = r.id;
+      const profitClass = r.profit_per_hour >= 0 ? 'positive' : 'negative';
+      const profitLabel = r.profit_per_hour >= 0
+        ? `+${money(r.profit_per_hour)}/h`
+        : `${money(r.profit_per_hour)}/h`;
+      card.innerHTML = `
+        <div class="bc-icon">${r.sector_icon}</div>
+        <div class="bc-name">${r.label}<span class="tier-badge">T${r.tier}</span></div>
+        <div class="bc-meta">Custo: ${money(r.build_cost)}</div>
+        <div class="bc-profit ${profitClass}">${profitLabel}</div>`;
+      card.onclick = () => selectBuildRecipe(r.id);
+      catalog.appendChild(card);
+    });
+    wrap.appendChild(catalog);
   });
 
-  if ([...plotSelect.options].some((o) => o.value === previousPlot)) plotSelect.value = previousPlot;
-  if ([...recipeSelect.options].some((o) => o.value === previousRecipe)) recipeSelect.value = previousRecipe;
+  updateBuildPlanPreview();
+}
+
+function selectBuildRecipe(recipeId) {
+  selectedRecipeId = recipeId;
+  document.querySelectorAll('.build-card').forEach((c) => {
+    c.classList.toggle('selected', c.dataset.recipeId === recipeId);
+  });
   updateBuildPlanPreview();
 }
 
 async function updateBuildPlanPreview() {
-  const recipeId = document.getElementById('sel-build-recipe').value;
   const el = document.getElementById('build-plan-preview');
-  if (!recipeId) { el.textContent = ''; return; }
+  if (!selectedRecipeId) { el.textContent = ''; return; }
   try {
-    const plan = await api(`/api/production/build-plan?recipe_id=${recipeId}`);
+    const plan = await api(`/api/production/build-plan?recipe_id=${selectedRecipeId}`);
     const materials = Object.entries(plan.materials)
       .map(([good, qty]) => `${qty} ${goodsLabelMap[good] || good}`).join(', ');
-    el.textContent = `Custo: ${money(plan.cash_cost)} + ${materials} — pronto em ${formatDuration(plan.minutes)}`;
+    el.innerHTML = `Custo: ${money(plan.cash_cost)} + ${materials} — pronto em ${formatDuration(plan.minutes)} `;
+    const btn = document.createElement('button');
+    btn.textContent = 'Construir';
+    btn.style.marginLeft = '8px';
+    btn.onclick = buildFactory;
+    el.appendChild(btn);
   } catch (err) { el.textContent = ''; }
 }
-document.getElementById('sel-build-recipe').addEventListener('change', updateBuildPlanPreview);
 
 async function buildFactory() {
   const plotId = Number(document.getElementById('sel-build-plot').value);
-  const recipeId = document.getElementById('sel-build-recipe').value;
   if (!plotId) { showMsg('msg-build', 'Você precisa possuir um terreno com capacidade livre.', true); return; }
+  if (!selectedRecipeId) { showMsg('msg-build', 'Escolha uma fábrica no catálogo.', true); return; }
   try {
-    await api(`/api/production/build-factory/${plotId}`, { method: 'POST', body: JSON.stringify({ recipe_id: recipeId }) });
+    await api(`/api/production/build-factory/${plotId}`, { method: 'POST', body: JSON.stringify({ recipe_id: selectedRecipeId }) });
     showMsg('msg-build', 'Fábrica construída.', false);
     refreshAll();
   } catch (err) { showMsg('msg-build', err.message, true); }
@@ -377,6 +473,82 @@ async function buyLand(plotId) {
     showMsg('msg-land', 'Terreno comprado.', false);
     refreshAll();
   } catch (err) { showMsg('msg-land', err.message, true); }
+}
+
+async function buyLandFromMap(plotId) {
+  try {
+    await api(`/api/land/${plotId}/buy`, { method: 'POST' });
+    showMsg('msg-map', 'Terreno comprado.', false);
+    refreshAll();
+  } catch (err) { showMsg('msg-map', err.message, true); }
+}
+
+function goToBuildPlot(plotId) {
+  document.querySelector('.nav-btn[data-page="production"]').click();
+  document.getElementById('sel-build-plot').value = String(plotId);
+  updateBuildPlanPreview();
+}
+
+function renderMap(plots, factories) {
+  const grid = document.getElementById('map-grid');
+  grid.innerHTML = '';
+  plots
+    .slice()
+    .sort((a, b) => (a.owned === b.owned ? a.name.localeCompare(b.name) : a.owned ? -1 : 1))
+    .forEach((p) => {
+      const tile = document.createElement('div');
+      if (!p.owned) {
+        tile.className = 'map-tile empty';
+        tile.onclick = () => buyLandFromMap(p.id);
+        tile.innerHTML = `
+          <div class="mt-name">🏞️ ${p.name}</div>
+          <div class="mt-region">${p.region}</div>
+          <div class="mt-price">${money(p.price + p.terraforming_cost)}</div>
+          <div class="mt-bonus ${p.logistics_bonus >= 0 ? 'positive' : 'negative'}">Logística: ${pct(p.logistics_bonus)}</div>
+          <button class="mt-buy-btn">Comprar</button>`;
+        grid.appendChild(tile);
+        return;
+      }
+
+      const plotFactories = factories.filter((f) => f.land_plot_id === p.id);
+      tile.className = 'map-tile';
+      tile.innerHTML = `
+        <div class="mt-header">
+          <div><div class="mt-name">${p.name}</div><div class="mt-region">${p.region}</div></div>
+          <div class="mt-capacity">${plotFactories.length}/${p.capacity}</div>
+        </div>
+        <div class="mt-bonus ${p.logistics_bonus >= 0 ? 'positive' : 'negative'}">Logística: ${pct(p.logistics_bonus)}</div>
+        <div class="mt-factories"></div>`;
+      const factoriesRow = tile.querySelector('.mt-factories');
+
+      plotFactories.forEach((f) => {
+        const fEl = document.createElement('div');
+        fEl.className = 'map-factory';
+        let statusHtml = '<span class="mf-status">Ativa</span>';
+        let title = `${f.recipe_label} (nível ${f.level})`;
+        if (f.status !== 'ACTIVE') {
+          const remaining = f.busy_until_minutes - latestGameMinutes;
+          const verb = f.status === 'BUILDING' ? 'Construindo' : 'Melhorando';
+          const cls = f.status === 'BUILDING' ? 'building' : 'upgrading';
+          statusHtml = `<span class="mf-status ${cls}">${formatDuration(remaining)}</span>`;
+          title += ` — ${verb}: ${formatDuration(remaining)}`;
+        }
+        fEl.title = title;
+        fEl.innerHTML = `<span class="mf-icon">${f.sector_icon || '🏭'}</span><span class="mf-level">Nv ${f.level}</span>${statusHtml}`;
+        factoriesRow.appendChild(fEl);
+      });
+
+      for (let i = plotFactories.length; i < p.capacity; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'mt-slot-empty';
+        slot.textContent = '+';
+        slot.title = 'Construir fábrica aqui';
+        slot.onclick = (ev) => { ev.stopPropagation(); goToBuildPlot(p.id); };
+        factoriesRow.appendChild(slot);
+      }
+
+      grid.appendChild(tile);
+    });
 }
 
 function renderOffers(offers) {

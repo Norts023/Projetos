@@ -161,13 +161,27 @@ estilo do painel do Sim Companies.
   (as ofertas mostram uma faixa de taxa mín.–máx.).
 - Tela de Produção mostra o estoque atual de cada insumo necessário por
   fábrica, e o status (ativa / construindo / melhorando, com tempo restante).
+- **Mapa** (tela inicial): visão geral em blocos visuais de todos os
+  terrenos — os seus mostram as fábricas construídas (ícone do setor, nível,
+  status/tempo restante) e os espaços livres para construir; os terrenos
+  disponíveis aparecem com borda tracejada, preço e botão de compra direto
+  no bloco.
+- **Catálogo de construção em grade**: a aba Produção mostra as receitas
+  disponíveis como cards ilustrados agrupados por setor (Industrial,
+  Petroquímico, Têxtil, Agropecuária, Construção, Eletrônicos, Automóvel),
+  com ícone, custo e lucro/hora estimado — no estilo do catálogo "Novo
+  edifício" do Sim Companies, em vez de uma lista simples.
+- **Faixa de preços (ticker)** no topo do Mercado, com seta de alta/baixa
+  em relação à última atualização.
+- **Histórico de transações** por bem (aba Mercado) e por fábrica (aba
+  Produção), num modal com as últimas movimentações do livro-razão.
+- Menu lateral reorganizado com o Mapa como tela principal, seguido de
+  Visão Geral e dos grupos com submenus (Operações/Finanças/Progresso).
 
 ## Ideias para próximos passos (não implementadas ainda)
 
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
 - Reputação de mercado além do score de crédito bancário
-- Faixa de preços (ticker) no topo do Mercado e histórico de transações
-  por fábrica/bem
 - Mercado como um livro de ofertas real (cada concorrente posta sua
   própria oferta de venda) em vez do preço único simulado atual
 - Mais categorias do Sim Companies ainda de fora: Moda (Couro, Vestido,

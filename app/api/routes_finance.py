@@ -31,6 +31,12 @@ def get_cashflow(days: int = 30, company: Company = Depends(get_company),
     return finance.cash_flow_statement(session, company, from_day, current_day)
 
 
+@router.get("/ledger")
+def get_ledger(q: str = "", limit: int = 50, company: Company = Depends(get_company),
+               session: Session = Depends(get_session)):
+    return finance.recent_ledger(session, company.id, q, limit)
+
+
 @router.get("/export.csv")
 def export_csv(company: Company = Depends(get_company), session: Session = Depends(get_session)):
     csv_data = finance.export_ledger_csv(session, company)

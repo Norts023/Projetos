@@ -214,6 +214,30 @@ RECIPES = {
     },
 }
 
+# Groups recipes into sectors for the build catalog / map UI. Each sector
+# also gets an icon (emoji, no external assets needed).
+RECIPE_SECTORS = {
+    "aco": "Industrial", "pecas_mecanicas": "Industrial", "eletrodomesticos": "Industrial",
+    "plastico": "Petroquímico",
+    "tecido": "Têxtil", "roupas": "Têxtil",
+    "leite": "Agropecuária", "bife": "Agropecuária", "farinha": "Agropecuária",
+    "queijo": "Agropecuária", "pao": "Agropecuária", "hamburguer": "Agropecuária",
+    "tijolos": "Construção", "cimento": "Construção", "tabuas": "Construção",
+    "vigas_aco": "Construção", "concreto_armado": "Construção", "vidro": "Construção",
+    "processadores": "Eletrônicos", "baterias": "Eletrônicos", "telas": "Eletrônicos",
+    "componentes_eletronicos": "Eletrônicos", "smartphones": "Eletrônicos", "robos": "Eletrônicos",
+    "carroceria": "Automóvel", "motor_combustao": "Automóvel", "interior_basico": "Automóvel",
+    "motor_eletrico": "Automóvel", "computador_bordo": "Automóvel",
+    "carro_economico": "Automóvel", "carro_eletrico_economico": "Automóvel",
+}
+SECTOR_ICONS = {
+    "Industrial": "🏭", "Petroquímico": "🛢️", "Têxtil": "🧵", "Agropecuária": "🌾",
+    "Construção": "🧱", "Eletrônicos": "💻", "Automóvel": "🚗",
+}
+for _recipe_id, _sector in RECIPE_SECTORS.items():
+    RECIPES[_recipe_id]["sector"] = _sector
+    RECIPES[_recipe_id]["sector_icon"] = SECTOR_ICONS[_sector]
+
 FACTORY_UPKEEP_PER_DAY = 50.0  # per factory, regardless of recipe
 
 # --- Construction (building a factory or upgrading its level) ---
