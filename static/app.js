@@ -304,14 +304,17 @@ function renderOffers(offers) {
   select.innerHTML = '';
   offers.forEach((o) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${o.bank_name}</td><td>${o.eligible ? pct(o.annual_rate) : '-'}</td>
+    const rateLabel = o.eligible
+      ? (o.max_annual_rate > o.annual_rate ? `${pct(o.annual_rate)} – ${pct(o.max_annual_rate)}` : pct(o.annual_rate))
+      : '-';
+    tr.innerHTML = `<td>${o.bank_name}</td><td>${rateLabel}</td>
       <td>${o.eligible ? money(o.max_principal) : '-'}</td>
       <td>${o.eligible ? o.max_term_months + ' meses' : o.reason}</td>`;
     tbody.appendChild(tr);
     if (o.eligible) {
       const opt = document.createElement('option');
       opt.value = o.bank_id;
-      opt.textContent = `${o.bank_name} (${pct(o.annual_rate)})`;
+      opt.textContent = `${o.bank_name} (${rateLabel})`;
       select.appendChild(opt);
     }
   });

@@ -244,6 +244,8 @@ CREDIT_SCORE_ON_TIME_PAYMENT = 4
 CREDIT_SCORE_LATE_PAYMENT_PENALTY = 30
 CREDIT_SCORE_MISSED_PAYMENT_PENALTY = 60
 EARLY_PAYOFF_DISCOUNT = 0.05  # 5% discount on remaining balance if paid off early
+LOAN_AMOUNT_RISK_PREMIUM_PER_UNIT = 0.02  # +2pp per multiple of cash borrowed beyond 1x
+LOAN_AMOUNT_RISK_PREMIUM_CAP = 0.15  # never add more than +15pp for loan size alone
 LOAN_MISSED_RETRY_DAYS = 5
 
 BANKS = [
@@ -294,6 +296,20 @@ LAND_PLOTS = [
      "terraforming_cost": 3_000.0, "logistics_bonus": 0.08, "capacity": 2},
     {"name": "Reserva Oeste (barata, distante)", "region": "Oeste", "price": 6_000.0,
      "terraforming_cost": 1_500.0, "logistics_bonus": -0.05, "capacity": 1},
+    {"name": "Vale Verde", "region": "Norte", "price": 18_000.0,
+     "terraforming_cost": 1_000.0, "logistics_bonus": 0.02, "capacity": 2},
+    {"name": "Distrito Financeiro", "region": "Central", "price": 90_000.0,
+     "terraforming_cost": 8_000.0, "logistics_bonus": 0.18, "capacity": 4},
+    {"name": "Zona Rural Norte", "region": "Norte", "price": 9_000.0,
+     "terraforming_cost": 800.0, "logistics_bonus": 0.03, "capacity": 1},
+    {"name": "Parque Tecnológico", "region": "Leste", "price": 75_000.0,
+     "terraforming_cost": 6_000.0, "logistics_bonus": 0.15, "capacity": 3},
+    {"name": "Litoral Sul", "region": "Sul", "price": 50_000.0,
+     "terraforming_cost": 4_000.0, "logistics_bonus": 0.10, "capacity": 3},
+    {"name": "Cinturão Industrial", "region": "Central", "price": 25_000.0,
+     "terraforming_cost": 1_500.0, "logistics_bonus": 0.04, "capacity": 2},
+    {"name": "Fronteira Oeste (isolada)", "region": "Oeste", "price": 3_000.0,
+     "terraforming_cost": 500.0, "logistics_bonus": -0.10, "capacity": 1},
 ]
 
 # --- Goals (optional progress milestones, Sim Companies "missions"-style) ---

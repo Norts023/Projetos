@@ -16,7 +16,8 @@ def get_offers(company: Company = Depends(get_company), session: Session = Depen
     return [
         {
             "bank_id": o.bank_id, "bank_name": o.bank_name, "eligible": o.eligible,
-            "annual_rate": o.annual_rate, "max_principal": o.max_principal,
+            "annual_rate": o.annual_rate, "max_annual_rate": o.max_annual_rate,
+            "max_principal": o.max_principal,
             "max_term_months": o.max_term_months, "reason": o.reason,
         }
         for o in offers
@@ -42,7 +43,8 @@ def list_loans(company: Company = Depends(get_company)):
         {
             "id": loan.id, "bank": loan.bank.name, "principal": loan.principal,
             "annual_rate": loan.annual_rate, "term_months": loan.term_months,
-            "payment_type": loan.payment_type, "remaining_balance": round(loan.remaining_balance, 2),
+            "payment_type": loan.payment_type, "monthly_payment": round(loan.monthly_payment, 2),
+            "remaining_balance": round(loan.remaining_balance, 2),
             "installments_paid": loan.installments_paid, "next_payment_day": loan.next_payment_day,
             "status": loan.status,
         }

@@ -14,6 +14,7 @@ class LoanOffer:
     bank_name: str
     eligible: bool
     annual_rate: float
+    max_annual_rate: float
     max_principal: float
     max_term_months: int
     reason: str = ""
@@ -26,22 +27,34 @@ def score_rate_adjustment(credit_score: int) -> float:
     return (700 - credit_score) * 0.0003
 
 
+def amount_rate_adjustment(principal: float, cash: float) -> float:
+    """Borrowing more than your own cash on hand is riskier for the bank, so it
+    adds a rate premium proportional to how many multiples of your cash you're
+    asking for, capped so it never becomes absurd."""
+    ratio = principal / max(cash, 1.0)
+    if ratio <= 1.0:
+        return 0.0
+    premium = (ratio - 1.0) * config.LOAN_AMOUNT_RISK_PREMIUM_PER_UNIT
+    return min(premium, config.LOAN_AMOUNT_RISK_PREMIUM_CAP)
+
+
 def get_offers(session: Session, company: Company) -> list[LoanOffer]:
     offers = []
     for bank in session.query(Bank).all():
         if company.credit_score < bank.min_credit_score:
             offers.append(LoanOffer(
                 bank_id=bank.id, bank_name=bank.name, eligible=False,
-                annual_rate=0.0, max_principal=0.0, max_term_months=0,
+                annual_rate=0.0, max_annual_rate=0.0, max_principal=0.0, max_term_months=0,
                 reason=f"Score de crédito abaixo do mínimo exigido ({bank.min_credit_score})",
             ))
             continue
-        rate = bank.base_annual_rate + score_rate_adjustment(company.credit_score)
+        base_rate = bank.base_annual_rate + score_rate_adjustment(company.credit_score)
         max_principal = max(company.cash, 1.0) * bank.max_loan_to_cash_ratio
+        rate_at_max = base_rate + amount_rate_adjustment(max_principal, company.cash)
         offers.append(LoanOffer(
             bank_id=bank.id, bank_name=bank.name, eligible=True,
-            annual_rate=round(rate, 4), max_principal=round(max_principal, 2),
-            max_term_months=bank.max_term_months,
+            annual_rate=round(base_rate, 4), max_annual_rate=round(rate_at_max, 4),
+            max_principal=round(max_principal, 2), max_term_months=bank.max_term_months,
         ))
     return offers
 
@@ -71,13 +84,14 @@ def request_loan(session: Session, company: Company, bank_id: int, principal: fl
     if term_months <= 0 or term_months > offer.max_term_months:
         raise ValueError(f"Prazo deve estar entre 1 e {offer.max_term_months} meses")
 
-    monthly_rate = offer.annual_rate / 12
+    actual_rate = offer.annual_rate + amount_rate_adjustment(principal, company.cash)
+    monthly_rate = actual_rate / 12
     monthly_payment = (
         _price_installment(principal, monthly_rate, term_months) if payment_type == "PRICE" else 0.0
     )
 
     loan = Loan(
-        company_id=company.id, bank_id=bank_id, principal=principal, annual_rate=offer.annual_rate,
+        company_id=company.id, bank_id=bank_id, principal=principal, annual_rate=actual_rate,
         term_months=term_months, payment_type=payment_type, monthly_payment=monthly_payment,
         remaining_balance=principal, installments_paid=0, start_day=current_day,
         next_payment_day=current_day + 30, status="ACTIVE",
