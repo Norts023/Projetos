@@ -51,6 +51,7 @@ async function refreshAll() {
     document.getElementById('s-day').textContent = `Dia ${company.day}`;
     document.getElementById('s-score').textContent = company.credit_score;
 
+    latestGameMinutes = gameState.game_minutes;
     isRunning = gameState.running;
     document.getElementById('btn-pause').textContent = isRunning ? 'Pausar' : 'Retomar';
     document.getElementById('sel-speed').value = String(gameState.speed_multiplier);
@@ -80,7 +81,10 @@ async function refreshAll() {
   }
 }
 
+let goodsLabelMap = {};
+
 function renderMarket(goods, company) {
+  goods.forEach((g) => { goodsLabelMap[g.name] = g.label; });
   const container = document.getElementById('market-tiers');
   // The quantity inputs are rebuilt below; remember what the player already
   // typed so the periodic refresh doesn't wipe it out mid-edit.
@@ -205,16 +209,81 @@ function renderRetailOrders(orders) {
   });
 }
 
+function formatDuration(minutes) {
+  if (minutes <= 0) return 'pronto';
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  return h > 0 ? `${h}h ${m}min` : `${m}min`;
+}
+
+let latestGameMinutes = 0;
+
 function renderFactories(factories, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = '';
-  const showLevel = tableId === 'tbl-factories';
+
+  if (tableId === 'tbl-overview-factories') {
+    factories.forEach((f) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${f.recipe_label}</td><td>${f.output_label}</td><td>${f.land_plot}</td>`;
+      tbody.appendChild(tr);
+    });
+    return;
+  }
+
   factories.forEach((f) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${f.recipe_label}</td><td>${f.output_label}</td><td>${f.land_plot}</td>` +
-      (showLevel ? `<td>${f.level}</td>` : '');
+    const inputsText = f.inputs.map((i) => `${i.label}: ${i.stock}`).join(', ') || '-';
+    let statusText = 'Ativa';
+    if (f.status !== 'ACTIVE') {
+      const remaining = f.busy_until_minutes - latestGameMinutes;
+      const verb = f.status === 'BUILDING' ? 'Construindo' : 'Melhorando';
+      statusText = `${verb} — ${formatDuration(remaining)}`;
+    }
+    tr.innerHTML = `
+      <td>${f.recipe_label}</td>
+      <td>${f.level}</td>
+      <td>${f.land_plot}</td>
+      <td title="${inputsText}">${inputsText}</td>
+      <td>${statusText}</td>
+      <td></td>`;
+    const actionCell = tr.lastElementChild;
+    if (f.status === 'ACTIVE') {
+      const upgradeBtn = document.createElement('button');
+      upgradeBtn.className = 'secondary';
+      const plan = f.upgrade_plan;
+      upgradeBtn.textContent = 'Melhorar';
+      if (plan) {
+        const materialsText = Object.entries(plan.materials)
+          .map(([good, qty]) => `${qty} ${goodsLabelMap[good] || good}`).join(', ');
+        upgradeBtn.title = `${money(plan.cash_cost)} + ${materialsText} — pronto em ${formatDuration(plan.minutes)}`;
+      }
+      upgradeBtn.onclick = () => upgradeFactory(f.id);
+      actionCell.appendChild(upgradeBtn);
+    } else {
+      const rushBtn = document.createElement('button');
+      rushBtn.textContent = 'Apressar (pagar)';
+      rushBtn.onclick = () => rushFactory(f.id);
+      actionCell.appendChild(rushBtn);
+    }
     tbody.appendChild(tr);
   });
+}
+
+async function upgradeFactory(factoryId) {
+  try {
+    const res = await api(`/api/production/factories/${factoryId}/upgrade`, { method: 'POST' });
+    showMsg('msg-build', `Melhoria iniciada, pronta em ${formatDuration(res.plan.minutes)}.`, false);
+    refreshAll();
+  } catch (err) { showMsg('msg-build', err.message, true); }
+}
+
+async function rushFactory(factoryId) {
+  try {
+    const res = await api(`/api/production/factories/${factoryId}/rush`, { method: 'POST' });
+    showMsg('msg-build', `Pago ${money(res.paid)} para apressar.`, false);
+    refreshAll();
+  } catch (err) { showMsg('msg-build', err.message, true); }
 }
 
 function renderBuildForm(land, factories, recipes) {
@@ -250,7 +319,21 @@ function renderBuildForm(land, factories, recipes) {
 
   if ([...plotSelect.options].some((o) => o.value === previousPlot)) plotSelect.value = previousPlot;
   if ([...recipeSelect.options].some((o) => o.value === previousRecipe)) recipeSelect.value = previousRecipe;
+  updateBuildPlanPreview();
 }
+
+async function updateBuildPlanPreview() {
+  const recipeId = document.getElementById('sel-build-recipe').value;
+  const el = document.getElementById('build-plan-preview');
+  if (!recipeId) { el.textContent = ''; return; }
+  try {
+    const plan = await api(`/api/production/build-plan?recipe_id=${recipeId}`);
+    const materials = Object.entries(plan.materials)
+      .map(([good, qty]) => `${qty} ${goodsLabelMap[good] || good}`).join(', ');
+    el.textContent = `Custo: ${money(plan.cash_cost)} + ${materials} — pronto em ${formatDuration(plan.minutes)}`;
+  } catch (err) { el.textContent = ''; }
+}
+document.getElementById('sel-build-recipe').addEventListener('change', updateBuildPlanPreview);
 
 async function buildFactory() {
   const plotId = Number(document.getElementById('sel-build-plot').value);

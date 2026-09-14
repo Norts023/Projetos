@@ -147,12 +147,29 @@ estilo do painel do Sim Companies.
   diversificação industrial, quitar uma dívida, virar líder de mercado,
   primeiro milhão, etc.), cada um com uma recompensa em dinheiro paga uma
   única vez ao ser concluído. Acompanhados na aba "Metas".
+- **Construção com materiais e tempo** (como no Sim Companies): construir ou
+  melhorar uma fábrica agora custa metade em dinheiro e metade nos 4
+  materiais universais de construção (Concreto Armado, Vigas de Aço,
+  Tábuas, Vidro — todos produzíveis ou compráveis no mercado), e leva um
+  tempo real pra ficar pronta (de 1h a 24h, proporcional ao custo). Dá pra
+  pagar um valor extra a qualquer momento para apressar e terminar na hora.
+- **Upgrade de nível de fábrica**: melhorar uma fábrica existente para o
+  próximo nível aumenta sua taxa de produção, usando o mesmo sistema de
+  materiais + tempo (+ apressar) da construção.
+- **Juros por valor emprestado**: além do score de crédito, pedir um
+  empréstimo muito acima do seu caixa disponível aumenta a taxa oferecida
+  (as ofertas mostram uma faixa de taxa mín.–máx.).
+- Tela de Produção mostra o estoque atual de cada insumo necessário por
+  fábrica, e o status (ativa / construindo / melhorando, com tempo restante).
 
 ## Ideias para próximos passos (não implementadas ainda)
 
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
 - Reputação de mercado além do score de crédito bancário
-- Upgrades de nível de fábrica (aumentar taxa de produção)
+- Faixa de preços (ticker) no topo do Mercado e histórico de transações
+  por fábrica/bem
+- Mercado como um livro de ofertas real (cada concorrente posta sua
+  própria oferta de venda) em vez do preço único simulado atual
 - Mais categorias do Sim Companies ainda de fora: Moda (Couro, Vestido,
   Bolsas...), Energia (Gasolina, Diesel, Etanol...), Aeroespacial (a cadeia
   mais longa do jogo original, até foguetes), Pesquisa (árvore de

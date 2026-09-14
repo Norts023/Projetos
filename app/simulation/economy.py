@@ -31,6 +31,8 @@ def process_production(session: Session, company: Company, minutes: int, boost_m
     total_produced = 0.0
 
     for factory in company.factories:
+        if factory.status != "ACTIVE":
+            continue
         recipe = config.RECIPES[factory.recipe_id]
         bonus = factory.land_plot.logistics_bonus
         desired_output = (

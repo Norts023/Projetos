@@ -49,6 +49,7 @@ GOODS = {
     "tabuas":             {"label": "Tábuas",              "tier": 1, "base_price": 10.0, "min_price": 1.0},
     "vigas_aco":          {"label": "Vigas de Aço",        "tier": 1, "base_price": 55.0, "min_price": 6.0},
     "concreto_armado":    {"label": "Concreto Armado",     "tier": 2, "base_price": 120.0, "min_price": 15.0},
+    "vidro":              {"label": "Vidro",               "tier": 1, "base_price": 25.0, "min_price": 3.0},
 
     # Eletrônicos
     "silicio":            {"label": "Silício",             "tier": 0, "base_price": 15.0, "min_price": 2.0},
@@ -146,6 +147,10 @@ RECIPES = {
         "label": "Fábrica de Concreto Armado", "output_good": "concreto_armado", "tier": 2,
         "inputs": {"cimento": 3.0, "vigas_aco": 1.0}, "output_rate_per_hour": 3.0, "build_cost": 32_000.0,
     },
+    "vidro": {
+        "label": "Vidraria (Vidro)", "output_good": "vidro", "tier": 1,
+        "inputs": {"silicio": 1.5}, "output_rate_per_hour": 5.0, "build_cost": 16_000.0,
+    },
 
     # Eletrônicos
     "processadores": {
@@ -210,6 +215,21 @@ RECIPES = {
 }
 
 FACTORY_UPKEEP_PER_DAY = 50.0  # per factory, regardless of recipe
+
+# --- Construction (building a factory or upgrading its level) ---
+# Half the cost is paid in cash, half is converted into these 4 universal
+# construction materials (split evenly), priced at current market rates.
+# Construction also takes real time, with an optional cash "rush" to skip it.
+CONSTRUCTION_MATERIALS = ["concreto_armado", "vigas_aco", "tabuas", "vidro"]
+CONSTRUCTION_CASH_SHARE = 0.5  # fraction of the cost paid directly in cash
+CONSTRUCTION_MINUTES_PER_DOLLAR = 1 / 50  # ~1 minute of build time per $50 of cost
+CONSTRUCTION_MIN_MINUTES = 60  # at least 1 hour
+CONSTRUCTION_MAX_MINUTES = 1440  # at most 1 day
+RUSH_PREMIUM_MULTIPLIER = 0.5  # rushing the whole build costs +50% of its cost
+
+# Level-up cost/build_cost multiplier: upgrading to level N+1 costs this
+# fraction of the recipe's base build_cost, times the new level.
+FACTORY_UPGRADE_COST_FACTOR = 0.6
 
 # --- Market / dynamic pricing ---
 PRICE_ELASTICITY = 0.02  # how strongly price reacts to supply/demand imbalance per tick

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import config
 from app.database import STATE_LOCK, SessionLocal
 from app.models import Company, GameClock
-from app.simulation import bank, competitors, economy, goals, land, retail
+from app.simulation import bank, competitors, construction, economy, goals, land, retail
 
 logger = logging.getLogger("business_sim.clock")
 
@@ -36,6 +36,7 @@ def advance(session: Session, minutes: int) -> dict:
             if running_minutes // config.MINUTES_PER_DAY < config.BEGINNER_BOOST_DAYS
             else 1.0
         )
+        construction.process_completions(session, company, running_minutes)
         produced += economy.process_production(session, company, step_minutes, boost_multiplier=boost)
         retail.process_tick(session, company, step_minutes, running_minutes)
         competitors.process_tick(session, step_minutes)

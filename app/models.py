@@ -79,6 +79,10 @@ class Factory(Base):
     recipe_id: Mapped[str] = mapped_column(String)
     level: Mapped[int] = mapped_column(Integer, default=1)
     built_at_minutes: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String, default="ACTIVE")  # ACTIVE, BUILDING, UPGRADING
+    construction_started_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    busy_until_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    construction_cost_basis: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     company: Mapped["Company"] = relationship(back_populates="factories")
     land_plot: Mapped["LandPlot"] = relationship(back_populates="factories")
