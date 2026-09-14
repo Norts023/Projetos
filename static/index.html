@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Business Sim</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="topbar">
+  <div class="stat"><span class="label">Empresa</span><span class="value" id="s-name">-</span></div>
+  <div class="stat"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
+  <div class="stat"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
+  <div class="stat"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
+  <div class="controls">
+    <button id="btn-pause" class="secondary">Pausar</button>
+    <select id="sel-speed">
+      <option value="1">1x</option>
+      <option value="5">5x</option>
+      <option value="20">20x</option>
+      <option value="50">50x</option>
+    </select>
+    <button id="btn-advance-day" class="secondary">Avançar 1 dia</button>
+  </div>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>Produção &amp; Mercado</h2>
+    <table>
+      <tr><td>Matéria-prima em estoque</td><td id="inv-materia_prima">-</td></tr>
+      <tr><td>Produto em estoque</td><td id="inv-produto">-</td></tr>
+      <tr><td>Preço matéria-prima</td><td id="price-materia_prima">-</td></tr>
+      <tr><td>Preço produto</td><td id="price-produto">-</td></tr>
+      <tr><td>Fábricas construídas</td><td id="factory-count">-</td></tr>
+    </table>
+    <div class="row">
+      <input type="number" id="qty-buy" value="50" min="1">
+      <button onclick="buyMaterial()">Comprar matéria-prima</button>
+    </div>
+    <div class="row">
+      <input type="number" id="qty-sell" value="50" min="1">
+      <button onclick="sellProduct()">Vender produto</button>
+    </div>
+    <div id="msg-production" class="msg"></div>
+  </div>
+
+  <div class="card wide">
+    <h2>Terrenos</h2>
+    <table id="tbl-land">
+      <thead><tr><th>Nome</th><th>Preço</th><th>Bônus</th><th>Capac.</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="msg-land" class="msg"></div>
+  </div>
+
+  <div class="card wide">
+    <h2>Bancos &amp; Empréstimos</h2>
+    <table id="tbl-offers">
+      <thead><tr><th>Banco</th><th>Taxa a.a.</th><th>Limite</th><th>Prazo máx.</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="row">
+      <select id="sel-bank"></select>
+      <input type="number" id="loan-principal" placeholder="valor" value="10000" min="1">
+      <input type="number" id="loan-term" placeholder="meses" value="12" min="1">
+      <select id="loan-type"><option value="PRICE">PRICE (parcela fixa)</option><option value="SAC">SAC (parcela decrescente)</option></select>
+      <button onclick="requestLoan()">Contratar</button>
+    </div>
+    <div id="msg-bank" class="msg"></div>
+    <h2 style="margin-top:16px">Meus empréstimos</h2>
+    <table id="tbl-loans">
+      <thead><tr><th>Banco</th><th>Saldo</th><th>Parcela</th><th>Próx. pagto (dia)</th><th>Status</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Balanço Patrimonial</h2>
+    <table id="tbl-balance"></table>
+  </div>
+
+  <div class="card">
+    <h2>DRE (últimos 30 dias)</h2>
+    <table id="tbl-dre"></table>
+  </div>
+
+  <div class="card">
+    <h2>Fluxo de Caixa (últimos 30 dias)</h2>
+    <table id="tbl-cashflow"></table>
+    <div class="row" style="margin-top:12px">
+      <a href="/api/finance/export.csv"><button class="secondary">Exportar histórico (CSV)</button></a>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

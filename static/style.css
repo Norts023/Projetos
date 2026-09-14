@@ -1,0 +1,69 @@
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #10141a;
+  color: #e6e9ef;
+  margin: 0;
+  padding: 20px;
+}
+h1 { margin-top: 0; }
+h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #9aa4b2; margin-bottom: 8px; }
+
+#topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  background: #171c26;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+.stat { display: flex; flex-direction: column; }
+.stat .label { font-size: 11px; color: #9aa4b2; text-transform: uppercase; }
+.stat .value { font-size: 20px; font-weight: 600; }
+#topbar .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.card { background: #171c26; border-radius: 10px; padding: 16px 18px; min-width: 0; }
+.card.wide { grid-column: span 2; }
+@media (max-width: 700px) { .card.wide { grid-column: span 1; } }
+
+table { table-layout: fixed; }
+td, th { overflow: hidden; text-overflow: ellipsis; }
+table button { padding: 5px 8px; font-size: 12px; white-space: nowrap; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #232a37; }
+th { color: #9aa4b2; font-weight: 500; }
+
+button {
+  background: #3d7bfd;
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:hover { background: #5a8dfd; }
+button.secondary { background: #2a3140; }
+button.secondary:hover { background: #384258; }
+button:disabled { background: #2a3140; cursor: not-allowed; opacity: .6; }
+
+input[type=number], select {
+  background: #0f1319;
+  border: 1px solid #2a3140;
+  color: #e6e9ef;
+  padding: 6px 8px;
+  border-radius: 6px;
+  width: 90px;
+}
+
+.row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+.msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+.msg.error { color: #ff6b6b; }
+.msg.ok { color: #6bffb0; }
+.positive { color: #6bffb0; }
+.negative { color: #ff6b6b; }
+.owned { opacity: .55; }
