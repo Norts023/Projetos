@@ -43,22 +43,46 @@ document.querySelectorAll('.nav-group-header').forEach((header) => {
 let isRunning = true;
 let recipesCache = [];
 
-async function refreshAll() {
+// Fetches every endpoint independently (instead of Promise.all) so that a
+// single failing request — e.g. a stale local save missing a new column —
+// can't blank out the entire UI. Each failure is logged and its dependent
+// section is simply skipped for that refresh instead of aborting everything.
+async function fetchOrNull(name, path) {
   try {
-    const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors, goalsList, retailOrders] =
-      await Promise.all([
-        api('/api/company'), api('/api/market'), api('/api/market/recipes'), api('/api/land'),
-        api('/api/production/factories'), api('/api/banks/offers'), api('/api/loans'),
-        api('/api/finance/balance'), api('/api/finance/dre'), api('/api/finance/cashflow'),
-        api('/api/game/state'), api('/api/competitors'), api('/api/goals'), api('/api/retail/orders'),
-      ]);
-    recipesCache = recipes;
+    return await api(path);
+  } catch (err) {
+    console.error(`Falha ao carregar ${name}:`, err);
+    return null;
+  }
+}
 
+async function refreshAll() {
+  const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors, goalsList, retailOrders] =
+    await Promise.all([
+      fetchOrNull('company', '/api/company'),
+      fetchOrNull('market', '/api/market'),
+      fetchOrNull('recipes', '/api/market/recipes'),
+      fetchOrNull('land', '/api/land'),
+      fetchOrNull('factories', '/api/production/factories'),
+      fetchOrNull('offers', '/api/banks/offers'),
+      fetchOrNull('loans', '/api/loans'),
+      fetchOrNull('balance', '/api/finance/balance'),
+      fetchOrNull('dre', '/api/finance/dre'),
+      fetchOrNull('cashflow', '/api/finance/cashflow'),
+      fetchOrNull('gameState', '/api/game/state'),
+      fetchOrNull('competitors', '/api/competitors'),
+      fetchOrNull('goals', '/api/goals'),
+      fetchOrNull('retailOrders', '/api/retail/orders'),
+    ]);
+
+  if (company) {
     document.getElementById('s-name').textContent = company.name;
     document.getElementById('s-cash').textContent = money(company.cash);
     document.getElementById('s-day').textContent = `Dia ${company.day}`;
     document.getElementById('s-score').textContent = company.credit_score;
+  }
 
+  if (gameState) {
     latestGameMinutes = gameState.game_minutes;
     isRunning = gameState.running;
     document.getElementById('btn-pause').textContent = isRunning ? 'Pausar' : 'Retomar';
@@ -67,27 +91,21 @@ async function refreshAll() {
     if (gameState.beginner_boost_active) {
       document.getElementById('s-boost').textContent = `2x produção (${gameState.beginner_boost_days_left}d restantes)`;
     }
-
-    renderMarket(market, company);
-    renderRetailGoodOptions(market);
-    renderRetailOrders(retailOrders);
-    renderFactories(factories, 'tbl-factories');
-    renderFactories(factories, 'tbl-overview-factories');
-    renderBuildForm(land, factories, recipes);
-    renderLand(land, factories);
-    renderMap(land, factories);
-    renderOffers(offers);
-    renderLoans(loans);
-    renderBalance(balance, 'tbl-balance');
-    renderBalance(balance, 'tbl-overview-balance');
-    renderDre(dre, 'tbl-dre');
-    renderDre(dre, 'tbl-overview-dre');
-    renderCashflow(cashflow);
-    renderCompetitors(competitors);
-    renderGoals(goalsList);
-  } catch (err) {
-    console.error(err);
   }
+
+  if (recipes) recipesCache = recipes;
+  if (market && company) { renderMarket(market, company); renderRetailGoodOptions(market); }
+  if (retailOrders) renderRetailOrders(retailOrders);
+  if (factories) { renderFactories(factories, 'tbl-factories'); renderFactories(factories, 'tbl-overview-factories'); }
+  if (land && factories && recipes) renderBuildForm(land, factories, recipes);
+  if (land && factories) { renderLand(land, factories); renderMap(land, factories); }
+  if (offers) renderOffers(offers);
+  if (loans) renderLoans(loans);
+  if (balance) { renderBalance(balance, 'tbl-balance'); renderBalance(balance, 'tbl-overview-balance'); }
+  if (dre) { renderDre(dre, 'tbl-dre'); renderDre(dre, 'tbl-overview-dre'); }
+  if (cashflow) renderCashflow(cashflow);
+  if (competitors) renderCompetitors(competitors);
+  if (goalsList) renderGoals(goalsList);
 }
 
 let goodsLabelMap = {};

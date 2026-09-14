@@ -18,7 +18,7 @@ from app.api import (
     routes_production,
     routes_retail,
 )
-from app.database import STATE_LOCK, Base, SessionLocal, engine
+from app.database import STATE_LOCK, Base, SessionLocal, engine, ensure_schema
 from app.seed import seed_if_empty
 from app.simulation.clock import run_background_clock
 
@@ -28,6 +28,7 @@ STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_schema()
     session = SessionLocal()
     try:
         seed_if_empty(session)
@@ -63,5 +64,19 @@ app.include_router(routes_competitors.router)
 app.include_router(routes_admin.router)
 app.include_router(routes_goals.router)
 app.include_router(routes_retail.router)
+
+
+@app.middleware("http")
+async def disable_static_cache(request, call_next):
+    """Mobile browsers (Termux/Android in particular) cache static files
+    aggressively, so a `git pull` that updates app.js/style.css can silently
+    keep serving the old version until a hard-refresh. Force revalidation on
+    every load instead — this is a local single-player game, not something
+    that needs CDN-style caching."""
+    response = await call_next(request)
+    if not request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
