@@ -37,12 +37,12 @@ let recipesCache = [];
 
 async function refreshAll() {
   try {
-    const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors] =
+    const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors, goalsList] =
       await Promise.all([
         api('/api/company'), api('/api/market'), api('/api/market/recipes'), api('/api/land'),
         api('/api/production/factories'), api('/api/banks/offers'), api('/api/loans'),
         api('/api/finance/balance'), api('/api/finance/dre'), api('/api/finance/cashflow'),
-        api('/api/game/state'), api('/api/competitors'),
+        api('/api/game/state'), api('/api/competitors'), api('/api/goals'),
       ]);
     recipesCache = recipes;
 
@@ -68,6 +68,7 @@ async function refreshAll() {
     renderDre(dre, 'tbl-overview-dre');
     renderCashflow(cashflow);
     renderCompetitors(competitors);
+    renderGoals(goalsList);
   } catch (err) {
     console.error(err);
   }
@@ -282,6 +283,21 @@ function renderCompetitors(rows) {
       <td>${r.product_label ?? '-'}</td>
       <td>${money(r.valuation)}</td>
       <td>${r.total_produced === null ? '-' : r.total_produced}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderGoals(goalsList) {
+  const tbody = document.querySelector('#tbl-goals tbody');
+  tbody.innerHTML = '';
+  goalsList.forEach((g) => {
+    const tr = document.createElement('tr');
+    if (g.achieved) tr.style.opacity = '0.6';
+    tr.innerHTML = `
+      <td>${g.achieved ? '✅' : '⬜'}</td>
+      <td>${g.label}</td>
+      <td>${g.description}${g.achieved ? ` <small>(dia ${g.achieved_day})</small>` : ''}</td>
+      <td>${money(g.reward_cash)}</td>`;
     tbody.appendChild(tr);
   });
 }

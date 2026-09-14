@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import config
 from app.database import STATE_LOCK, SessionLocal
 from app.models import Company, GameClock
-from app.simulation import bank, competitors, economy, land
+from app.simulation import bank, competitors, economy, goals, land
 
 logger = logging.getLogger("business_sim.clock")
 
@@ -34,6 +34,8 @@ def advance(session: Session, minutes: int) -> dict:
         economy.tick_market(session, step_minutes)
         remaining -= step_minutes
 
+    company.total_produced += produced
+
     clock.game_minutes += minutes
     new_day = clock.game_minutes // config.MINUTES_PER_DAY
     days_elapsed = new_day - old_day
@@ -43,12 +45,15 @@ def advance(session: Session, minutes: int) -> dict:
         bank.process_due_loans(session, company, new_day, clock.game_minutes)
         competitors.apply_daily_growth(session, days_elapsed)
 
+    newly_achieved = goals.check_goals(session, company, new_day, clock.game_minutes)
+
     session.commit()
     return {
         "game_minutes": clock.game_minutes,
         "day": new_day,
         "produced": produced,
         "days_elapsed": days_elapsed,
+        "goals_achieved": [g["id"] for g in newly_achieved],
     }
 
 

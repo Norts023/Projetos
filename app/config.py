@@ -132,3 +132,28 @@ LAND_PLOTS = [
     {"name": "Reserva Oeste (barata, distante)", "region": "Oeste", "price": 6_000.0,
      "terraforming_cost": 1_500.0, "logistics_bonus": -0.05, "capacity": 1},
 ]
+
+# --- Goals (optional progress milestones, Sim Companies "missions"-style) ---
+# The actual pass/fail check for each id lives in app.simulation.goals.CHECKS.
+GOALS = [
+    {"id": "primeira_fabrica", "label": "Primeira Fábrica",
+     "description": "Construa sua primeira fábrica.", "reward_cash": 2_000.0},
+    {"id": "expansao_territorial", "label": "Expansão Territorial",
+     "description": "Possua 3 terrenos.", "reward_cash": 5_000.0},
+    {"id": "diversificacao_industrial", "label": "Diversificação Industrial",
+     "description": "Tenha fábricas de pelo menos 3 receitas diferentes.", "reward_cash": 8_000.0},
+    {"id": "producao_em_massa", "label": "Produção em Massa",
+     "description": "Produza 1.000 unidades acumuladas (qualquer bem).", "reward_cash": 5_000.0},
+    {"id": "vendedor_nato", "label": "Vendedor Nato",
+     "description": "Acumule R$ 100.000 em receita de vendas.", "reward_cash": 4_000.0},
+    {"id": "sem_dividas", "label": "Sem Dívidas",
+     "description": "Contraia um empréstimo e quite-o totalmente.", "reward_cash": 3_000.0},
+    {"id": "credito_impecavel", "label": "Crédito Impecável",
+     "description": "Alcance um score de crédito de 800.", "reward_cash": 3_000.0},
+    {"id": "lider_de_mercado", "label": "Líder de Mercado",
+     "description": "Ultrapasse todos os concorrentes em valorização.", "reward_cash": 10_000.0},
+    {"id": "primeiro_milhao", "label": "Primeiro Milhão",
+     "description": "Atinja R$ 1.000.000 de patrimônio líquido.", "reward_cash": 20_000.0},
+    {"id": "magnata", "label": "Magnata",
+     "description": "Atinja R$ 5.000.000 de patrimônio líquido.", "reward_cash": 50_000.0},
+]

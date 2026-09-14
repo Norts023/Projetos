@@ -22,6 +22,7 @@ class Company(Base):
     name: Mapped[str] = mapped_column(String, default="Minha Empresa")
     cash: Mapped[float] = mapped_column(Float, default=0.0)
     credit_score: Mapped[int] = mapped_column(Integer, default=600)
+    total_produced: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     inventory: Mapped[list["InventoryItem"]] = relationship(back_populates="company")
@@ -141,3 +142,11 @@ class LedgerEntry(Base):
     description: Mapped[str] = mapped_column(String, default="")
 
     company: Mapped["Company"] = relationship(back_populates="ledger_entries")
+
+
+class AchievedGoal(Base):
+    __tablename__ = "achieved_goal"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    goal_id: Mapped[str] = mapped_column(String, unique=True)
+    achieved_day: Mapped[int] = mapped_column(Integer)

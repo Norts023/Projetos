@@ -12,6 +12,7 @@ from app.api import (
     routes_competitors,
     routes_finance,
     routes_game,
+    routes_goals,
     routes_land,
     routes_market,
     routes_production,
@@ -59,5 +60,6 @@ app.include_router(routes_finance.router)
 app.include_router(routes_game.router)
 app.include_router(routes_competitors.router)
 app.include_router(routes_admin.router)
+app.include_router(routes_goals.router)
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

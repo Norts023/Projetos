@@ -9,7 +9,7 @@ from app.models import Company, LedgerEntry, MarketGoodState
 from app.simulation import categories
 
 
-def _sum_category(session: Session, company_id: int, category: str, from_day: int, to_day: int) -> float:
+def sum_category(session: Session, company_id: int, category: str, from_day: int = 0, to_day: int = 10**9) -> float:
     rows = session.scalars(
         select(LedgerEntry.amount).where(
             LedgerEntry.company_id == company_id,
@@ -22,18 +22,19 @@ def _sum_category(session: Session, company_id: int, category: str, from_day: in
 
 
 def income_statement(session: Session, company: Company, from_day: int, to_day: int) -> dict:
-    revenue = _sum_category(session, company.id, categories.SALES, from_day, to_day)
-    cogs = _sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
-    upkeep = _sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
-    interest = _sum_category(session, company.id, categories.LOAN_INTEREST, from_day, to_day)
+    revenue = sum_category(session, company.id, categories.SALES, from_day, to_day)
+    cogs = sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
+    upkeep = sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
+    interest = sum_category(session, company.id, categories.LOAN_INTEREST, from_day, to_day)
+    goal_rewards = sum_category(session, company.id, categories.GOAL_REWARD, from_day, to_day)
     gross_profit = revenue - cogs
     operating_profit = gross_profit - upkeep
-    net_profit = operating_profit - interest
+    net_profit = operating_profit - interest + goal_rewards
     return {
         "from_day": from_day, "to_day": to_day,
         "revenue": revenue, "cogs": cogs, "gross_profit": round(gross_profit, 2),
         "opex_upkeep": upkeep, "operating_profit": round(operating_profit, 2),
-        "interest_expense": interest, "net_profit": round(net_profit, 2),
+        "interest_expense": interest, "goal_rewards": goal_rewards, "net_profit": round(net_profit, 2),
     }
 
 
@@ -60,19 +61,20 @@ def balance_sheet(session: Session, company: Company) -> dict:
 
 
 def cash_flow_statement(session: Session, company: Company, from_day: int, to_day: int) -> dict:
-    revenue = _sum_category(session, company.id, categories.SALES, from_day, to_day)
-    cogs = _sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
-    upkeep = _sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
-    operating = round(revenue - cogs - upkeep, 2)
+    revenue = sum_category(session, company.id, categories.SALES, from_day, to_day)
+    cogs = sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
+    upkeep = sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
+    goal_rewards = sum_category(session, company.id, categories.GOAL_REWARD, from_day, to_day)
+    operating = round(revenue - cogs - upkeep + goal_rewards, 2)
 
-    loan_proceeds = _sum_category(session, company.id, categories.LOAN_PROCEEDS, from_day, to_day)
-    loan_principal = _sum_category(session, company.id, categories.LOAN_PRINCIPAL, from_day, to_day)
-    loan_interest = _sum_category(session, company.id, categories.LOAN_INTEREST, from_day, to_day)
-    loan_payoff = _sum_category(session, company.id, categories.LOAN_PAYOFF, from_day, to_day)
+    loan_proceeds = sum_category(session, company.id, categories.LOAN_PROCEEDS, from_day, to_day)
+    loan_principal = sum_category(session, company.id, categories.LOAN_PRINCIPAL, from_day, to_day)
+    loan_interest = sum_category(session, company.id, categories.LOAN_INTEREST, from_day, to_day)
+    loan_payoff = sum_category(session, company.id, categories.LOAN_PAYOFF, from_day, to_day)
     financing = round(loan_proceeds - loan_principal - loan_interest - loan_payoff, 2)
 
-    land_purchase = _sum_category(session, company.id, categories.LAND_PURCHASE, from_day, to_day)
-    factory_build = _sum_category(session, company.id, categories.FACTORY_BUILD, from_day, to_day)
+    land_purchase = sum_category(session, company.id, categories.LAND_PURCHASE, from_day, to_day)
+    factory_build = sum_category(session, company.id, categories.FACTORY_BUILD, from_day, to_day)
     investing = round(-(land_purchase + factory_build), 2)
 
     return {

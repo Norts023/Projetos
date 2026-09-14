@@ -71,13 +71,17 @@ do Sim Companies.
 - **Painel admin para testes** (`/admin.html`): editar caixa, score,
   estoque, preços de mercado, o relógio do jogo e os concorrentes
   diretamente, ou resetar o jogo do zero.
+- **Metas/objetivos opcionais**: 10 marcos de progresso (primeira fábrica,
+  diversificação industrial, quitar uma dívida, virar líder de mercado,
+  primeiro milhão, etc.), cada um com uma recompensa em dinheiro paga uma
+  única vez ao ser concluído. Acompanhados na aba "Metas".
 
 ## Ideias para próximos passos (não implementadas ainda)
 
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
-- Metas/objetivos opcionais (marcos de progresso)
 - Reputação de mercado além do score de crédito bancário
 - Upgrades de nível de fábrica (aumentar taxa de produção)
+- Catálogo de mercadorias mais amplo (mais categorias/cadeias de produção)
 
 ## Estrutura do projeto
 
