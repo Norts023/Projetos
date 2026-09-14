@@ -34,6 +34,26 @@ editar diretamente caixa, score de crédito, estoque, preços de mercado,
 o relógio do jogo e os concorrentes — útil para testes, sem passar pelas
 regras normais do jogo.
 
+### Jogar pelo celular (mesma rede Wi-Fi)
+
+O jogo continua rodando no computador, mas dá pra acessar pelo navegador
+do celular se os dois estiverem na mesma rede Wi-Fi:
+
+1. Rode o servidor aceitando conexões de outros dispositivos:
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000
+   ```
+2. Descubra o IP local do computador:
+   - Windows: `ipconfig` (campo "Endereço IPv4")
+   - Mac/Linux: `ifconfig` ou `ip addr` (algo como `192.168.0.x`)
+3. No celular, com o Wi-Fi conectado à mesma rede, abra no navegador:
+   `http://<IP-do-computador>:8000` (ex: `http://192.168.0.42:8000`)
+4. Se não conectar, o firewall do computador pode estar bloqueando a
+   porta 8000 — libere o acesso na primeira vez que o sistema pedir.
+
+Isso expõe o jogo para qualquer aparelho na sua rede local (normal em
+casa; evite fazer isso em Wi-Fi público/compartilhado).
+
 A interface é organizada em abas com menu lateral (Visão Geral, Produção,
 Mercado, Varejo, Terrenos, Bancos, Financeiro, Concorrência, Metas), no
 estilo do painel do Sim Companies.
