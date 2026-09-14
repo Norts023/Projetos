@@ -40,12 +40,20 @@ do Sim Companies.
 
 ## Mecânicas implementadas (v1)
 
-- **Cadeias de produção multi-tier** (como no Sim Companies): 9 bens em 4
-  tiers — matérias-primas (Minério de Ferro, Petróleo, Algodão) → processados
-  (Aço, Plástico, Tecido) → componentes (Peças Mecânicas, Roupas) → produto
-  final (Eletrodomésticos). Cada bem processado tem sua própria receita
-  (fábrica/insumos/taxa de produção) e pode ser comprado ou vendido no
-  mercado a qualquer momento ("produzir vs. comprar pronto").
+- **Cadeias de produção multi-tier** (como no Sim Companies): 40 bens em 4
+  tiers, em 5 setores — Industrial (Minério de Ferro → Aço → Peças
+  Mecânicas → Eletrodomésticos), Petroquímico/Têxtil (Petróleo → Plástico,
+  Algodão → Tecido → Roupas), Agropecuária/Alimentos (Vacas/Cereal → Leite,
+  Bife, Farinha → Queijo, Pão → Hamburguer), Construção (Argila, Calcário,
+  Madeira → Tijolos, Cimento, Tábuas, Vigas de Aço → Concreto Armado),
+  Eletrônicos (Silício, Minerais → Processadores, Baterias, Telas,
+  Componentes → Smartphones → Robôs) e Automóvel (Carroceria, Motor,
+  Interior → Motor Elétrico, Computador de Bordo → Carro Econômico/Elétrico).
+  Vários bens (Aço, Plástico, Tecido, Processadores...) são reaproveitados
+  como insumo em mais de uma cadeia, exatamente como no jogo original. Cada
+  bem processado tem sua própria receita (fábrica/insumos/taxa de produção)
+  e pode ser comprado ou vendido no mercado a qualquer momento ("produzir
+  vs. comprar pronto").
 - **Mercado dinâmico**: cada um dos 9 bens tem preço próprio que reage à
   oferta (produção/vendas) e demanda (compras + demanda de base simulada
   por tier), com tendência de retorno ao preço-base ao longo do tempo.
@@ -63,11 +71,11 @@ do Sim Companies.
 - **API REST**: todos os módulos acima são expostos via `/api/...` para
   consulta e análise externa dos seus dados (ex: puxar `/api/finance/dre`
   ou o CSV para montar seus próprios relatórios).
-- **Concorrentes simulados (IA leve)**: 3 empresas fictícias, cada uma
-  com sua própria cadeia de produção (Aço, Roupas, Eletrodomésticos),
-  produzem e vendem no mesmo mercado que você e crescem aos poucos;
-  painel de "Concorrência" ranqueia todo mundo por valorização estimada,
-  como um placar do Sim Companies.
+- **Concorrentes simulados (IA leve)**: 5 empresas fictícias, cada uma
+  com sua própria cadeia de produção (Aço, Roupas, Eletrodomésticos,
+  Hamburguer, Carro Econômico), produzem e vendem no mesmo mercado que
+  você e crescem aos poucos; painel de "Concorrência" ranqueia todo mundo
+  por valorização estimada, como um placar do Sim Companies.
 - **Painel admin para testes** (`/admin.html`): editar caixa, score,
   estoque, preços de mercado, o relógio do jogo e os concorrentes
   diretamente, ou resetar o jogo do zero.
@@ -81,7 +89,10 @@ do Sim Companies.
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
 - Reputação de mercado além do score de crédito bancário
 - Upgrades de nível de fábrica (aumentar taxa de produção)
-- Catálogo de mercadorias mais amplo (mais categorias/cadeias de produção)
+- Mais categorias do Sim Companies ainda de fora: Moda (Couro, Vestido,
+  Bolsas...), Energia (Gasolina, Diesel, Etanol...), Aeroespacial (a cadeia
+  mais longa do jogo original, até foguetes), Pesquisa (árvore de
+  tecnologia) e itens Sazonais (eventos por época do ano)
 
 ## Estrutura do projeto
 

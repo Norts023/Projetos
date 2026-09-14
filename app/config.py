@@ -29,6 +29,45 @@ GOODS = {
     "pecas_mecanicas":   {"label": "Peças Mecânicas",   "tier": 2, "base_price": 90.0,  "min_price": 10.0},
     "roupas":            {"label": "Roupas",            "tier": 2, "base_price": 70.0,  "min_price": 8.0},
     "eletrodomesticos":  {"label": "Eletrodomésticos",  "tier": 3, "base_price": 220.0, "min_price": 25.0},
+
+    # Agropecuária / Alimentos
+    "vacas":              {"label": "Vacas",              "tier": 0, "base_price": 20.0, "min_price": 3.0},
+    "cereal":             {"label": "Cereal",              "tier": 0, "base_price": 5.0,  "min_price": 1.0},
+    "leite":              {"label": "Leite",               "tier": 1, "base_price": 12.0, "min_price": 2.0},
+    "bife":               {"label": "Bife",                "tier": 1, "base_price": 30.0, "min_price": 4.0},
+    "farinha":            {"label": "Farinha",             "tier": 1, "base_price": 10.0, "min_price": 1.0},
+    "queijo":             {"label": "Queijo",              "tier": 2, "base_price": 40.0, "min_price": 5.0},
+    "pao":                {"label": "Pão",                 "tier": 2, "base_price": 15.0, "min_price": 2.0},
+    "hamburguer":         {"label": "Hamburguer",          "tier": 3, "base_price": 60.0, "min_price": 8.0},
+
+    # Construção
+    "argila":             {"label": "Argila",              "tier": 0, "base_price": 4.0,  "min_price": 1.0},
+    "calcario":           {"label": "Calcário",            "tier": 0, "base_price": 5.0,  "min_price": 1.0},
+    "madeira":            {"label": "Madeira",             "tier": 0, "base_price": 6.0,  "min_price": 1.0},
+    "tijolos":            {"label": "Tijolos",             "tier": 1, "base_price": 12.0, "min_price": 2.0},
+    "cimento":            {"label": "Cimento",             "tier": 1, "base_price": 14.0, "min_price": 2.0},
+    "tabuas":             {"label": "Tábuas",              "tier": 1, "base_price": 10.0, "min_price": 1.0},
+    "vigas_aco":          {"label": "Vigas de Aço",        "tier": 1, "base_price": 55.0, "min_price": 6.0},
+    "concreto_armado":    {"label": "Concreto Armado",     "tier": 2, "base_price": 120.0, "min_price": 15.0},
+
+    # Eletrônicos
+    "silicio":            {"label": "Silício",             "tier": 0, "base_price": 15.0, "min_price": 2.0},
+    "minerais":           {"label": "Minerais",            "tier": 0, "base_price": 10.0, "min_price": 1.0},
+    "processadores":      {"label": "Processadores",       "tier": 1, "base_price": 60.0, "min_price": 8.0},
+    "baterias":           {"label": "Baterias",            "tier": 1, "base_price": 35.0, "min_price": 4.0},
+    "telas":              {"label": "Telas",               "tier": 1, "base_price": 45.0, "min_price": 5.0},
+    "componentes_eletronicos": {"label": "Componentes Eletrônicos", "tier": 1, "base_price": 40.0, "min_price": 5.0},
+    "smartphones":        {"label": "Smartphones",         "tier": 2, "base_price": 350.0, "min_price": 40.0},
+    "robos":              {"label": "Robôs",                "tier": 3, "base_price": 900.0, "min_price": 100.0},
+
+    # Automóvel
+    "carroceria":         {"label": "Carroceria",          "tier": 1, "base_price": 150.0, "min_price": 20.0},
+    "motor_combustao":    {"label": "Motor de Combustão",  "tier": 1, "base_price": 180.0, "min_price": 25.0},
+    "interior_basico":    {"label": "Interior Básico",     "tier": 1, "base_price": 90.0,  "min_price": 12.0},
+    "motor_eletrico":     {"label": "Motor Elétrico",      "tier": 2, "base_price": 260.0, "min_price": 35.0},
+    "computador_bordo":   {"label": "Computador de Bordo", "tier": 2, "base_price": 300.0, "min_price": 40.0},
+    "carro_economico":    {"label": "Carro Econômico",     "tier": 3, "base_price": 1_200.0, "min_price": 150.0},
+    "carro_eletrico_economico": {"label": "Carro Elétrico Econômico", "tier": 3, "base_price": 1_600.0, "min_price": 200.0},
 }
 
 # Each recipe is keyed by the good it produces (one recipe per good, one
@@ -58,6 +97,115 @@ RECIPES = {
     "eletrodomesticos": {
         "label": "Fábrica de Eletrodomésticos", "output_good": "eletrodomesticos", "tier": 3,
         "inputs": {"pecas_mecanicas": 2.0, "plastico": 1.0}, "output_rate_per_hour": 2.0, "build_cost": 60_000.0,
+    },
+
+    # Agropecuária / Alimentos
+    "leite": {
+        "label": "Fazenda Leiteira (Leite)", "output_good": "leite", "tier": 1,
+        "inputs": {"vacas": 0.2}, "output_rate_per_hour": 8.0, "build_cost": 14_000.0,
+    },
+    "bife": {
+        "label": "Frigorífico (Bife)", "output_good": "bife", "tier": 1,
+        "inputs": {"vacas": 0.3}, "output_rate_per_hour": 4.0, "build_cost": 16_000.0,
+    },
+    "farinha": {
+        "label": "Moinho (Farinha)", "output_good": "farinha", "tier": 1,
+        "inputs": {"cereal": 1.5}, "output_rate_per_hour": 7.0, "build_cost": 11_000.0,
+    },
+    "queijo": {
+        "label": "Laticínios (Queijo)", "output_good": "queijo", "tier": 2,
+        "inputs": {"leite": 3.0}, "output_rate_per_hour": 3.0, "build_cost": 22_000.0,
+    },
+    "pao": {
+        "label": "Padaria (Pão)", "output_good": "pao", "tier": 2,
+        "inputs": {"farinha": 1.5}, "output_rate_per_hour": 5.0, "build_cost": 13_000.0,
+    },
+    "hamburguer": {
+        "label": "Lanchonete (Hamburguer)", "output_good": "hamburguer", "tier": 3,
+        "inputs": {"pao": 1.0, "queijo": 1.0, "bife": 1.0}, "output_rate_per_hour": 3.0, "build_cost": 25_000.0,
+    },
+
+    # Construção
+    "tijolos": {
+        "label": "Olaria (Tijolos)", "output_good": "tijolos", "tier": 1,
+        "inputs": {"argila": 2.0}, "output_rate_per_hour": 6.0, "build_cost": 11_000.0,
+    },
+    "cimento": {
+        "label": "Fábrica de Cimento", "output_good": "cimento", "tier": 1,
+        "inputs": {"calcario": 2.0}, "output_rate_per_hour": 6.0, "build_cost": 13_000.0,
+    },
+    "tabuas": {
+        "label": "Serraria (Tábuas)", "output_good": "tabuas", "tier": 1,
+        "inputs": {"madeira": 1.5}, "output_rate_per_hour": 6.0, "build_cost": 10_000.0,
+    },
+    "vigas_aco": {
+        "label": "Metalúrgica (Vigas de Aço)", "output_good": "vigas_aco", "tier": 1,
+        "inputs": {"aco": 1.5}, "output_rate_per_hour": 4.0, "build_cost": 20_000.0,
+    },
+    "concreto_armado": {
+        "label": "Fábrica de Concreto Armado", "output_good": "concreto_armado", "tier": 2,
+        "inputs": {"cimento": 3.0, "vigas_aco": 1.0}, "output_rate_per_hour": 3.0, "build_cost": 32_000.0,
+    },
+
+    # Eletrônicos
+    "processadores": {
+        "label": "Fábrica de Processadores", "output_good": "processadores", "tier": 1,
+        "inputs": {"silicio": 2.0}, "output_rate_per_hour": 4.0, "build_cost": 25_000.0,
+    },
+    "baterias": {
+        "label": "Fábrica de Baterias", "output_good": "baterias", "tier": 1,
+        "inputs": {"minerais": 2.0}, "output_rate_per_hour": 5.0, "build_cost": 18_000.0,
+    },
+    "telas": {
+        "label": "Fábrica de Telas", "output_good": "telas", "tier": 1,
+        "inputs": {"silicio": 1.0, "plastico": 1.0}, "output_rate_per_hour": 4.0, "build_cost": 22_000.0,
+    },
+    "componentes_eletronicos": {
+        "label": "Fábrica de Componentes Eletrônicos", "output_good": "componentes_eletronicos", "tier": 1,
+        "inputs": {"plastico": 1.0, "minerais": 1.0}, "output_rate_per_hour": 5.0, "build_cost": 20_000.0,
+    },
+    "smartphones": {
+        "label": "Fábrica de Smartphones", "output_good": "smartphones", "tier": 2,
+        "inputs": {"processadores": 1.0, "baterias": 1.0, "telas": 1.0},
+        "output_rate_per_hour": 2.0, "build_cost": 50_000.0,
+    },
+    "robos": {
+        "label": "Fábrica de Robôs", "output_good": "robos", "tier": 3,
+        "inputs": {"processadores": 2.0, "componentes_eletronicos": 2.0, "baterias": 2.0},
+        "output_rate_per_hour": 1.0, "build_cost": 80_000.0,
+    },
+
+    # Automóvel
+    "carroceria": {
+        "label": "Estamparia (Carroceria)", "output_good": "carroceria", "tier": 1,
+        "inputs": {"aco": 3.0, "plastico": 1.0}, "output_rate_per_hour": 2.0, "build_cost": 30_000.0,
+    },
+    "motor_combustao": {
+        "label": "Fábrica de Motores a Combustão", "output_good": "motor_combustao", "tier": 1,
+        "inputs": {"aco": 2.0, "petroleo": 2.0}, "output_rate_per_hour": 2.0, "build_cost": 32_000.0,
+    },
+    "interior_basico": {
+        "label": "Fábrica de Interiores", "output_good": "interior_basico", "tier": 1,
+        "inputs": {"tecido": 2.0, "plastico": 1.0}, "output_rate_per_hour": 3.0, "build_cost": 18_000.0,
+    },
+    "motor_eletrico": {
+        "label": "Fábrica de Motores Elétricos", "output_good": "motor_eletrico", "tier": 2,
+        "inputs": {"baterias": 2.0, "aco": 1.0}, "output_rate_per_hour": 2.0, "build_cost": 38_000.0,
+    },
+    "computador_bordo": {
+        "label": "Fábrica de Computadores de Bordo", "output_good": "computador_bordo", "tier": 2,
+        "inputs": {"processadores": 1.0, "componentes_eletronicos": 1.0},
+        "output_rate_per_hour": 2.0, "build_cost": 36_000.0,
+    },
+    "carro_economico": {
+        "label": "Montadora (Carro Econômico)", "output_good": "carro_economico", "tier": 3,
+        "inputs": {"carroceria": 1.0, "motor_combustao": 1.0, "interior_basico": 1.0},
+        "output_rate_per_hour": 1.0, "build_cost": 90_000.0,
+    },
+    "carro_eletrico_economico": {
+        "label": "Montadora (Carro Elétrico)", "output_good": "carro_eletrico_economico", "tier": 3,
+        "inputs": {"carroceria": 1.0, "motor_eletrico": 1.0, "interior_basico": 1.0, "computador_bordo": 1.0},
+        "output_rate_per_hour": 1.0, "build_cost": 110_000.0,
     },
 }
 
@@ -117,6 +265,8 @@ COMPETITORS = [
     {"name": "Industrias Aurora", "recipe_id": "aco", "production_rate_per_hour": 6.0},
     {"name": "Grupo Vantage", "recipe_id": "roupas", "production_rate_per_hour": 5.0},
     {"name": "Cooperativa Sertao", "recipe_id": "eletrodomesticos", "production_rate_per_hour": 2.0},
+    {"name": "Fazenda Sol Nascente", "recipe_id": "hamburguer", "production_rate_per_hour": 4.0},
+    {"name": "AutoMotors Brasil", "recipe_id": "carro_economico", "production_rate_per_hour": 1.0},
 ]
 
 # --- Land ---
