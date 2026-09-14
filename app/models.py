@@ -74,6 +74,7 @@ class Factory(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     company_id: Mapped[int] = mapped_column(ForeignKey("company.id"))
     land_plot_id: Mapped[int] = mapped_column(ForeignKey("land_plot.id"))
+    recipe_id: Mapped[str] = mapped_column(String)
     level: Mapped[int] = mapped_column(Integer, default=1)
     built_at_minutes: Mapped[int] = mapped_column(Integer, default=0)
 
@@ -120,6 +121,7 @@ class Competitor(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String)
+    recipe_id: Mapped[str] = mapped_column(String)
     production_rate_per_hour: Mapped[float] = mapped_column(Float)
     cash: Mapped[float] = mapped_column(Float, default=0.0)
     total_produced: Mapped[float] = mapped_column(Float, default=0.0)

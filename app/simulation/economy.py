@@ -9,46 +9,58 @@ def get_inventory(session: Session, company_id: int, good_name: str) -> Inventor
     return item
 
 
-def process_production(session: Session, company: Company, minutes: int) -> float:
-    """Consume raw material and produce finished goods for every owned factory.
+def get_inventory_map(session: Session, company_id: int) -> dict[str, InventoryItem]:
+    items = session.query(InventoryItem).filter_by(company_id=company_id).all()
+    return {item.good_name: item for item in items}
 
-    Returns total units produced.
+
+def process_production(session: Session, company: Company, minutes: int) -> float:
+    """Run every owned factory's recipe: consume its input goods (possibly more
+    than one) and produce its output good. A factory that lacks enough of any
+    input runs at a reduced rate, limited by the scarcest input.
+
+    Returns total units produced across all factories (mixed goods).
     """
     if not company.factories:
         return 0.0
 
-    raw_inv = get_inventory(session, company.id, config.RAW_MATERIAL)
-    product_inv = get_inventory(session, company.id, config.PRODUCT)
-
+    inventory = get_inventory_map(session, company.id)
     total_produced = 0.0
+
     for factory in company.factories:
+        recipe = config.RECIPES[factory.recipe_id]
         bonus = factory.land_plot.logistics_bonus
         desired_output = (
-            config.BASE_FACTORY_PRODUCTION_PER_HOUR * factory.level * (minutes / 60.0) * (1 + bonus)
+            recipe["output_rate_per_hour"] * factory.level * (minutes / 60.0) * (1 + bonus)
         )
-        required_material = desired_output * config.BASE_FACTORY_MATERIAL_CONSUMPTION_RATIO
-
-        if required_material <= 0:
+        if desired_output <= 0:
             continue
 
-        if raw_inv.quantity < required_material:
-            ratio = raw_inv.quantity / required_material
-            actual_output = desired_output * ratio
-            consumed = raw_inv.quantity
-        else:
-            actual_output = desired_output
-            consumed = required_material
+        limiting_ratio = 1.0
+        for input_good, ratio in recipe["inputs"].items():
+            required = desired_output * ratio
+            if required <= 0:
+                continue
+            available = inventory[input_good].quantity
+            if available < required:
+                limiting_ratio = min(limiting_ratio, available / required)
 
-        raw_inv.quantity = max(0.0, raw_inv.quantity - consumed)
+        actual_output = desired_output * limiting_ratio
+        if actual_output <= 0:
+            continue
+
+        for input_good, ratio in recipe["inputs"].items():
+            inventory[input_good].quantity = max(0.0, inventory[input_good].quantity - actual_output * ratio)
+
+        inventory[recipe["output_good"]].quantity += actual_output
         total_produced += actual_output
 
-    product_inv.quantity += total_produced
     return total_produced
 
 
 def _clamp_price(good_name: str, price: float) -> float:
-    min_price = config.MARKET_GOODS[good_name]["min_price"]
-    base_price = config.MARKET_GOODS[good_name]["base_price"]
+    min_price = config.GOODS[good_name]["min_price"]
+    base_price = config.GOODS[good_name]["base_price"]
     return max(min_price, min(price, base_price * 10))
 
 
@@ -56,7 +68,7 @@ def tick_market(session: Session, minutes: int) -> None:
     """Advance every market good's dynamic price based on accumulated supply/demand,
     with a gentle pull back toward the base price so pressure that eases off doesn't
     leave prices permanently pinned at an extreme."""
-    for good_name in config.MARKET_GOODS:
+    for good_name in config.GOODS:
         market = session.get(MarketGoodState, good_name)
         hours = minutes / 60.0
         market.recent_demand += config.BASELINE_DEMAND_PER_HOUR.get(good_name, 0.0) * hours
@@ -65,7 +77,7 @@ def tick_market(session: Session, minutes: int) -> None:
         imbalance = market.recent_demand - market.recent_supply
         adjustment = config.PRICE_ELASTICITY * (imbalance / 100.0)
 
-        base_price = config.MARKET_GOODS[good_name]["base_price"]
+        base_price = config.GOODS[good_name]["base_price"]
         reversion = -config.PRICE_REVERSION_PER_HOUR * hours * (market.current_price - base_price) / base_price
 
         market.current_price = _clamp_price(good_name, market.current_price * (1 + adjustment + reversion))

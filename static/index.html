@@ -7,102 +7,164 @@
 </head>
 <body>
 
-<div id="topbar">
-  <div class="stat"><span class="label">Empresa</span><span class="value" id="s-name">-</span></div>
-  <div class="stat"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
-  <div class="stat"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
-  <div class="stat"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
-  <div class="controls">
-    <button id="btn-pause" class="secondary">Pausar</button>
-    <select id="sel-speed">
-      <option value="1">1x</option>
-      <option value="2">2x</option>
-      <option value="4">4x</option>
-      <option value="8">8x</option>
-    </select>
-    <button id="btn-advance-day" class="secondary">Avançar 1 dia</button>
-    <a href="/admin.html"><button class="secondary">⚙ Admin</button></a>
+<div id="app-shell">
+  <div id="sidebar">
+    <div class="brand"><span class="logo">🏭</span> Business Sim</div>
+    <nav>
+      <button class="nav-btn active" data-page="overview"><span class="icon">📊</span> Visão Geral</button>
+      <button class="nav-btn" data-page="production"><span class="icon">🏗️</span> Produção</button>
+      <button class="nav-btn" data-page="market"><span class="icon">📦</span> Mercado</button>
+      <button class="nav-btn" data-page="land"><span class="icon">🗺️</span> Terrenos</button>
+      <button class="nav-btn" data-page="bank"><span class="icon">🏦</span> Bancos</button>
+      <button class="nav-btn" data-page="finance"><span class="icon">💹</span> Financeiro</button>
+      <button class="nav-btn" data-page="competitors"><span class="icon">🏆</span> Concorrência</button>
+    </nav>
+    <div class="admin-link"><a href="/admin.html">⚙ Painel admin (dev)</a></div>
   </div>
-</div>
 
-<div class="grid">
-
-  <div class="card">
-    <h2>Produção &amp; Mercado</h2>
-    <table>
-      <tr><td>Matéria-prima em estoque</td><td id="inv-materia_prima">-</td></tr>
-      <tr><td>Produto em estoque</td><td id="inv-produto">-</td></tr>
-      <tr><td>Preço matéria-prima</td><td id="price-materia_prima">-</td></tr>
-      <tr><td>Preço produto</td><td id="price-produto">-</td></tr>
-      <tr><td>Fábricas construídas</td><td id="factory-count">-</td></tr>
-    </table>
-    <div class="row">
-      <input type="number" id="qty-buy" value="50" min="1">
-      <button onclick="buyMaterial()">Comprar matéria-prima</button>
+  <div id="main">
+    <div id="topbar">
+      <div class="stat"><span class="label">Empresa</span><span class="value" id="s-name">-</span></div>
+      <div class="stat"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
+      <div class="stat"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
+      <div class="stat"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
+      <div class="controls">
+        <button id="btn-pause" class="secondary">Pausar</button>
+        <select id="sel-speed">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="4">4x</option>
+          <option value="8">8x</option>
+        </select>
+        <button id="btn-advance-day" class="secondary">Avançar 1 dia</button>
+      </div>
     </div>
-    <div class="row">
-      <input type="number" id="qty-sell" value="50" min="1">
-      <button onclick="sellProduct()">Vender produto</button>
+
+    <div id="content">
+
+      <section class="page active" id="page-overview">
+        <h1>Visão Geral</h1>
+        <div class="grid">
+          <div class="card">
+            <h2>Resumo financeiro</h2>
+            <table id="tbl-overview-balance"></table>
+          </div>
+          <div class="card">
+            <h2>DRE (últimos 30 dias)</h2>
+            <table id="tbl-overview-dre"></table>
+          </div>
+          <div class="card wide">
+            <h2>Minhas fábricas</h2>
+            <table id="tbl-overview-factories">
+              <thead><tr><th>Receita</th><th>Produz</th><th>Terreno</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-production">
+        <h1>Produção</h1>
+        <div class="grid">
+          <div class="card wide">
+            <h2>Minhas fábricas</h2>
+            <table id="tbl-factories">
+              <thead><tr><th>Receita</th><th>Produz</th><th>Terreno</th><th>Nível</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="card wide">
+            <h2>Construir nova fábrica</h2>
+            <div class="row">
+              <select id="sel-build-plot"></select>
+              <select id="sel-build-recipe"></select>
+              <button onclick="buildFactory()">Construir</button>
+            </div>
+            <div id="msg-build" class="msg"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-market">
+        <h1>Mercado</h1>
+        <div class="card wide">
+          <div id="market-tiers"></div>
+          <div id="msg-market" class="msg"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-land">
+        <h1>Terrenos</h1>
+        <div class="card wide">
+          <table id="tbl-land">
+            <thead><tr><th>Nome</th><th>Preço</th><th>Bônus</th><th>Capac.</th><th>Uso</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div id="msg-land" class="msg"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-bank">
+        <h1>Bancos &amp; Empréstimos</h1>
+        <div class="grid">
+          <div class="card wide">
+            <h2>Ofertas disponíveis</h2>
+            <table id="tbl-offers">
+              <thead><tr><th>Banco</th><th>Taxa a.a.</th><th>Limite</th><th>Prazo máx.</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="row">
+              <select id="sel-bank"></select>
+              <input type="number" id="loan-principal" placeholder="valor" value="10000" min="1">
+              <input type="number" id="loan-term" placeholder="meses" value="12" min="1">
+              <select id="loan-type"><option value="PRICE">PRICE (parcela fixa)</option><option value="SAC">SAC (parcela decrescente)</option></select>
+              <button onclick="requestLoan()">Contratar</button>
+            </div>
+            <div id="msg-bank" class="msg"></div>
+          </div>
+          <div class="card wide">
+            <h2>Meus empréstimos</h2>
+            <table id="tbl-loans">
+              <thead><tr><th>Banco</th><th>Saldo</th><th>Parcela</th><th>Próx. pagto (dia)</th><th>Status</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-finance">
+        <h1>Financeiro</h1>
+        <div class="grid">
+          <div class="card">
+            <h2>Balanço Patrimonial</h2>
+            <table id="tbl-balance"></table>
+          </div>
+          <div class="card">
+            <h2>DRE (últimos 30 dias)</h2>
+            <table id="tbl-dre"></table>
+          </div>
+          <div class="card">
+            <h2>Fluxo de Caixa (últimos 30 dias)</h2>
+            <table id="tbl-cashflow"></table>
+            <div class="row" style="margin-top:12px">
+              <a href="/api/finance/export.csv"><button class="secondary">Exportar histórico (CSV)</button></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-competitors">
+        <h1>Concorrência</h1>
+        <div class="card wide">
+          <table id="tbl-competitors">
+            <thead><tr><th>Empresa</th><th>Produto</th><th>Valorização</th><th>Produção total</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
     </div>
-    <div id="msg-production" class="msg"></div>
   </div>
-
-  <div class="card wide">
-    <h2>Terrenos</h2>
-    <table id="tbl-land">
-      <thead><tr><th>Nome</th><th>Preço</th><th>Bônus</th><th>Capac.</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div id="msg-land" class="msg"></div>
-  </div>
-
-  <div class="card wide">
-    <h2>Bancos &amp; Empréstimos</h2>
-    <table id="tbl-offers">
-      <thead><tr><th>Banco</th><th>Taxa a.a.</th><th>Limite</th><th>Prazo máx.</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div class="row">
-      <select id="sel-bank"></select>
-      <input type="number" id="loan-principal" placeholder="valor" value="10000" min="1">
-      <input type="number" id="loan-term" placeholder="meses" value="12" min="1">
-      <select id="loan-type"><option value="PRICE">PRICE (parcela fixa)</option><option value="SAC">SAC (parcela decrescente)</option></select>
-      <button onclick="requestLoan()">Contratar</button>
-    </div>
-    <div id="msg-bank" class="msg"></div>
-    <h2 style="margin-top:16px">Meus empréstimos</h2>
-    <table id="tbl-loans">
-      <thead><tr><th>Banco</th><th>Saldo</th><th>Parcela</th><th>Próx. pagto (dia)</th><th>Status</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Concorrência</h2>
-    <table id="tbl-competitors">
-      <thead><tr><th>Empresa</th><th>Valorização</th><th>Produção total</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Balanço Patrimonial</h2>
-    <table id="tbl-balance"></table>
-  </div>
-
-  <div class="card">
-    <h2>DRE (últimos 30 dias)</h2>
-    <table id="tbl-dre"></table>
-  </div>
-
-  <div class="card">
-    <h2>Fluxo de Caixa (últimos 30 dias)</h2>
-    <table id="tbl-cashflow"></table>
-    <div class="row" style="margin-top:12px">
-      <a href="/api/finance/export.csv"><button class="secondary">Exportar histórico (CSV)</button></a>
-    </div>
-  </div>
-
 </div>
 
 <script src="app.js"></script>

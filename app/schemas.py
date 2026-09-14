@@ -7,6 +7,15 @@ class QuantityRequest(BaseModel):
     quantity: float = Field(gt=0)
 
 
+class GoodQuantityRequest(BaseModel):
+    good_name: str
+    quantity: float = Field(gt=0)
+
+
+class BuildFactoryRequest(BaseModel):
+    recipe_id: str
+
+
 class LoanRequest(BaseModel):
     bank_id: int
     principal: float = Field(gt=0)

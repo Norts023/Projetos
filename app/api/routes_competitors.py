@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app import config
 from app.api.deps import get_company
 from app.database import get_session
 from app.models import Company, Competitor
@@ -15,13 +16,16 @@ def get_leaderboard(company: Company = Depends(get_company), session: Session = 
     rows = [{
         "name": company.name,
         "is_player": True,
+        "product_label": None,
         "valuation": balance["equity"],
         "total_produced": None,
     }]
     for competitor in session.query(Competitor).all():
+        recipe = config.RECIPES[competitor.recipe_id]
         rows.append({
             "name": competitor.name,
             "is_player": False,
+            "product_label": config.GOODS[recipe["output_good"]]["label"],
             "valuation": round(competitor.cash, 2),
             "total_produced": round(competitor.total_produced, 1),
         })

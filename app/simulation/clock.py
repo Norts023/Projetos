@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from app import config
-from app.database import SessionLocal
+from app.database import STATE_LOCK, SessionLocal
 from app.models import Company, GameClock
 from app.simulation import bank, competitors, economy, land
 
@@ -56,15 +56,16 @@ async def run_background_clock() -> None:
     """Runs forever, ticking the game clock in real time while `running` is True."""
     while True:
         await asyncio.sleep(config.TICK_INTERVAL_SECONDS)
-        session = SessionLocal()
-        try:
-            clock = session.get(GameClock, 1)
-            if clock is None or not clock.running:
-                continue
-            minutes = max(1, round(config.GAME_MINUTES_PER_TICK * clock.speed_multiplier))
-            advance(session, minutes)
-        except Exception:
-            logger.exception("Erro ao processar tick do relógio de jogo")
-            session.rollback()
-        finally:
-            session.close()
+        async with STATE_LOCK:
+            session = SessionLocal()
+            try:
+                clock = session.get(GameClock, 1)
+                if clock is None or not clock.running:
+                    continue
+                minutes = max(1, round(config.GAME_MINUTES_PER_TICK * clock.speed_multiplier))
+                advance(session, minutes)
+            except Exception:
+                logger.exception("Erro ao processar tick do relógio de jogo")
+                session.rollback()
+            finally:
+                session.close()

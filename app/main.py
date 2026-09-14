@@ -16,7 +16,7 @@ from app.api import (
     routes_market,
     routes_production,
 )
-from app.database import Base, SessionLocal, engine
+from app.database import STATE_LOCK, Base, SessionLocal, engine
 from app.seed import seed_if_empty
 from app.simulation.clock import run_background_clock
 
@@ -38,6 +38,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Business Sim", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def serialize_api_requests(request, call_next):
+    """Every /api request and the background clock tick share the same game
+    state, so they're serialized through STATE_LOCK to avoid lost updates."""
+    if request.url.path.startswith("/api/"):
+        async with STATE_LOCK:
+            return await call_next(request)
+    return await call_next(request)
+
 
 app.include_router(routes_company.router)
 app.include_router(routes_market.router)

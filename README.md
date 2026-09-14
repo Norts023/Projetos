@@ -34,12 +34,21 @@ editar diretamente caixa, score de crédito, estoque, preços de mercado,
 o relógio do jogo e os concorrentes — útil para testes, sem passar pelas
 regras normais do jogo.
 
+A interface é organizada em abas com menu lateral (Visão Geral, Produção,
+Mercado, Terrenos, Bancos, Financeiro, Concorrência), no estilo do painel
+do Sim Companies.
+
 ## Mecânicas implementadas (v1)
 
-- **Loop básico**: comprar matéria-prima → produzir em fábricas → vender
-  produto no mercado → lucrar → reinvestir.
-- **Mercado dinâmico**: preços de matéria-prima e produto reagem à oferta
-  (suas vendas) e demanda (compras + demanda de base simulada).
+- **Cadeias de produção multi-tier** (como no Sim Companies): 9 bens em 4
+  tiers — matérias-primas (Minério de Ferro, Petróleo, Algodão) → processados
+  (Aço, Plástico, Tecido) → componentes (Peças Mecânicas, Roupas) → produto
+  final (Eletrodomésticos). Cada bem processado tem sua própria receita
+  (fábrica/insumos/taxa de produção) e pode ser comprado ou vendido no
+  mercado a qualquer momento ("produzir vs. comprar pronto").
+- **Mercado dinâmico**: cada um dos 9 bens tem preço próprio que reage à
+  oferta (produção/vendas) e demanda (compras + demanda de base simulada
+  por tier), com tendência de retorno ao preço-base ao longo do tempo.
 - **Terrenos**: compra livre a qualquer momento, com preço, custo de
   terraplanagem, bônus logístico (positivo ou negativo) e capacidade de
   fábricas por atributos próprios de cada terreno.
@@ -54,20 +63,21 @@ regras normais do jogo.
 - **API REST**: todos os módulos acima são expostos via `/api/...` para
   consulta e análise externa dos seus dados (ex: puxar `/api/finance/dre`
   ou o CSV para montar seus próprios relatórios).
-- **Concorrentes simulados (IA leve)**: 3 empresas fictícias produzem e
-  vendem no mesmo mercado que você (afetando os preços de oferta/demanda)
-  e crescem aos poucos; painel de "Concorrência" ranqueia todo mundo por
-  valorização estimada, como um placar do Sim Companies.
+- **Concorrentes simulados (IA leve)**: 3 empresas fictícias, cada uma
+  com sua própria cadeia de produção (Aço, Roupas, Eletrodomésticos),
+  produzem e vendem no mesmo mercado que você e crescem aos poucos;
+  painel de "Concorrência" ranqueia todo mundo por valorização estimada,
+  como um placar do Sim Companies.
 - **Painel admin para testes** (`/admin.html`): editar caixa, score,
   estoque, preços de mercado, o relógio do jogo e os concorrentes
   diretamente, ou resetar o jogo do zero.
 
 ## Ideias para próximos passos (não implementadas ainda)
 
-- Múltiplos produtos / cadeias de produção mais complexas
 - Eventos aleatórios de economia (crises, escassez, picos de demanda)
 - Metas/objetivos opcionais (marcos de progresso)
 - Reputação de mercado além do score de crédito bancário
+- Upgrades de nível de fábrica (aumentar taxa de produção)
 
 ## Estrutura do projeto
 

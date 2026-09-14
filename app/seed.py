@@ -13,10 +13,10 @@ def seed_if_empty(session: Session) -> None:
                            credit_score=config.STARTING_CREDIT_SCORE)
         session.add(company)
         session.flush()
-        for good_name in config.MARKET_GOODS:
+        for good_name in config.GOODS:
             session.add(InventoryItem(company_id=company.id, good_name=good_name, quantity=0.0))
 
-    for good_name, data in config.MARKET_GOODS.items():
+    for good_name, data in config.GOODS.items():
         if session.get(MarketGoodState, good_name) is None:
             session.add(MarketGoodState(name=good_name, current_price=data["base_price"]))
 

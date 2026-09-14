@@ -38,16 +38,11 @@ def income_statement(session: Session, company: Company, from_day: int, to_day: 
 
 
 def balance_sheet(session: Session, company: Company) -> dict:
-    raw_price = session.get(MarketGoodState, config.RAW_MATERIAL).current_price
-    product_price = session.get(MarketGoodState, config.PRODUCT).current_price
+    prices = {m.name: m.current_price for m in session.query(MarketGoodState).all()}
 
-    inventory_value = 0.0
-    for item in company.inventory:
-        price = raw_price if item.good_name == config.RAW_MATERIAL else product_price
-        inventory_value += item.quantity * price
-
+    inventory_value = sum(item.quantity * prices[item.good_name] for item in company.inventory)
     land_value = sum(p.price + p.terraforming_cost for p in company.land_plots)
-    factory_value = len(company.factories) * config.FACTORY_BUILD_COST
+    factory_value = sum(config.RECIPES[f.recipe_id]["build_cost"] for f in company.factories)
     total_assets = company.cash + inventory_value + land_value + factory_value
 
     loans_balance = sum(loan.remaining_balance for loan in company.loans if loan.status == "ACTIVE")
