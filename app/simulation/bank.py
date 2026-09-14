@@ -126,6 +126,9 @@ def process_due_loans(session: Session, company: Company, current_day: int, game
                 company.credit_score = min(
                     config.CREDIT_SCORE_MAX, company.credit_score + config.CREDIT_SCORE_ON_TIME_PAYMENT
                 )
+                company.company_level = min(
+                    config.COMPANY_LEVEL_MAX, company.company_level + config.COMPANY_LEVEL_PER_LOAN_PAYMENT
+                )
                 record(session, company.id, game_minutes, categories.EXPENSE,
                        categories.LOAN_PRINCIPAL, principal_portion, f"Amortização empréstimo #{loan.id}")
                 record(session, company.id, game_minutes, categories.EXPENSE,
@@ -137,6 +140,10 @@ def process_due_loans(session: Session, company: Company, current_day: int, game
                 company.credit_score = max(
                     config.CREDIT_SCORE_MIN,
                     company.credit_score - config.CREDIT_SCORE_MISSED_PAYMENT_PENALTY,
+                )
+                company.company_level = max(
+                    config.COMPANY_LEVEL_MIN,
+                    company.company_level - config.COMPANY_LEVEL_PENALTY_MISSED_LOAN,
                 )
                 record(session, company.id, game_minutes, categories.EXPENSE,
                        categories.LOAN_MISSED, 0.0, f"Pagamento perdido empréstimo #{loan.id}")

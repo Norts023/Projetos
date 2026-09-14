@@ -292,6 +292,15 @@ LOAN_AMOUNT_RISK_PREMIUM_PER_UNIT = 0.02  # +2pp per multiple of cash borrowed b
 LOAN_AMOUNT_RISK_PREMIUM_CAP = 0.15  # never add more than +15pp for loan size alone
 LOAN_MISSED_RETRY_DAYS = 5
 
+# --- Company level: separate from the bank credit score, grows as the
+# company keeps up with its own bills (land upkeep, loan installments) ---
+COMPANY_LEVEL_START = 100
+COMPANY_LEVEL_MIN = 0
+COMPANY_LEVEL_MAX = 999
+COMPANY_LEVEL_PER_UPKEEP_DAY = 1
+COMPANY_LEVEL_PER_LOAN_PAYMENT = 3
+COMPANY_LEVEL_PENALTY_MISSED_LOAN = 10
+
 BANKS = [
     {
         "name": "Banco Popular",

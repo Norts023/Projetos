@@ -27,6 +27,9 @@
   --red: #ff5c72;
   --red-bg: rgba(255, 92, 114, 0.14);
 
+  --teal: #2dd9c8;
+  --teal-bg: rgba(45, 217, 200, 0.14);
+
   --radius: 12px;
   --radius-sm: 8px;
   --shadow-card: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
@@ -116,6 +119,8 @@ h3.tier-heading:first-child { margin-top: 0; }
 .pill.pill-score .value { color: var(--purple); }
 .pill.pill-boost { background: var(--gold-bg); border-color: rgba(245,185,66,.3); }
 .pill.pill-boost .value { color: var(--gold); }
+.pill.pill-level { background: var(--teal-bg); border-color: rgba(45,217,200,.3); }
+.pill.pill-level .value { color: var(--teal); }
 .pill.pill-day .value { color: var(--text-primary); }
 
 #topbar .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; }

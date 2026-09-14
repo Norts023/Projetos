@@ -41,6 +41,7 @@ class SpeedRequest(BaseModel):
 class AdminCompanyUpdate(BaseModel):
     cash: float | None = Field(default=None, ge=0)
     credit_score: int | None = Field(default=None, ge=config.CREDIT_SCORE_MIN, le=config.CREDIT_SCORE_MAX)
+    company_level: int | None = Field(default=None, ge=config.COMPANY_LEVEL_MIN, le=config.COMPANY_LEVEL_MAX)
 
 
 class AdminMarketUpdate(BaseModel):

@@ -177,6 +177,10 @@ estilo do painel do Sim Companies.
   Produção), num modal com as últimas movimentações do livro-razão.
 - Menu lateral reorganizado com o Mapa como tela principal, seguido de
   Visão Geral e dos grupos com submenus (Operações/Finanças/Progresso).
+- **Nível da Empresa**: indicador separado do Score de Crédito bancário,
+  começa em 100 e sobe conforme você paga suas próprias contas em dia
+  (manutenção dos terrenos e parcelas de empréstimo); parcela perdida
+  derruba o nível, igual acontece com o score.
 
 ## Ideias para próximos passos (não implementadas ainda)
 

@@ -15,6 +15,7 @@ def get_state(company: Company = Depends(get_company), clock: GameClock = Depend
         "name": company.name,
         "cash": round(company.cash, 2),
         "credit_score": company.credit_score,
+        "company_level": company.company_level,
         "day": clock.game_minutes // 1440,
         "game_minutes": clock.game_minutes,
         "inventory": {item.good_name: round(item.quantity, 2) for item in company.inventory},

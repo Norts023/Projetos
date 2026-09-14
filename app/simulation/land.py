@@ -27,3 +27,6 @@ def charge_daily_upkeep(session: Session, company: Company, days_elapsed: int, g
     company.cash -= total_upkeep
     record(session, company.id, game_minutes, categories.EXPENSE, categories.UPKEEP,
            total_upkeep, f"Manutenção de {len(company.factories)} fábrica(s) por {days_elapsed} dia(s)")
+    company.company_level = min(
+        config.COMPANY_LEVEL_MAX, company.company_level + config.COMPANY_LEVEL_PER_UPKEEP_DAY * days_elapsed
+    )

@@ -80,6 +80,7 @@ async function refreshAll() {
     document.getElementById('s-cash').textContent = money(company.cash);
     document.getElementById('s-day').textContent = `Dia ${company.day}`;
     document.getElementById('s-score').textContent = company.credit_score;
+    document.getElementById('s-level').textContent = company.company_level;
   }
 
   if (gameState) {

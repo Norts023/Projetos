@@ -23,6 +23,7 @@ def get_full_state(company: Company = Depends(get_company), clock: GameClock = D
                     session: Session = Depends(get_session)):
     return {
         "company": {"cash": company.cash, "credit_score": company.credit_score,
+                    "company_level": company.company_level,
                     "inventory": {i.good_name: i.quantity for i in company.inventory}},
         "clock": {"game_minutes": clock.game_minutes, "day": clock.game_minutes // config.MINUTES_PER_DAY,
                   "running": clock.running, "speed_multiplier": clock.speed_multiplier},
@@ -41,8 +42,10 @@ def update_company(body: AdminCompanyUpdate, company: Company = Depends(get_comp
         company.cash = body.cash
     if body.credit_score is not None:
         company.credit_score = body.credit_score
+    if body.company_level is not None:
+        company.company_level = body.company_level
     session.commit()
-    return {"cash": company.cash, "credit_score": company.credit_score}
+    return {"cash": company.cash, "credit_score": company.credit_score, "company_level": company.company_level}
 
 
 @router.post("/company/inventory/{good_name}")

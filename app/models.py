@@ -22,6 +22,7 @@ class Company(Base):
     name: Mapped[str] = mapped_column(String, default="Minha Empresa")
     cash: Mapped[float] = mapped_column(Float, default=0.0)
     credit_score: Mapped[int] = mapped_column(Integer, default=600)
+    company_level: Mapped[int] = mapped_column(Integer, default=100)
     total_produced: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
