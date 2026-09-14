@@ -54,6 +54,39 @@ do celular se os dois estiverem na mesma rede Wi-Fi:
 Isso expõe o jogo para qualquer aparelho na sua rede local (normal em
 casa; evite fazer isso em Wi-Fi público/compartilhado).
 
+### Rodando 100% no Android (Termux, sem PC)
+
+Também dá pra rodar o jogo direto no celular/tablet Android, sem
+depender de um computador, usando o [Termux](https://f-droid.org/en/packages/com.termux/)
+(instale pela F-Droid, não pela Play Store — a versão de lá está
+desatualizada):
+
+```bash
+pkg update && pkg upgrade -y
+pkg install python git -y
+git clone https://github.com/Norts023/Projetos.git
+cd Projetos
+git checkout claude/business-simulation-game-mzaeq0
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Depois abra `http://localhost:8000` no navegador do próprio aparelho.
+
+Por isso as dependências (`requirements.txt`) são fixadas em versões
+mais antigas do FastAPI/Pydantic: as versões mais novas usam um
+componente escrito em Rust (`pydantic-core`) que não tem pacote pronto
+para Android, e o Termux tenta compilar na hora e falha. As versões
+fixadas aqui são 100% Python puro e instalam sem precisar compilar nada
+— funcionam igual tanto no PC quanto no Android.
+
+Dicas para manter rodando no Android:
+- Deixe o Termux e o navegador abertos ao mesmo tempo (tela dividida),
+  senão o Android pode suspender o processo quando o Termux for para
+  segundo plano sozinho.
+- Desative a otimização de bateria do Termux em Configurações → Apps →
+  Termux → Bateria → "Sem restrições".
+
 A interface é organizada em abas com menu lateral (Visão Geral, Produção,
 Mercado, Varejo, Terrenos, Bancos, Financeiro, Concorrência, Metas), no
 estilo do painel do Sim Companies.

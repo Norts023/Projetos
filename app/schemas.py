@@ -26,7 +26,7 @@ class LoanRequest(BaseModel):
     bank_id: int
     principal: float = Field(gt=0)
     term_months: int = Field(gt=0)
-    payment_type: str = Field(pattern="^(PRICE|SAC)$")
+    payment_type: str = Field(regex="^(PRICE|SAC)$")
 
 
 class AdvanceRequest(BaseModel):
