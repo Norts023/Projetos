@@ -82,6 +82,12 @@ async function refreshAll() {
 
 function renderMarket(goods, company) {
   const container = document.getElementById('market-tiers');
+  // The quantity inputs are rebuilt below; remember what the player already
+  // typed so the periodic refresh doesn't wipe it out mid-edit.
+  const previousQuantities = {};
+  container.querySelectorAll('input[id^="qty-"]').forEach((input) => {
+    previousQuantities[input.id] = input.value;
+  });
   container.innerHTML = '';
   const byTier = {};
   goods.forEach((g) => { (byTier[g.tier] ||= []).push(g); });
@@ -102,7 +108,7 @@ function renderMarket(goods, company) {
         <td>${g.label}${g.has_recipe ? '' : '<span class="tier-badge">bruto</span>'}</td>
         <td>${money(g.current_price)}</td>
         <td>${stock.toFixed(1)}</td>
-        <td><input type="number" min="1" value="50" id="qty-${g.name}" style="width:80px"></td>
+        <td><input type="number" min="1" value="${previousQuantities[`qty-${g.name}`] ?? 50}" id="qty-${g.name}" style="width:80px"></td>
         <td></td>`;
       const actionCell = tr.lastElementChild;
       const buyBtn = document.createElement('button');
@@ -214,6 +220,11 @@ function renderFactories(factories, tableId) {
 function renderBuildForm(land, factories, recipes) {
   const plotSelect = document.getElementById('sel-build-plot');
   const recipeSelect = document.getElementById('sel-build-recipe');
+  // Rebuilding the <select> options wipes out whatever the player had
+  // clicked, so remember the selection and restore it afterwards instead
+  // of always snapping back to the first option.
+  const previousPlot = plotSelect.value;
+  const previousRecipe = recipeSelect.value;
   plotSelect.innerHTML = '';
   recipeSelect.innerHTML = '';
 
@@ -236,6 +247,9 @@ function renderBuildForm(land, factories, recipes) {
     opt.textContent = `${r.label} — ${money(r.build_cost)} (Tier ${r.tier}) — ${profitLabel}`;
     recipeSelect.appendChild(opt);
   });
+
+  if ([...plotSelect.options].some((o) => o.value === previousPlot)) plotSelect.value = previousPlot;
+  if ([...recipeSelect.options].some((o) => o.value === previousRecipe)) recipeSelect.value = previousRecipe;
 }
 
 async function buildFactory() {
@@ -285,6 +299,7 @@ async function buyLand(plotId) {
 function renderOffers(offers) {
   const tbody = document.querySelector('#tbl-offers tbody');
   const select = document.getElementById('sel-bank');
+  const previousBank = select.value;
   tbody.innerHTML = '';
   select.innerHTML = '';
   offers.forEach((o) => {
@@ -300,6 +315,7 @@ function renderOffers(offers) {
       select.appendChild(opt);
     }
   });
+  if ([...select.options].some((o) => o.value === previousBank)) select.value = previousBank;
 }
 
 function renderLoans(loans) {
