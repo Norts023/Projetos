@@ -14,6 +14,7 @@
       <button class="nav-btn active" data-page="overview"><span class="icon">📊</span> Visão Geral</button>
       <button class="nav-btn" data-page="production"><span class="icon">🏗️</span> Produção</button>
       <button class="nav-btn" data-page="market"><span class="icon">📦</span> Mercado</button>
+      <button class="nav-btn" data-page="retail"><span class="icon">🏪</span> Varejo</button>
       <button class="nav-btn" data-page="land"><span class="icon">🗺️</span> Terrenos</button>
       <button class="nav-btn" data-page="bank"><span class="icon">🏦</span> Bancos</button>
       <button class="nav-btn" data-page="finance"><span class="icon">💹</span> Financeiro</button>
@@ -29,6 +30,10 @@
       <div class="stat"><span class="label">Caixa</span><span class="value" id="s-cash">-</span></div>
       <div class="stat"><span class="label">Dia</span><span class="value" id="s-day">-</span></div>
       <div class="stat"><span class="label">Score de Crédito</span><span class="value" id="s-score">-</span></div>
+      <div class="stat" id="s-boost-wrap" style="display:none">
+        <span class="label">Bônus de iniciante</span>
+        <span class="value positive" id="s-boost">2x produção</span>
+      </div>
       <div class="controls">
         <button id="btn-pause" class="secondary">Pausar</button>
         <select id="sel-speed">
@@ -88,9 +93,41 @@
 
       <section class="page" id="page-market">
         <h1>Mercado</h1>
+        <p style="color:#9aa4b2; font-size:13px; max-width:640px;">
+          Venda instantânea pelo preço de mercado atual, com taxa de 3% (Bolsa).
+          Para vender aos poucos por um preço que você escolhe, sem taxa, use a aba Varejo.
+        </p>
         <div class="card wide">
           <div id="market-tiers"></div>
           <div id="msg-market" class="msg"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-retail">
+        <h1>Varejo</h1>
+        <p style="color:#9aa4b2; font-size:13px; max-width:640px;">
+          Coloque um lote à venda pelo preço que quiser: acima do preço de mercado, vende
+          mais devagar; abaixo, vende mais rápido. Sem taxa de mercado.
+        </p>
+        <div class="grid">
+          <div class="card wide">
+            <h2>Novo pedido de venda</h2>
+            <div class="row">
+              <select id="retail-good"></select>
+              <input type="number" id="retail-qty" placeholder="quantidade" value="20" min="1">
+              <input type="number" id="retail-price" placeholder="preço/un." step="0.01" min="0.01">
+              <button onclick="createRetailOrder()">Colocar à venda</button>
+            </div>
+            <div id="retail-estimate" style="font-size:13px; color:#9aa4b2;"></div>
+            <div id="msg-retail" class="msg"></div>
+          </div>
+          <div class="card wide">
+            <h2>Meus pedidos ativos</h2>
+            <table id="tbl-retail-orders">
+              <thead><tr><th>Bem</th><th>Preço/un.</th><th>Restante</th><th>Velocidade est.</th><th>Tempo est.</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
 

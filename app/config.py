@@ -214,6 +214,19 @@ FACTORY_UPKEEP_PER_DAY = 50.0  # per factory, regardless of recipe
 # --- Market / dynamic pricing ---
 PRICE_ELASTICITY = 0.02  # how strongly price reacts to supply/demand imbalance per tick
 PRICE_REVERSION_PER_HOUR = 0.05  # price drifts back toward base_price at this rate when imbalance eases
+MARKET_FEE_RATE = 0.03  # fee on instant market sales, same idea as Sim Companies' Bolsa fee
+
+# --- Beginner boost: production runs faster for the first few in-game days ---
+BEGINNER_BOOST_DAYS = 7
+BEGINNER_BOOST_MULTIPLIER = 2.0
+
+# --- Retail (Loja): standing sell orders that fill gradually over time.
+# Selling above the market price fills slower; below it, faster. Unlike
+# the instant market sell, retail orders pay no MARKET_FEE_RATE.
+RETAIL_REFERENCE_RATE_PER_HOUR = 5.0  # units/hour sold when priced exactly at market price
+RETAIL_PRICE_ELASTICITY_EXPONENT = 2.5
+RETAIL_MIN_RATE_PER_HOUR = 0.1
+RETAIL_MAX_RATE_PER_HOUR = 50.0
 
 # Baseline supply/demand per hour, by tier: raw materials are mostly
 # supplied externally (miners/farmers) and consumed only by factories;

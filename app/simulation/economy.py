@@ -14,10 +14,13 @@ def get_inventory_map(session: Session, company_id: int) -> dict[str, InventoryI
     return {item.good_name: item for item in items}
 
 
-def process_production(session: Session, company: Company, minutes: int) -> float:
+def process_production(session: Session, company: Company, minutes: int, boost_multiplier: float = 1.0) -> float:
     """Run every owned factory's recipe: consume its input goods (possibly more
     than one) and produce its output good. A factory that lacks enough of any
     input runs at a reduced rate, limited by the scarcest input.
+
+    `boost_multiplier` applies the early-game "beginner boost" on top of the
+    recipe's base rate (see BEGINNER_BOOST_DAYS in config).
 
     Returns total units produced across all factories (mixed goods).
     """
@@ -31,7 +34,8 @@ def process_production(session: Session, company: Company, minutes: int) -> floa
         recipe = config.RECIPES[factory.recipe_id]
         bonus = factory.land_plot.logistics_bonus
         desired_output = (
-            recipe["output_rate_per_hour"] * factory.level * (minutes / 60.0) * (1 + bonus)
+            recipe["output_rate_per_hour"] * factory.level * (minutes / 60.0)
+            * (1 + bonus) * boost_multiplier
         )
         if desired_output <= 0:
             continue

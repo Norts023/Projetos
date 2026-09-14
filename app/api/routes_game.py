@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app import config
 from app.api.deps import get_clock
 from app.database import get_session
 from app.models import GameClock
@@ -12,11 +13,14 @@ router = APIRouter(prefix="/api/game", tags=["game"])
 
 @router.get("/state")
 def get_state(clock: GameClock = Depends(get_clock)):
+    day = clock.game_minutes // 1440
     return {
         "game_minutes": clock.game_minutes,
-        "day": clock.game_minutes // 1440,
+        "day": day,
         "running": clock.running,
         "speed_multiplier": clock.speed_multiplier,
+        "beginner_boost_active": day < config.BEGINNER_BOOST_DAYS,
+        "beginner_boost_days_left": max(0, config.BEGINNER_BOOST_DAYS - day),
     }
 
 

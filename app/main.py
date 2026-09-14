@@ -16,6 +16,7 @@ from app.api import (
     routes_land,
     routes_market,
     routes_production,
+    routes_retail,
 )
 from app.database import STATE_LOCK, Base, SessionLocal, engine
 from app.seed import seed_if_empty
@@ -61,5 +62,6 @@ app.include_router(routes_game.router)
 app.include_router(routes_competitors.router)
 app.include_router(routes_admin.router)
 app.include_router(routes_goals.router)
+app.include_router(routes_retail.router)
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

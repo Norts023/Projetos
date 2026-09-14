@@ -35,8 +35,8 @@ o relógio do jogo e os concorrentes — útil para testes, sem passar pelas
 regras normais do jogo.
 
 A interface é organizada em abas com menu lateral (Visão Geral, Produção,
-Mercado, Terrenos, Bancos, Financeiro, Concorrência), no estilo do painel
-do Sim Companies.
+Mercado, Varejo, Terrenos, Bancos, Financeiro, Concorrência, Metas), no
+estilo do painel do Sim Companies.
 
 ## Mecânicas implementadas (v1)
 
@@ -54,9 +54,20 @@ do Sim Companies.
   bem processado tem sua própria receita (fábrica/insumos/taxa de produção)
   e pode ser comprado ou vendido no mercado a qualquer momento ("produzir
   vs. comprar pronto").
-- **Mercado dinâmico**: cada um dos 9 bens tem preço próprio que reage à
+- **Mercado dinâmico**: cada um dos 40 bens tem preço próprio que reage à
   oferta (produção/vendas) e demanda (compras + demanda de base simulada
   por tier), com tendência de retorno ao preço-base ao longo do tempo.
+  Vender pela Bolsa (aba Mercado) é instantâneo mas cobra 3% de taxa,
+  seguindo o modelo do Sim Companies.
+- **Venda no varejo**: alternativa à Bolsa — você define preço e
+  quantidade de um lote, sem taxa, e ele vende aos poucos ao longo do
+  tempo. Preço acima do mercado vende mais devagar, abaixo vende mais
+  rápido; a aba Varejo mostra a velocidade estimada antes de confirmar.
+- **Calculadora de lucro por receita**: ao escolher o que construir, o
+  formulário mostra o lucro/hora estimado de cada fábrica com os preços
+  atuais de mercado.
+- **Bônus de iniciante**: nos primeiros 7 dias de jogo, toda produção
+  roda em dobro, para dar um empurrão inicial (como no jogo original).
 - **Terrenos**: compra livre a qualquer momento, com preço, custo de
   terraplanagem, bônus logístico (positivo ou negativo) e capacidade de
   fábricas por atributos próprios de cada terreno.

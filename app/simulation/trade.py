@@ -38,10 +38,15 @@ def sell_good(session: Session, company: Company, good_name: str, quantity: floa
         raise ValueError(f"Estoque insuficiente (disponível {inv.quantity:.2f})")
 
     market = session.get(MarketGoodState, good_name)
-    revenue = quantity * market.current_price
+    gross_revenue = quantity * market.current_price
+    fee = gross_revenue * config.MARKET_FEE_RATE
+    net_revenue = gross_revenue - fee
+
     inv.quantity -= quantity
-    company.cash += revenue
+    company.cash += net_revenue
     apply_market_impact(market, quantity, is_buy=False)
     record(session, company.id, game_minutes, categories.INCOME, categories.SALES,
-           revenue, f"Venda de {quantity} un. de {config.GOODS[good_name]['label']}")
-    return revenue
+           gross_revenue, f"Venda de {quantity} un. de {config.GOODS[good_name]['label']}")
+    record(session, company.id, game_minutes, categories.EXPENSE, categories.MARKET_FEE,
+           fee, f"Taxa de mercado sobre venda de {config.GOODS[good_name]['label']}")
+    return net_revenue

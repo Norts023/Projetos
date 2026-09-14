@@ -26,14 +26,15 @@ def income_statement(session: Session, company: Company, from_day: int, to_day: 
     cogs = sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
     upkeep = sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
     interest = sum_category(session, company.id, categories.LOAN_INTEREST, from_day, to_day)
+    market_fees = sum_category(session, company.id, categories.MARKET_FEE, from_day, to_day)
     goal_rewards = sum_category(session, company.id, categories.GOAL_REWARD, from_day, to_day)
     gross_profit = revenue - cogs
-    operating_profit = gross_profit - upkeep
+    operating_profit = gross_profit - upkeep - market_fees
     net_profit = operating_profit - interest + goal_rewards
     return {
         "from_day": from_day, "to_day": to_day,
         "revenue": revenue, "cogs": cogs, "gross_profit": round(gross_profit, 2),
-        "opex_upkeep": upkeep, "operating_profit": round(operating_profit, 2),
+        "opex_upkeep": upkeep, "market_fees": market_fees, "operating_profit": round(operating_profit, 2),
         "interest_expense": interest, "goal_rewards": goal_rewards, "net_profit": round(net_profit, 2),
     }
 
@@ -64,8 +65,9 @@ def cash_flow_statement(session: Session, company: Company, from_day: int, to_da
     revenue = sum_category(session, company.id, categories.SALES, from_day, to_day)
     cogs = sum_category(session, company.id, categories.MATERIAL_PURCHASE, from_day, to_day)
     upkeep = sum_category(session, company.id, categories.UPKEEP, from_day, to_day)
+    market_fees = sum_category(session, company.id, categories.MARKET_FEE, from_day, to_day)
     goal_rewards = sum_category(session, company.id, categories.GOAL_REWARD, from_day, to_day)
-    operating = round(revenue - cogs - upkeep + goal_rewards, 2)
+    operating = round(revenue - cogs - upkeep - market_fees + goal_rewards, 2)
 
     loan_proceeds = sum_category(session, company.id, categories.LOAN_PROCEEDS, from_day, to_day)
     loan_principal = sum_category(session, company.id, categories.LOAN_PRINCIPAL, from_day, to_day)

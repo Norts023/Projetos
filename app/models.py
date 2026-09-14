@@ -29,6 +29,7 @@ class Company(Base):
     factories: Mapped[list["Factory"]] = relationship(back_populates="company")
     loans: Mapped[list["Loan"]] = relationship(back_populates="company")
     land_plots: Mapped[list["LandPlot"]] = relationship(back_populates="owner")
+    retail_orders: Mapped[list["RetailOrder"]] = relationship(back_populates="company")
     ledger_entries: Mapped[list["LedgerEntry"]] = relationship(back_populates="company")
 
 
@@ -127,6 +128,21 @@ class Competitor(Base):
     cash: Mapped[float] = mapped_column(Float, default=0.0)
     total_produced: Mapped[float] = mapped_column(Float, default=0.0)
     total_revenue: Mapped[float] = mapped_column(Float, default=0.0)
+
+
+class RetailOrder(Base):
+    __tablename__ = "retail_order"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    company_id: Mapped[int] = mapped_column(ForeignKey("company.id"))
+    good_name: Mapped[str] = mapped_column(String)
+    price_per_unit: Mapped[float] = mapped_column(Float)
+    quantity_remaining: Mapped[float] = mapped_column(Float)
+    quantity_original: Mapped[float] = mapped_column(Float)
+    status: Mapped[str] = mapped_column(String, default="ACTIVE")  # ACTIVE, COMPLETED, CANCELLED
+    created_day: Mapped[int] = mapped_column(Integer)
+
+    company: Mapped["Company"] = relationship(back_populates="retail_orders")
 
 
 class LedgerEntry(Base):

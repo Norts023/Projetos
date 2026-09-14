@@ -37,12 +37,12 @@ let recipesCache = [];
 
 async function refreshAll() {
   try {
-    const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors, goalsList] =
+    const [company, market, recipes, land, factories, offers, loans, balance, dre, cashflow, gameState, competitors, goalsList, retailOrders] =
       await Promise.all([
         api('/api/company'), api('/api/market'), api('/api/market/recipes'), api('/api/land'),
         api('/api/production/factories'), api('/api/banks/offers'), api('/api/loans'),
         api('/api/finance/balance'), api('/api/finance/dre'), api('/api/finance/cashflow'),
-        api('/api/game/state'), api('/api/competitors'), api('/api/goals'),
+        api('/api/game/state'), api('/api/competitors'), api('/api/goals'), api('/api/retail/orders'),
       ]);
     recipesCache = recipes;
 
@@ -54,8 +54,14 @@ async function refreshAll() {
     isRunning = gameState.running;
     document.getElementById('btn-pause').textContent = isRunning ? 'Pausar' : 'Retomar';
     document.getElementById('sel-speed').value = String(gameState.speed_multiplier);
+    document.getElementById('s-boost-wrap').style.display = gameState.beginner_boost_active ? 'flex' : 'none';
+    if (gameState.beginner_boost_active) {
+      document.getElementById('s-boost').textContent = `2x produção (${gameState.beginner_boost_days_left}d restantes)`;
+    }
 
     renderMarket(market, company);
+    renderRetailGoodOptions(market);
+    renderRetailOrders(retailOrders);
     renderFactories(factories, 'tbl-factories');
     renderFactories(factories, 'tbl-overview-factories');
     renderBuildForm(land, factories, recipes);
@@ -125,6 +131,74 @@ async function tradeGood(goodName, action) {
   } catch (err) { showMsg('msg-market', err.message, true); }
 }
 
+let retailGoodOptionsBuilt = false;
+
+function renderRetailGoodOptions(goods) {
+  if (retailGoodOptionsBuilt) return;
+  const select = document.getElementById('retail-good');
+  goods.forEach((g) => {
+    const opt = document.createElement('option');
+    opt.value = g.name;
+    opt.textContent = g.label;
+    select.appendChild(opt);
+  });
+  retailGoodOptionsBuilt = true;
+  updateRetailEstimate();
+}
+
+async function updateRetailEstimate() {
+  const good_name = document.getElementById('retail-good').value;
+  const price = Number(document.getElementById('retail-price').value);
+  const el = document.getElementById('retail-estimate');
+  if (!good_name || !price) { el.textContent = ''; return; }
+  try {
+    const est = await api(`/api/retail/estimate?good_name=${good_name}&price=${price}`);
+    el.textContent = `Preço de mercado: ${money(est.market_price)} — velocidade estimada: ${est.estimated_rate_per_hour} un/h`;
+  } catch (err) { el.textContent = ''; }
+}
+document.getElementById('retail-price').addEventListener('input', updateRetailEstimate);
+document.getElementById('retail-good').addEventListener('change', updateRetailEstimate);
+
+async function createRetailOrder() {
+  const good_name = document.getElementById('retail-good').value;
+  const quantity = Number(document.getElementById('retail-qty').value);
+  const price_per_unit = Number(document.getElementById('retail-price').value);
+  try {
+    await api('/api/retail/orders', { method: 'POST', body: JSON.stringify({ good_name, quantity, price_per_unit }) });
+    showMsg('msg-retail', 'Pedido colocado à venda.', false);
+    refreshAll();
+  } catch (err) { showMsg('msg-retail', err.message, true); }
+}
+
+async function cancelRetailOrder(orderId) {
+  try {
+    await api(`/api/retail/orders/${orderId}/cancel`, { method: 'POST' });
+    showMsg('msg-retail', 'Pedido cancelado, estoque devolvido.', false);
+    refreshAll();
+  } catch (err) { showMsg('msg-retail', err.message, true); }
+}
+
+function renderRetailOrders(orders) {
+  const tbody = document.querySelector('#tbl-retail-orders tbody');
+  tbody.innerHTML = '';
+  orders.forEach((o) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${o.good_label}</td>
+      <td>${money(o.price_per_unit)}</td>
+      <td>${o.quantity_remaining} / ${o.quantity_original}</td>
+      <td>${o.estimated_rate_per_hour} un/h</td>
+      <td>${o.estimated_hours_left !== null ? o.estimated_hours_left + 'h' : '-'}</td>
+      <td></td>`;
+    const btn = document.createElement('button');
+    btn.className = 'secondary';
+    btn.textContent = 'Cancelar';
+    btn.onclick = () => cancelRetailOrder(o.id);
+    tr.lastElementChild.appendChild(btn);
+    tbody.appendChild(tr);
+  });
+}
+
 function renderFactories(factories, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = '';
@@ -156,7 +230,10 @@ function renderBuildForm(land, factories, recipes) {
   recipes.forEach((r) => {
     const opt = document.createElement('option');
     opt.value = r.id;
-    opt.textContent = `${r.label} — ${money(r.build_cost)} (Tier ${r.tier})`;
+    const profitLabel = r.profit_per_hour >= 0
+      ? `lucro est. ${money(r.profit_per_hour)}/h`
+      : `prejuízo est. ${money(r.profit_per_hour)}/h`;
+    opt.textContent = `${r.label} — ${money(r.build_cost)} (Tier ${r.tier}) — ${profitLabel}`;
     recipeSelect.appendChild(opt);
   });
 }
@@ -259,8 +336,10 @@ function renderDre(d, tableId) {
     <tr><td>(-) Custo de mercadorias</td><td>${money(d.cogs)}</td></tr>
     <tr><th>Lucro bruto</th><th>${money(d.gross_profit)}</th></tr>
     <tr><td>(-) Manutenção (opex)</td><td>${money(d.opex_upkeep)}</td></tr>
+    <tr><td>(-) Taxas de mercado</td><td>${money(d.market_fees)}</td></tr>
     <tr><th>Lucro operacional</th><th>${money(d.operating_profit)}</th></tr>
     <tr><td>(-) Juros de empréstimos</td><td>${money(d.interest_expense)}</td></tr>
+    <tr><td>(+) Recompensas de metas</td><td>${money(d.goal_rewards)}</td></tr>
     <tr><th>Lucro líquido</th><th>${money(d.net_profit)}</th></tr>`;
 }
 

@@ -16,6 +16,12 @@ class BuildFactoryRequest(BaseModel):
     recipe_id: str
 
 
+class RetailOrderRequest(BaseModel):
+    good_name: str
+    quantity: float = Field(gt=0)
+    price_per_unit: float = Field(gt=0)
+
+
 class LoanRequest(BaseModel):
     bank_id: int
     principal: float = Field(gt=0)
