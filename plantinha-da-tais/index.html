@@ -66,6 +66,34 @@
 
   h1, h2, p { margin: 0; }
 
+  /* ---------- Faixa de instalação (só no iPhone/iPad fora do app instalado) ---------- */
+  .faixa {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: calc(env(safe-area-inset-top) + 8px) 16px 0;
+    padding: 10px 10px 10px 14px;
+    background: #FFF6D8;
+    color: #6B4A00;
+    border-radius: 16px;
+    box-shadow: var(--sombra);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .faixa span { flex: 1; }
+  .btn-faixa {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    padding: 0;
+    color: #6B4A00;
+  }
+
   /* ---------- Cabeçalho ---------- */
   .topo {
     display: flex;
@@ -125,7 +153,12 @@
     box-shadow: var(--sombra);
     background: linear-gradient(180deg, #9ED9F0 0%, #CDEFE9 60%, #E6F8E8 100%);
     min-height: 380px;
+    transition: background 1.2s ease;
   }
+  .cena.noite {
+    background: linear-gradient(180deg, #2F4A73 0%, #5A7DAE 60%, #A9C7E4 100%);
+  }
+  .cena.noite .nuvem { opacity: 0.35; }
 
   .nuvem {
     position: absolute;
@@ -241,7 +274,8 @@
   #planta[data-estado="murchando"] .r-murchando,
   #planta[data-estado="florindo"] .r-florindo,
   #planta[data-estado="garrafa_vazia"] .r-garrafa,
-  #planta[data-estado="meta_batida"] .r-meta { display: inline; }
+  #planta[data-estado="meta_batida"] .r-meta,
+  #planta[data-estado="dormindo"] .r-dormindo { display: inline; }
 
   .so { display: none; }
   #planta[data-estado="florindo"] .so-florindo { display: inline; }
@@ -258,6 +292,13 @@
   .estrela:nth-child(2) { animation-delay: 0.6s; }
   .estrela:nth-child(3) { animation-delay: 1.1s; }
   .estrela:nth-child(4) { animation-delay: 0.3s; }
+
+  .zzz {
+    animation: zzz 2.6s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .zzz.z2 { animation-delay: 1.3s; }
 
   /* Folhas caem quando murcha e sobem quando recebe água */
   .fl {
@@ -283,7 +324,7 @@
   }
   #planta[data-estado="garrafa_vazia"] .pedido { display: block; animation: pedir 1.6s ease-in-out infinite; }
 
-  /* Camada de efeitos (gotas, confete, folhas) */
+  /* Camada de efeitos (gotas, confete, pétalas) */
   .camada-fx {
     position: absolute;
     inset: 0;
@@ -435,7 +476,32 @@
   }
   .btn:active:not(:disabled) { transform: scale(0.96); }
   .btn.primario { background: var(--verde2); color: #fff; }
+  .btn.secundario { background: #EEF8F3; color: var(--verde3); }
+  .btn.bloco { width: 100%; margin-bottom: 8px; }
   .btn.perigo { background: #FCE3DA; color: #9A3B1E; width: 100%; margin-top: 8px; }
+
+  /* Bebi fora da garrafa */
+  .btn-fora { width: 100%; margin-top: 10px; }
+  .painel-fora {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 18px;
+    background: #F2FAF6;
+    text-align: left;
+  }
+  .painel-fora p { margin-bottom: 10px; }
+  .botoes-fora {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .botoes-fora .btn {
+    min-height: 56px;
+    padding: 4px 6px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
 
   /* ---------- Abas ---------- */
   .abas {
@@ -562,6 +628,7 @@
     max-height: 90dvh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    position: relative;
   }
   .linha-topo {
     display: flex;
@@ -604,8 +671,15 @@
     align-items: center;
     cursor: pointer;
   }
+  .arquivo-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
 
-  /* ---------- Aviso ---------- */
+  /* ---------- Aviso (com ação opcional, ex.: Desfazer) ---------- */
   .aviso {
     position: fixed;
     left: 16px;
@@ -624,8 +698,23 @@
     transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none;
     z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   }
   .aviso.mostrar { opacity: 1; transform: none; }
+  .aviso.com-acao { pointer-events: auto; }
+  .aviso-acao {
+    min-height: 44px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 14px;
+    background: #fff;
+    color: var(--verde3);
+    font-weight: 800;
+    font-size: 16px;
+  }
 
   /* ---------- Animações ---------- */
   @keyframes balanco {
@@ -663,6 +752,11 @@
     0%, 100% { transform: scale(0.6); opacity: 0.4; }
     50% { transform: scale(1.15); opacity: 1; }
   }
+  @keyframes zzz {
+    0% { transform: translate(0, 4px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(5px, -7px); opacity: 0; }
+  }
   @keyframes pedir {
     0%, 100% { transform: translateY(0) rotate(-4deg); }
     50% { transform: translateY(-6px) rotate(4deg); }
@@ -694,16 +788,21 @@
 <body>
 <div id="app">
 
+  <div id="faixa-instalar" class="faixa" role="note" hidden>
+    <span>Abre pelo ícone da Plantinha na tela de início para não perder seu progresso 🌱</span>
+    <button id="btn-fechar-faixa" class="btn-faixa" type="button" aria-label="Fechar aviso">✕</button>
+  </div>
+
   <header class="topo">
     <h1>Plantinha da Taís</h1>
-    <button id="btn-config" class="btn-icone" aria-label="Abrir configurações">⚙️</button>
+    <button id="btn-config" class="btn-icone" type="button" aria-label="Abrir configurações">⚙️</button>
   </header>
 
   <main>
     <!-- ===== Aba: Hoje ===== -->
     <section id="tela-hoje" class="tela">
 
-      <div class="cena">
+      <div id="cena" class="cena">
         <div class="nuvem n1" aria-hidden="true"></div>
         <div class="nuvem n2" aria-hidden="true"></div>
 
@@ -743,6 +842,7 @@
           <span id="nivel-texto"></span>
         </div>
         <p id="xp-texto" class="pequeno" style="margin-top:4px"></p>
+        <p id="sono-texto" class="pequeno" style="margin-top:6px"></p>
       </div>
 
       <div class="cartao">
@@ -761,9 +861,22 @@
         <p id="garrafa-texto" class="texto-garrafa" aria-live="polite"></p>
 
         <div class="botoes">
-          <button id="btn-gole" class="btn" aria-label="Beber um gole, 50 mililitros">+ Gole</button>
-          <button id="btn-copo" class="btn" aria-label="Beber um copo, 250 mililitros">+ Copo</button>
-          <button id="btn-encher" class="btn primario largo" aria-label="Encher a garrafa virtual">Encher garrafa</button>
+          <button id="btn-gole" class="btn" type="button" aria-label="Beber um gole, 50 mililitros">+ Gole</button>
+          <button id="btn-copo" class="btn" type="button" aria-label="Beber um copo, 250 mililitros">+ Copo</button>
+          <button id="btn-encher" class="btn primario largo" type="button" aria-label="Encher a garrafa virtual">Encher garrafa</button>
+        </div>
+
+        <button id="btn-fora" class="btn secundario btn-fora" type="button"
+                aria-expanded="false" aria-controls="painel-fora">Bebi fora da garrafa</button>
+
+        <div id="painel-fora" class="painel-fora" hidden>
+          <p class="pequeno">Quanto você bebeu fora da garrafa? Isso não mexe na garrafa virtual.</p>
+          <div class="botoes-fora">
+            <button class="btn" type="button" data-fora="50" aria-label="Registrar um gole fora da garrafa, 50 mililitros">Gole<br>50 ml</button>
+            <button class="btn" type="button" data-fora="250" aria-label="Registrar um copo fora da garrafa, 250 mililitros">Copo<br>250 ml</button>
+            <button id="btn-fora-garrafa" class="btn" type="button" data-fora="500" aria-label="Registrar uma garrafa fora da garrafa virtual">Garrafa<br>500 ml</button>
+          </div>
+          <button id="btn-fora-cancelar" class="btn secundario bloco" type="button">Cancelar</button>
         </div>
       </div>
     </section>
@@ -791,25 +904,28 @@
   </main>
 
   <nav class="abas" role="tablist" aria-label="Navegação">
-    <button class="aba ativa" data-aba="hoje" role="tab" aria-selected="true">
+    <button class="aba ativa" type="button" data-aba="hoje" role="tab" aria-selected="true">
       <span class="icone" aria-hidden="true">🌱</span>Hoje
     </button>
-    <button class="aba" data-aba="historico" role="tab" aria-selected="false">
+    <button class="aba" type="button" data-aba="historico" role="tab" aria-selected="false">
       <span class="icone" aria-hidden="true">📊</span>Histórico
     </button>
-    <button class="aba" data-aba="premios" role="tab" aria-selected="false">
+    <button class="aba" type="button" data-aba="premios" role="tab" aria-selected="false">
       <span class="icone" aria-hidden="true">🎁</span>Prêmios
     </button>
   </nav>
 
-  <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+  <div id="aviso" class="aviso" role="status" aria-live="polite">
+    <span id="aviso-texto"></span>
+    <button id="aviso-acao" class="aviso-acao" type="button" hidden></button>
+  </div>
 
   <!-- ===== Configurações ===== -->
   <section id="config" class="fundo" hidden>
     <div class="folha" role="dialog" aria-modal="true" aria-labelledby="titulo-config">
       <div class="linha-topo">
         <h2 id="titulo-config">Configurações</h2>
-        <button id="btn-fechar-config" class="btn-icone" aria-label="Fechar configurações">✕</button>
+        <button id="btn-fechar-config" class="btn-icone" type="button" aria-label="Fechar configurações">✕</button>
       </div>
 
       <label class="campo">Meta diária (ml)
@@ -821,12 +937,28 @@
       </label>
       <p class="pequeno">Mudar o tamanho da garrafa enche ela de novo.</p>
 
-      <button id="btn-salvar-config" class="btn primario">Salvar</button>
+      <label class="campo">Dormir às
+        <input id="campo-dormir" type="time" step="300">
+      </label>
+
+      <label class="campo">Acordar às
+        <input id="campo-acordar" type="time" step="300">
+      </label>
+      <p class="pequeno">Enquanto a plantinha dorme, esse tempo não conta para a sede nem para o murchar.</p>
+
+      <button id="btn-salvar-config" class="btn primario" type="button">Salvar</button>
 
       <details id="detalhes-avancado" class="avancado">
         <summary>Avançado</summary>
-        <p class="pequeno">Apaga todo o progresso salvo neste aparelho.</p>
-        <button id="btn-zerar" class="btn perigo">Zerar dados</button>
+
+        <p class="pequeno" style="margin:8px 0">Guarde uma cópia do progresso ou restaure uma cópia salva.</p>
+        <button id="btn-exportar" class="btn secundario bloco" type="button">Exportar progresso</button>
+        <button id="btn-importar" class="btn secundario bloco" type="button">Importar progresso</button>
+        <input id="arquivo-importar" class="arquivo-oculto" type="file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+        <p class="pequeno">Importar substitui o progresso atual. Se quiser guardar o atual, exporte antes.</p>
+
+        <p class="pequeno" style="margin-top:16px">Apaga todo o progresso salvo neste aparelho.</p>
+        <button id="btn-zerar" class="btn perigo" type="button">Zerar dados</button>
       </details>
     </div>
   </section>
@@ -899,6 +1031,14 @@
       "Você conseguiu! Agora pode se sentir uma lenda do jardim (eu aprovo).",
       "Meta do dia cumprida. Você é fofa demais e eu mereço um aplauso também.",
       "Bateu a meta! Vou dormir com cara de satisfação."
+    ],
+    dormindo: [
+      "Shhh... a plantinha está sonhando com chuvinha. Boa noite, jardineira!",
+      "Zzz... estou dormindo com as folhinhas quentinhas. Durma bem também!",
+      "Boa noite! Amanhã a gente bebe água juntas, combinado?",
+      "Zzz... não me acorda, estou sonhando que sou uma samambaia gigante.",
+      "A lua já subiu, e eu também vou descansar. Sonhe com jardins!",
+      "Shhh... se você bebeu bastante hoje, agora é hora de cama. Boa noite!"
     ]
   };
 
@@ -911,6 +1051,12 @@
   const GOLE = 50;
   const COPO = 250;
   const XP_BONUS_META = 50;
+  const DORMIR_PADRAO = '23:00';
+  const ACORDAR_PADRAO = '07:00';
+  const DESFAZER_MS = 6000;
+  const APP_BACKUP = 'plantinha-da-tais';
+  const REGEX_DATA = /^\d{4}-\d{2}-\d{2}$/;
+  const REGEX_HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 
   const NIVEIS = [
     { nome: 'Semente', xp: 0 },
@@ -938,7 +1084,8 @@
     murchando: 'Murchando!',
     florindo: 'Florindo!',
     garrafa_vazia: 'Garrafa vazia',
-    meta_batida: 'Meta batida!'
+    meta_batida: 'Meta batida!',
+    dormindo: 'Dormindo... Zzz'
   };
 
   /* =====================================================================
@@ -1014,6 +1161,12 @@
       <path d="M90 196Q100 210 110 196Z" fill="${COR.tinta}"/>
       <ellipse cx="73" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
       <ellipse cx="127" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
+    </g>
+    <g class="r r-dormindo">
+      <path d="M78 189Q84 194 90 189M110 189Q116 194 122 189" fill="none" stroke="${COR.tinta}" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M95 202Q100 205 105 202" fill="none" stroke="${COR.tinta}" stroke-width="2.4" stroke-linecap="round"/>
+      <text class="zzz" x="130" y="62" font-size="18" font-weight="800" fill="#4FAFD0">Zzz</text>
+      <text class="zzz z2" x="150" y="42" font-size="13" font-weight="800" fill="#4FAFD0">z</text>
     </g>`;
 
   // Brilhos ao redor da planta (só aparecem quando está florindo).
@@ -1084,21 +1237,29 @@
   let lastStage = -1;
   let zerarArmado = false;
   let timerAviso = null;
+  let ultimoDesfazer = null;   // só o último registro, em memória, por 6 segundos
+  let timerDesfazer = null;
+  let importPendente = null;   // backup validado, aguardando confirmação
+  let timerImport = null;
+  const ultimaFraseIdx = {};   // evita repetir a mesma frase seguida no mesmo estado
 
   function padrao() {
     return {
       metaMl: META_PADRAO,
       garrafaMl: GARRAFA_PADRAO,
       garrafaAtual: GARRAFA_PADRAO,
-      totalMl: 0,          // água total registrada na vida (base do XP)
-      dias: {},            // 'AAAA-MM-DD' -> ml bebidos no dia
-      bonusDias: [],       // dias em que a meta foi batida (bônus de XP)
-      melhorSeq: 0,        // maior sequência de dias batendo a meta
-      ultimoRegistro: null,// timestamp do último registro (ou da primeira abertura)
-      premiosVistos: []    // prêmios já anunciados
+      totalMl: 0,           // água total registrada na vida (base do XP)
+      dias: {},             // 'AAAA-MM-DD' -> ml bebidos no dia
+      bonusDias: [],        // dias em que a meta foi batida (base da sequência e do bônus de XP)
+      melhorSeq: 0,         // recorde de dias seguidos (nunca diminui)
+      ultimoRegistro: null, // timestamp do último registro (ou da primeira abertura)
+      premiosVistos: [],    // prêmios já anunciados
+      dormirAs: DORMIR_PADRAO,
+      acordarAs: ACORDAR_PADRAO
     };
   }
 
+  // Mescla os dados salvos com os valores padrão: campos novos entram com o padrão.
   function carregar() {
     let bruto = null;
     try {
@@ -1158,17 +1319,40 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function mostrarAviso(msg) {
+  // Aviso no topo. "acao" é opcional, ex.: { rotulo: 'Desfazer', fn, ms }.
+  function mostrarAviso(msg, acao = null) {
     const el = $('aviso');
-    el.textContent = msg;
+    const btn = $('aviso-acao');
+    $('aviso-texto').textContent = msg;
+    btn.onclick = null;
+    if (acao) {
+      btn.textContent = acao.rotulo;
+      btn.onclick = () => acao.fn();
+      btn.hidden = false;
+      el.classList.add('com-acao');
+    } else {
+      btn.hidden = true;
+      el.classList.remove('com-acao');
+    }
     el.classList.add('mostrar');
     clearTimeout(timerAviso);
-    timerAviso = setTimeout(() => el.classList.remove('mostrar'), 3200);
+    timerAviso = setTimeout(() => {
+      el.classList.remove('mostrar', 'com-acao');
+      btn.onclick = null;
+    }, acao ? acao.ms : 3200);
   }
 
+  // Sorteia uma frase do estado sem repetir a última do mesmo estado.
   function sortear(chave) {
     const lista = FRASES[chave];
-    return lista[Math.floor(Math.random() * lista.length)];
+    let i = 0;
+    if (lista.length > 1) {
+      do {
+        i = Math.floor(Math.random() * lista.length);
+      } while (i === ultimaFraseIdx[chave]);
+    }
+    ultimaFraseIdx[chave] = i;
+    return lista[i];
   }
 
   // Balão de fala com efeito de digitação (letra por letra).
@@ -1191,6 +1375,57 @@
 
   function falar(chave) {
     digitar(sortear(chave));
+  }
+
+  /* =====================================================================
+     HORÁRIO DE DORMIR
+     ===================================================================== */
+  // Minutos do dia para dormir e acordar (com valor padrão se o campo estiver inválido).
+  function sonoMinutos() {
+    const conv = (h, pad) => {
+      const v = REGEX_HORA.test(h) ? h : pad;
+      const [a, b] = v.split(':').map(Number);
+      return a * 60 + b;
+    };
+    return { dormir: conv(estado.dormirAs, DORMIR_PADRAO), acordar: conv(estado.acordarAs, ACORDAR_PADRAO) };
+  }
+
+  function estaDormindo(agora = Date.now()) {
+    const { dormir, acordar } = sonoMinutos();
+    if (dormir === acordar) return false;
+    const d = new Date(agora);
+    const m = d.getHours() * 60 + d.getMinutes();
+    // Intervalo que passa da meia-noite (ex.: 23:00 às 07:00) ou não.
+    return dormir > acordar ? (m >= dormir || m < acordar) : (m >= dormir && m < acordar);
+  }
+
+  // Quantos minutos de sono (dormir → acordar) caem dentro do intervalo [a, b].
+  function minutosDormindoEntre(a, b) {
+    if (!(b > a)) return 0;
+    const { dormir, acordar } = sonoMinutos();
+    if (dormir === acordar) return 0;
+    const base = new Date(a);
+    let total = 0;
+    for (let off = -1; off < 3650; off++) {
+      const d0 = new Date(base.getFullYear(), base.getMonth(), base.getDate() + off);
+      const ini = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(),
+        Math.floor(dormir / 60), dormir % 60).getTime();
+      if (ini >= b) break;
+      const d1 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + (dormir > acordar ? 1 : 0));
+      const fim = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate(),
+        Math.floor(acordar / 60), acordar % 60).getTime();
+      const s = Math.max(ini, a);
+      const e = Math.min(fim, b);
+      if (e > s) total += e - s;
+    }
+    return total / 60000;
+  }
+
+  // Horas acordadas desde um instante, descontando o horário de dormir.
+  function horasAcordadasDesde(inicio, agora) {
+    if (!inicio) return 0;
+    const totalMin = (agora - inicio) / 60000;
+    return Math.max(0, (totalMin - minutosDormindoEntre(inicio, agora)) / 60);
   }
 
   /* =====================================================================
@@ -1220,27 +1455,46 @@
     return Math.min(1, Math.max(0, (xp - ini) / (fim - ini)));
   }
 
+  // Sequência atual: dias seguidos com meta batida (bonusDias), contando de hoje
+  // ou, se hoje ainda não bateu, de ontem. Não depende da meta atual.
   function sequenciaAtual() {
+    const batidos = new Set(estado.bonusDias);
     let k = chaveData();
-    if (mlDoDia(k) < estado.metaMl) k = diaAnterior(k); // hoje ainda não bateu: a sequência vale até ontem
+    if (!batidos.has(k)) k = diaAnterior(k);
     let seq = 0;
-    while (mlDoDia(k) >= estado.metaMl && seq < 3650) {
+    while (batidos.has(k) && seq < 3650) {
       seq++;
       k = diaAnterior(k);
     }
     return seq;
   }
 
+  // Maior sequência já registrada no histórico de bonusDias.
+  function maiorSequenciaHistorica() {
+    const dias = [...new Set(estado.bonusDias)].sort();
+    let melhor = 0;
+    let atual = 0;
+    let anterior = null;
+    dias.forEach((k) => {
+      atual = (anterior && diaAnterior(k) === anterior) ? atual + 1 : 1;
+      if (atual > melhor) melhor = atual;
+      anterior = k;
+    });
+    return melhor;
+  }
+
+  // O recorde nunca diminui: prêmios já liberados continuam liberados.
   function atualizarRecordes() {
-    const s = sequenciaAtual();
-    if (s > estado.melhorSeq) {
-      estado.melhorSeq = s;
+    const novo = Math.max(estado.melhorSeq || 0, maiorSequenciaHistorica());
+    if (novo !== estado.melhorSeq) {
+      estado.melhorSeq = novo;
       salvar();
     }
   }
 
   function statusPlanta(agora = Date.now()) {
-    const horas = estado.ultimoRegistro ? (agora - estado.ultimoRegistro) / 3600000 : 0;
+    if (estaDormindo(agora)) return 'dormindo';
+    const horas = horasAcordadasDesde(estado.ultimoRegistro, agora);
     const estagio = indiceAte(ESTAGIOS, xpTotal());
     if (horas >= 4) return 'murchando';
     if (horas >= 2) return 'com_sede';
@@ -1374,6 +1628,7 @@
     if (svg) svg.style.width = (170 + iEst * 10 + frac * 10).toFixed(1) + 'px';
 
     $('planta').setAttribute('data-estado', st);
+    $('cena').classList.toggle('noite', st === 'dormindo');
     atualizarEfeitosEstado(st);
 
     const corpo = $('planta-murcha');
@@ -1410,6 +1665,9 @@
       ? `${xp} XP · faltam ${prog.falta} XP para ${prog.proximo}`
       : `${xp} XP · nível máximo, você é uma lenda!`;
     $('estagio-texto').textContent = `Estágio: ${ESTAGIOS[iEst].nome}`;
+    const { dormir, acordar } = sonoMinutos();
+    const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    $('sono-texto').textContent = `Dorme às ${hhmm(dormir)} · acorda às ${hhmm(acordar)}`;
 
     $('agua').style.height = ((estado.garrafaAtual / estado.garrafaMl) * 100).toFixed(1) + '%';
     $('garrafa-texto').textContent = estado.garrafaAtual > 0
@@ -1417,6 +1675,8 @@
       : 'Garrafa vazia! Enche ela de verdade 💧';
     $('btn-gole').disabled = estado.garrafaAtual <= 0;
     $('btn-copo').disabled = estado.garrafaAtual <= 0;
+    $('btn-fora-garrafa').dataset.fora = String(estado.garrafaMl);
+    $('btn-fora-garrafa').innerHTML = `Garrafa<br>${fmtMl(estado.garrafaMl)}`;
 
     $('estado-planta').textContent = ROTULO_ESTADO[st];
     renderPlanta(iEst, progE, st);
@@ -1444,34 +1704,29 @@
   }
 
   /* =====================================================================
-     AÇÕES
+     REGISTROS DE ÁGUA E DESFAZER
      ===================================================================== */
-  function beber(qtd) {
-    if (estado.garrafaAtual <= 0) {
-      statusAtual = 'garrafa_vazia';
-      falar('garrafa_vazia');
-      mostrarAviso('A garrafa está vazia. Encha ela primeiro!');
-      return;
-    }
-
+  // Único ponto que grava um registro (da garrafa ou de fora dela).
+  function registrar(ml, daGarrafa) {
     const xpAntes = xpTotal();
     const nivelAntes = indiceAte(NIVEIS, xpAntes);
     const estagioAntes = indiceAte(ESTAGIOS, xpAntes);
 
     const hoje = chaveData();
     const antes = mlDoDia(hoje);
-    const ml = Math.min(qtd, estado.garrafaAtual);
+    const bonus = antes < estado.metaMl && antes + ml >= estado.metaMl && !estado.bonusDias.includes(hoje);
+    const prevUltimo = estado.ultimoRegistro;
 
-    estado.garrafaAtual -= ml;
+    if (daGarrafa) estado.garrafaAtual -= ml;
     estado.dias[hoje] = antes + ml;
     estado.totalMl += ml;
     estado.ultimoRegistro = Date.now();
+    if (bonus) estado.bonusDias.push(hoje);
 
-    let bonus = false;
-    if (antes < estado.metaMl && estado.dias[hoje] >= estado.metaMl && !estado.bonusDias.includes(hoje)) {
-      estado.bonusDias.push(hoje);
-      bonus = true;
-    }
+    // Guarda só o último registro, para desfazer por 6 segundos.
+    ultimoDesfazer = { ml, dia: hoje, daGarrafa, bonus, prevUltimo };
+    clearTimeout(timerDesfazer);
+    timerDesfazer = setTimeout(() => { ultimoDesfazer = null; }, DESFAZER_MS);
 
     atualizarRecordes();
     salvar();
@@ -1484,12 +1739,48 @@
     const premio = atualizarTudo(true);
     pularPlanta();
 
-    let msg = `+${ml} ml · +${Math.floor(ml / 10)} XP`;
+    let msg = `+${ml} ml${daGarrafa ? '' : ' (fora da garrafa)'} · +${Math.floor(ml / 10)} XP`;
     if (bonus) msg += ' · Meta batida: +50 XP!';
     if (subiuEstagio) msg = `🌱 Sua plantinha virou ${ESTAGIOS[indiceAte(ESTAGIOS, xpDepois)].nome}!`;
     else if (subiuNivel) msg = `⭐ Novo nível: ${NIVEIS[indiceAte(NIVEIS, xpDepois)].nome}!`;
     if (premio) msg = premio;
-    mostrarAviso(msg);
+    mostrarAviso(msg, { rotulo: 'Desfazer', fn: desfazer, ms: DESFAZER_MS });
+  }
+
+  function beber(qtd) {
+    if (estado.garrafaAtual <= 0) {
+      statusAtual = 'garrafa_vazia';
+      falar('garrafa_vazia');
+      mostrarAviso('A garrafa está vazia. Encha ela primeiro!');
+      return;
+    }
+    registrar(Math.min(qtd, estado.garrafaAtual), true);
+  }
+
+  // Bebeu fora da garrafa: conta no dia e no XP, sem mexer na garrafa virtual.
+  function beberFora(ml) {
+    registrar(ml, false);
+    fecharPainelFora();
+  }
+
+  function desfazer() {
+    const u = ultimoDesfazer;
+    if (!u) return;
+    ultimoDesfazer = null;
+    clearTimeout(timerDesfazer);
+
+    const restante = (estado.dias[u.dia] || 0) - u.ml;
+    if (restante > 0) estado.dias[u.dia] = restante;
+    else delete estado.dias[u.dia];
+    estado.totalMl = Math.max(0, estado.totalMl - u.ml);
+    if (u.daGarrafa) estado.garrafaAtual = Math.min(estado.garrafaMl, estado.garrafaAtual + u.ml);
+    if (u.bonus) estado.bonusDias = estado.bonusDias.filter((d) => d !== u.dia);
+    estado.ultimoRegistro = u.prevUltimo;
+
+    salvar();
+    statusAtual = null;
+    atualizarTudo(true);
+    mostrarAviso(u.daGarrafa ? 'Registro desfeito. A água voltou para a garrafa.' : 'Registro desfeito.');
   }
 
   function encher() {
@@ -1499,6 +1790,17 @@
     falar('feliz');
     atualizarTudo();
     mostrarAviso('Garrafa cheia de novo! Vamos crescer 💧');
+  }
+
+  function abrirPainelFora() {
+    const painel = $('painel-fora');
+    painel.hidden = false;
+    $('btn-fora').setAttribute('aria-expanded', 'true');
+  }
+
+  function fecharPainelFora() {
+    $('painel-fora').hidden = true;
+    $('btn-fora').setAttribute('aria-expanded', 'false');
   }
 
   /* =====================================================================
@@ -1520,6 +1822,7 @@
 
   function renderHistorico() {
     const agora = new Date();
+    const batidos = new Set(estado.bonusDias);
     const dados = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - i);
@@ -1527,6 +1830,7 @@
       dados.push({
         k,
         ml: mlDoDia(k),
+        batida: batidos.has(k),
         rot: d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
         hoje: i === 0
       });
@@ -1539,14 +1843,14 @@
     dados.forEach((d) => {
       const col = document.createElement('div');
       col.className = 'coluna';
-      col.innerHTML = `<div class="barra-dia ${d.ml >= estado.metaMl ? 'batida' : ''}" style="height:${((d.ml / max) * 100).toFixed(1)}%"></div>`;
+      col.innerHTML = `<div class="barra-dia ${d.batida ? 'batida' : ''}" style="height:${((d.ml / max) * 100).toFixed(1)}%"></div>`;
       area.insertBefore(col, linha);
     });
     linha.style.bottom = ((estado.metaMl / max) * 100).toFixed(1) + '%';
 
     $('rotulos').innerHTML = dados.map((d) => `<div>${d.hoje ? 'Hoje' : d.rot}</div>`).join('');
     $('lista-hist').innerHTML = dados.slice().reverse().map((d) =>
-      `<li><span>${d.hoje ? 'Hoje' : d.rot}</span><strong>${fmtMl(d.ml)}${d.ml >= estado.metaMl ? ' ✅' : ''}</strong></li>`
+      `<li><span>${d.hoje ? 'Hoje' : d.rot}</span><strong>${fmtMl(d.ml)}${d.batida ? ' ✅' : ''}</strong></li>`
     ).join('');
   }
 
@@ -1570,9 +1874,12 @@
   function abrirConfig() {
     $('campo-meta').value = estado.metaMl;
     $('campo-garrafa').value = estado.garrafaMl;
+    $('campo-dormir').value = estado.dormirAs;
+    $('campo-acordar').value = estado.acordarAs;
     $('detalhes-avancado').open = false;
     zerarArmado = false;
     $('btn-zerar').textContent = 'Zerar dados';
+    cancelarImportacao();
     $('config').hidden = false;
   }
 
@@ -1583,6 +1890,8 @@
   function salvarConfig() {
     const meta = parseInt($('campo-meta').value, 10);
     const garrafa = parseInt($('campo-garrafa').value, 10);
+    const dormir = $('campo-dormir').value;
+    const acordar = $('campo-acordar').value;
     if (!(meta >= 500 && meta <= 6000)) {
       mostrarAviso('A meta precisa ficar entre 500 e 6000 ml.');
       return;
@@ -1591,11 +1900,21 @@
       mostrarAviso('A garrafa precisa ficar entre 100 e 3000 ml.');
       return;
     }
+    if (!REGEX_HORA.test(dormir) || !REGEX_HORA.test(acordar)) {
+      mostrarAviso('Preencha os horários de dormir e de acordar.');
+      return;
+    }
+    if (dormir === acordar) {
+      mostrarAviso('Dormir e acordar não podem ser na mesma hora.');
+      return;
+    }
     estado.metaMl = meta;
     if (garrafa !== estado.garrafaMl) {
       estado.garrafaMl = garrafa;
       estado.garrafaAtual = garrafa;
     }
+    estado.dormirAs = dormir;
+    estado.acordarAs = acordar;
     salvar();
     fecharConfig();
     atualizarTudo();
@@ -1618,6 +1937,7 @@
     zerarArmado = false;
     estado = padrao();
     estado.ultimoRegistro = Date.now();
+    ultimoDesfazer = null;
     salvar();
     statusAtual = null;
     lastStage = -1;
@@ -1628,12 +1948,217 @@
   }
 
   /* =====================================================================
+     BACKUP: EXPORTAR E IMPORTAR
+     ===================================================================== */
+  function montarBackup() {
+    return JSON.stringify({
+      app: APP_BACKUP,
+      formato: 1,
+      exportadoEm: new Date().toISOString(),
+      progresso: estado
+    }, null, 2);
+  }
+
+  function copiarFallback(texto) {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, texto.length);
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch (e) {
+      ok = false;
+    }
+    ta.remove();
+    return ok;
+  }
+
+  function copiarTexto(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(texto).then(() => true, () => copiarFallback(texto));
+    }
+    return Promise.resolve(copiarFallback(texto));
+  }
+
+  function exportarProgresso() {
+    const json = montarBackup();
+    const nome = `plantinha-tais-backup-${chaveData()}.json`;
+    let baixou = false;
+    try {
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nome;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      baixou = true;
+    } catch (e) {
+      baixou = false;
+    }
+    copiarTexto(json).then((copiou) => {
+      if (copiou && baixou) mostrarAviso('Progresso copiado e arquivo baixado.');
+      else if (copiou) mostrarAviso('Progresso copiado para a área de transferência.');
+      else if (baixou) mostrarAviso('Arquivo baixado. Não consegui copiar o texto.');
+      else mostrarAviso('Não consegui exportar o progresso.');
+    });
+  }
+
+  // Valida um backup e devolve o progresso pronto para usar. Lança Error com mensagem em português.
+  function normalizarBackup(arq) {
+    const erro = (m) => { throw new Error(m); };
+    if (!arq || typeof arq !== 'object' || arq.app !== APP_BACKUP || !arq.progresso || typeof arq.progresso !== 'object') {
+      erro('Esse arquivo não é um backup da Plantinha.');
+    }
+    const d = arq.progresso;
+    const numero = (v, min, max) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+    if (!numero(d.metaMl, 500, 6000)) erro('Backup inválido: meta diária fora do intervalo.');
+    if (!numero(d.garrafaMl, 100, 3000)) erro('Backup inválido: tamanho da garrafa fora do intervalo.');
+    if (!numero(d.garrafaAtual, 0, d.garrafaMl)) erro('Backup inválido: água da garrafa.');
+    if (!numero(d.totalMl, 0, 1e12)) erro('Backup inválido: total de água.');
+    if (!d.dias || typeof d.dias !== 'object' || Array.isArray(d.dias)) erro('Backup inválido: histórico de dias.');
+    Object.keys(d.dias).forEach((k) => {
+      if (!REGEX_DATA.test(k) || !numero(d.dias[k], 0, 1e9)) erro(`Backup inválido: dia ${k}.`);
+    });
+    if (!Array.isArray(d.bonusDias) || !d.bonusDias.every((k) => typeof k === 'string' && REGEX_DATA.test(k))) {
+      erro('Backup inválido: dias com meta batida.');
+    }
+    if (d.melhorSeq !== undefined && !numero(d.melhorSeq, 0, 1e6)) erro('Backup inválido: recorde de sequência.');
+    if (d.ultimoRegistro !== undefined && d.ultimoRegistro !== null && !numero(d.ultimoRegistro, 0, 9e15)) {
+      erro('Backup inválido: último registro.');
+    }
+    if (d.premiosVistos !== undefined && (!Array.isArray(d.premiosVistos) || !d.premiosVistos.every((s) => typeof s === 'string'))) {
+      erro('Backup inválido: prêmios.');
+    }
+
+    const p = padrao();
+    return Object.assign(p, {
+      metaMl: d.metaMl,
+      garrafaMl: d.garrafaMl,
+      garrafaAtual: d.garrafaAtual,
+      totalMl: d.totalMl,
+      dias: Object.assign({}, d.dias),
+      bonusDias: [...new Set(d.bonusDias)],
+      melhorSeq: d.melhorSeq || 0,
+      ultimoRegistro: d.ultimoRegistro || null,
+      premiosVistos: d.premiosVistos || [],
+      dormirAs: REGEX_HORA.test(d.dormirAs) ? d.dormirAs : DORMIR_PADRAO,
+      acordarAs: REGEX_HORA.test(d.acordarAs) ? d.acordarAs : ACORDAR_PADRAO
+    });
+  }
+
+  function cancelarImportacao() {
+    importPendente = null;
+    clearTimeout(timerImport);
+    $('btn-importar').textContent = 'Importar progresso';
+  }
+
+  function cliqueImportar() {
+    // Segundo toque (com arquivo já validado) confirma; o primeiro abre o seletor.
+    if (importPendente) {
+      confirmarImportacao();
+      return;
+    }
+    $('arquivo-importar').click();
+  }
+
+  function lerArquivoImportado(ev) {
+    const input = ev.target;
+    const arq = input.files && input.files[0];
+    input.value = '';
+    if (!arq) return;
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      let novo;
+      try {
+        novo = normalizarBackup(JSON.parse(String(leitor.result)));
+      } catch (e) {
+        cancelarImportacao();
+        mostrarAviso(e instanceof SyntaxError ? 'Esse arquivo não é um JSON válido.' : e.message);
+        return;
+      }
+      importPendente = novo;
+      const xp = Math.floor(novo.totalMl / 10) + novo.bonusDias.length * XP_BONUS_META;
+      $('btn-importar').textContent = 'Toque de novo para substituir';
+      clearTimeout(timerImport);
+      timerImport = setTimeout(cancelarImportacao, 4000);
+      mostrarAviso(`Arquivo válido: ${Object.keys(novo.dias).length} dias de histórico e ${xp} XP. Toque de novo em "Toque de novo para substituir" em até 4 segundos.`);
+    };
+    leitor.onerror = () => {
+      cancelarImportacao();
+      mostrarAviso('Não consegui ler o arquivo.');
+    };
+    leitor.readAsText(arq);
+  }
+
+  function confirmarImportacao() {
+    if (!importPendente) return;
+    estado = importPendente;
+    cancelarImportacao();
+    ultimoDesfazer = null;
+    statusAtual = null;
+    lastStage = -1;
+    salvar();
+    fecharConfig();
+    atualizarTudo(true);
+    mostrarAviso('Progresso importado!');
+  }
+
+  /* =====================================================================
+     AVISO PARA INSTALAR (só iPhone/iPad fora do app instalado)
+     ===================================================================== */
+  function ehIphoneOuIpad() {
+    const ua = navigator.userAgent || '';
+    return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
+  function emModoInstalado() {
+    return window.navigator.standalone === true
+      || (!!window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  function mostrarFaixaInstalar() {
+    if (ehIphoneOuIpad() && !emModoInstalado()) $('faixa-instalar').hidden = false;
+  }
+
+  /* =====================================================================
+     SERVICE WORKER (modo offline) E ARMAZENAMENTO PERSISTENTE
+     ===================================================================== */
+  function registrarServico() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => { /* sem offline, o app segue funcionando */ });
+      });
+    }
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(() => { /* não disponível: segue sem pedido */ });
+    }
+  }
+
+  /* =====================================================================
      INICIALIZAÇÃO
      ===================================================================== */
   function ligarEventos() {
     $('btn-gole').addEventListener('click', () => beber(GOLE));
     $('btn-copo').addEventListener('click', () => beber(COPO));
     $('btn-encher').addEventListener('click', encher);
+
+    $('btn-fora').addEventListener('click', () => {
+      if ($('painel-fora').hidden) abrirPainelFora();
+      else fecharPainelFora();
+    });
+    document.querySelectorAll('[data-fora]').forEach((b) => {
+      b.addEventListener('click', () => beberFora(Number(b.dataset.fora)));
+    });
+    $('btn-fora-cancelar').addEventListener('click', fecharPainelFora);
 
     const planta = $('planta');
     planta.addEventListener('click', () => falar(statusAtual || 'feliz'));
@@ -1652,9 +2177,14 @@
     $('btn-fechar-config').addEventListener('click', fecharConfig);
     $('btn-salvar-config').addEventListener('click', salvarConfig);
     $('btn-zerar').addEventListener('click', zerarTudo);
+    $('btn-exportar').addEventListener('click', exportarProgresso);
+    $('btn-importar').addEventListener('click', cliqueImportar);
+    $('arquivo-importar').addEventListener('change', lerArquivoImportado);
     $('config').addEventListener('click', (e) => {
       if (e.target === $('config')) fecharConfig();
     });
+
+    $('btn-fechar-faixa').addEventListener('click', () => { $('faixa-instalar').hidden = true; });
   }
 
   function iniciar() {
@@ -1666,6 +2196,8 @@
     atualizarTudo(true);
     mostrarAba('hoje');
     agendarPiscada();
+    mostrarFaixaInstalar();
+    registrarServico();
 
     if (!armazenamentoOk) {
       setTimeout(() => mostrarAviso('Este navegador não guarda dados. O progresso some ao fechar a página.'), 600);
