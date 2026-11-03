@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Plantinha">
+<meta name="theme-color" content="#5BC0BE">
+<meta name="color-scheme" content="light">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Plantinha da Taís</title>
+<style>
+  :root {
+    --verde-claro: #DFF7EA;
+    --verde: #4CB987;
+    --verde-escuro: #1F5F4A;
+    --agua: #5BC0BE;
+    --agua-claro: #D6F1F0;
+    --laranja: #F28C6B;
+    --sombra: 0 6px 18px rgba(31, 95, 74, 0.12);
+    --raio: 22px;
+  }
+
+  [hidden] { display: none !important; }
+
+  * { box-sizing: border-box; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--verde-escuro);
+    background: linear-gradient(180deg, #DFF7EA 0%, #D6F1F0 100%);
+    background-attachment: fixed;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input { -webkit-user-select: text; user-select: text; }
+
+  button {
+    font: inherit;
+    min-height: 44px;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  h1, h2, p { margin: 0; }
+
+  /* ---------- Cabeçalho ---------- */
+  .topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(env(safe-area-inset-top) + 10px) 16px 6px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .topo h1 { font-size: 22px; font-weight: 800; }
+
+  .btn-icone {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: var(--sombra);
+    font-size: 20px;
+    padding: 0;
+  }
+
+  /* ---------- Área principal ---------- */
+  main {
+    padding: 6px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .tela { animation: entrar 0.35s ease; }
+
+  .cartao {
+    background: #fff;
+    border-radius: var(--raio);
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 12px;
+  }
+
+  .titulo-cartao {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .pequeno { font-size: 13px; opacity: 0.8; line-height: 1.35; }
+
+  /* ---------- Plantinha ---------- */
+  .cartao-planta { text-align: center; padding-top: 14px; }
+
+  .balao {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    padding: 12px 14px;
+    margin: 0 4px 14px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+    box-shadow: var(--sombra);
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .balao::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 10px solid transparent;
+    border-top-color: #fff;
+    border-bottom: 0;
+  }
+
+  .planta-area {
+    min-height: 212px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .planta-murcha { transition: transform 0.6s ease, filter 0.6s ease; transform-origin: 50% 100%; }
+  .planta-murcha.sede { transform: rotate(-2deg); }
+  .planta-murcha.murcha { transform: rotate(-6deg) translateY(4px); filter: saturate(0.6); }
+
+  .planta-pulo { display: flex; justify-content: center; }
+  .planta-pulo.pulo { animation: pulo 0.9s ease; }
+
+  #planta-svg svg {
+    display: block;
+    height: auto;
+    max-width: 100%;
+    transform-origin: 50% 100%;
+    animation: balanco 5s ease-in-out infinite;
+    transition: width 0.8s ease;
+    overflow: visible;
+  }
+
+  .estado-planta {
+    margin-top: 8px;
+    font-size: 17px;
+    font-weight: 800;
+  }
+  .estagio-texto { margin-top: 2px; font-size: 14px; opacity: 0.85; }
+
+  .barra {
+    height: 12px;
+    background: #E3F4EC;
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 10px 0 6px;
+  }
+  .barra > div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--agua), var(--verde));
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  .linha-nivel {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ---------- Hoje / meta / sequência ---------- */
+  .meta-texto { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .streak { margin-top: 10px; font-weight: 700; font-size: 15px; }
+  .melhor { margin-top: 4px; font-size: 13px; opacity: 0.8; }
+
+  /* ---------- Garrafa ---------- */
+  .cartao-garrafa { text-align: center; }
+
+  .garrafa {
+    position: relative;
+    width: 104px;
+    height: 150px;
+    margin: 4px auto 8px;
+  }
+  .garrafa .tampa {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 16px;
+    background: var(--agua);
+    border-radius: 6px 6px 3px 3px;
+    z-index: 2;
+  }
+  .garrafa .corpo {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px solid #7CC6E8;
+    border-radius: 26px;
+    overflow: hidden;
+    background: #F4FCFF;
+  }
+  .agua {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0;
+    background: linear-gradient(180deg, #9EDFF7, #3AA8DC);
+    transition: height 0.6s ease;
+  }
+  .texto-garrafa { font-weight: 700; font-size: 15px; margin-bottom: 12px; min-height: 20px; }
+
+  .botoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .botoes .largo { grid-column: 1 / -1; }
+
+  .btn {
+    border: 0;
+    border-radius: 16px;
+    padding: 0 12px;
+    min-height: 48px;
+    font-weight: 700;
+    font-size: 16px;
+    background: #fff;
+    color: var(--verde-escuro);
+    box-shadow: 0 2px 8px rgba(31, 95, 74, 0.12);
+    transition: transform 0.1s ease;
+  }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn.primario { background: var(--agua); color: #fff; }
+  .btn.perigo { background: #FCE3DA; color: #9A3B1E; width: 100%; margin-top: 8px; }
+
+  /* ---------- Abas ---------- */
+  .abas {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(255, 255, 255, 0.94);
+    border-top: 1px solid #CDEFE0;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 5;
+  }
+  .aba {
+    border: 0;
+    background: transparent;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--verde-escuro);
+    opacity: 0.6;
+  }
+  .aba .icone { font-size: 20px; }
+  .aba.ativa { opacity: 1; font-weight: 800; }
+
+  /* ---------- Histórico ---------- */
+  .area-graf {
+    position: relative;
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    border-bottom: 2px solid #CDEFE0;
+    margin-top: 8px;
+  }
+  .coluna { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+  .barra-dia {
+    width: 100%;
+    min-height: 2px;
+    border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(180deg, #7FD8D6, #8FD3B0);
+    transition: height 0.6s ease;
+  }
+  .barra-dia.batida { background: linear-gradient(180deg, #5BC0BE, var(--verde)); }
+  .linha-meta {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px dashed var(--laranja);
+    pointer-events: none;
+  }
+  .linha-meta span {
+    position: absolute;
+    right: 0;
+    top: -20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #B65A3A;
+    background: #fff;
+    padding: 0 4px;
+  }
+  .rotulos { display: flex; gap: 8px; margin-top: 6px; }
+  .rotulos div { flex: 1; text-align: center; font-size: 12px; font-weight: 600; text-transform: capitalize; }
+  .lista-hist { list-style: none; padding: 0; margin: 12px 0 0; }
+  .lista-hist li {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 2px;
+    border-bottom: 1px solid #EEF8F3;
+    font-size: 15px;
+  }
+
+  /* ---------- Prêmios ---------- */
+  .lista-premios { list-style: none; padding: 0; margin: 0; }
+  .premio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--sombra);
+  }
+  .premio.bloq { background: #F2F7F5; box-shadow: none; }
+  .premio-corpo { min-width: 0; }
+  .premio-cond { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
+  .premio-texto { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .premio.bloq .premio-texto { color: #6B7A74; }
+  .selo {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 99px;
+  }
+  .selo.ok { background: #CFF5E1; color: #1F5F4A; }
+  .selo.bloq-selo { background: #E5E7EB; color: #4B5563; }
+
+  /* ---------- Configurações ---------- */
+  .fundo {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 40, 35, 0.35);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 20;
+  }
+  .folha {
+    background: #fff;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 24px 24px 0 0;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    max-height: 90vh;
+    max-height: 90dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .linha-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .linha-topo h2 { font-size: 20px; font-weight: 800; }
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .campo input {
+    font-size: 16px; /* evita zoom automático no iOS */
+    min-height: 44px;
+    border-radius: 14px;
+    border: 2px solid #CDEFE0;
+    padding: 0 12px;
+    font-family: inherit;
+    color: var(--verde-escuro);
+    background: #fff;
+    width: 100%;
+  }
+  .campo input:focus { outline: none; border-color: var(--agua); }
+  .folha .btn.primario { width: 100%; margin-top: 4px; }
+  .avancado {
+    margin-top: 22px;
+    border-top: 1px dashed #CDEFE0;
+    padding-top: 10px;
+  }
+  .avancado summary {
+    font-size: 13px;
+    opacity: 0.6;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  /* ---------- Aviso ---------- */
+  .aviso {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: calc(env(safe-area-inset-top) + 8px);
+    background: var(--verde-escuro);
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: var(--sombra);
+    opacity: 0;
+    transform: translateY(-12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .aviso.mostrar { opacity: 1; transform: none; }
+
+  /* ---------- Animações ---------- */
+  @keyframes balanco {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50% { transform: rotate(1.5deg); }
+  }
+  @keyframes pulo {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.12); }
+    70% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+  }
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topo">
+    <h1>Plantinha da Taís</h1>
+    <button id="btn-config" class="btn-icone" aria-label="Abrir configurações">⚙️</button>
+  </header>
+
+  <main>
+    <!-- ===== Aba: Hoje ===== -->
+    <section id="tela-hoje" class="tela">
+
+      <div class="cartao cartao-planta">
+        <div id="fala" class="balao" aria-live="polite">Oi! Eu sou sua plantinha.</div>
+
+        <div id="planta" class="planta-area" role="button" tabindex="0"
+             aria-label="Tocar na plantinha para ouvir uma frase">
+          <div id="planta-murcha" class="planta-murcha">
+            <div id="planta-pulo" class="planta-pulo">
+              <div id="planta-svg"></div>
+            </div>
+          </div>
+        </div>
+
+        <p id="estado-planta" class="estado-planta"></p>
+        <p id="estagio-texto" class="estagio-texto"></p>
+
+        <div class="barra" aria-hidden="true"><div id="xp-fill"></div></div>
+        <div class="linha-nivel">
+          <span id="nivel-texto"></span>
+        </div>
+        <p id="xp-texto" class="pequeno" style="margin-top:4px"></p>
+      </div>
+
+      <div class="cartao">
+        <div class="titulo-cartao"><span>Água de hoje</span><span id="hoje-texto" class="pequeno"></span></div>
+        <p id="meta-texto" class="meta-texto"></p>
+        <div class="barra" aria-hidden="true"><div id="meta-fill"></div></div>
+        <p id="streak" class="streak"></p>
+        <p id="melhor-seq" class="melhor"></p>
+      </div>
+
+      <div class="cartao cartao-garrafa">
+        <div class="garrafa" aria-hidden="true">
+          <div class="tampa"></div>
+          <div class="corpo"><div id="agua" class="agua"></div></div>
+        </div>
+        <p id="garrafa-texto" class="texto-garrafa" aria-live="polite"></p>
+
+        <div class="botoes">
+          <button id="btn-gole" class="btn" aria-label="Beber um gole, 50 mililitros">+ Gole</button>
+          <button id="btn-copo" class="btn" aria-label="Beber um copo, 250 mililitros">+ Copo</button>
+          <button id="btn-encher" class="btn primario largo" aria-label="Encher a garrafa virtual">Encher garrafa</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Aba: Histórico ===== -->
+    <section id="tela-historico" class="tela" hidden>
+      <div class="cartao">
+        <div class="titulo-cartao"><span>Últimos 7 dias</span><span class="pequeno">linha = meta</span></div>
+        <div class="area-graf" id="area-graf">
+          <div class="linha-meta" id="linha-meta"><span>meta</span></div>
+        </div>
+        <div class="rotulos" id="rotulos"></div>
+        <ul class="lista-hist" id="lista-hist"></ul>
+      </div>
+    </section>
+
+    <!-- ===== Aba: Prêmios ===== -->
+    <section id="tela-premios" class="tela" hidden>
+      <div class="cartao">
+        <div class="titulo-cartao"><span>Seus prêmios</span></div>
+        <p class="pequeno" style="margin-bottom:12px">Bata a meta e suba de nível para desbloquear.</p>
+        <ul class="lista-premios" id="lista-premios"></ul>
+      </div>
+    </section>
+  </main>
+
+  <nav class="abas" role="tablist" aria-label="Navegação">
+    <button class="aba ativa" data-aba="hoje" role="tab" aria-selected="true">
+      <span class="icone" aria-hidden="true">🌱</span>Hoje
+    </button>
+    <button class="aba" data-aba="historico" role="tab" aria-selected="false">
+      <span class="icone" aria-hidden="true">📊</span>Histórico
+    </button>
+    <button class="aba" data-aba="premios" role="tab" aria-selected="false">
+      <span class="icone" aria-hidden="true">🎁</span>Prêmios
+    </button>
+  </nav>
+
+  <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+  <!-- ===== Configurações ===== -->
+  <section id="config" class="fundo" hidden>
+    <div class="folha" role="dialog" aria-modal="true" aria-labelledby="titulo-config">
+      <div class="linha-topo">
+        <h2 id="titulo-config">Configurações</h2>
+        <button id="btn-fechar-config" class="btn-icone" aria-label="Fechar configurações">✕</button>
+      </div>
+
+      <label class="campo">Meta diária (ml)
+        <input id="campo-meta" type="number" inputmode="numeric" min="500" max="6000" step="50">
+      </label>
+
+      <label class="campo">Tamanho da garrafa (ml)
+        <input id="campo-garrafa" type="number" inputmode="numeric" min="100" max="3000" step="50">
+      </label>
+      <p class="pequeno">Mudar o tamanho da garrafa enche ela de novo.</p>
+
+      <button id="btn-salvar-config" class="btn primario">Salvar</button>
+
+      <details id="detalhes-avancado" class="avancado">
+        <summary>Avançado</summary>
+        <p class="pequeno">Apaga todo o progresso salvo neste aparelho.</p>
+        <button id="btn-zerar" class="btn perigo">Zerar dados</button>
+      </details>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =====================================================================
+     CONFIGURAÇÕES EDITÁVEIS
+     ===================================================================== */
+
+  // Prêmios: troque os textos entre colchetes pelo que você quiser.
+  // "nivel" = desbloqueia ao atingir o nível (1 = Semente ... 8 = Lenda do Jardim).
+  // "dias"  = desbloqueia ao completar X dias seguidos batendo a meta.
+  const RECOMPENSAS = [
+    { nivel: 3, texto: "[Vale um jantar com o Marcos]" },
+    { nivel: 5, texto: "[Vale uma massagem]" },
+    { dias: 3, texto: "[Uma mensagem de amor]" },
+    { dias: 7, texto: "[Vale escolher o filme da noite]" }
+  ];
+
+  // Frases da plantinha, por estado.
+  const FRASES = {
+    feliz: [
+      "Que dia lindo! Mais um golinho e eu fico radiante.",
+      "Estou tão verdinha hoje que nem acredito!",
+      "Água fresquinha é a melhor coisa do mundo. Mais água, então!",
+      "Tô crescendo que nem mato na primavera. Continua assim!",
+      "Você é a melhor jardineira do mundo, sabia?",
+      "Sinto suas gotinhas e fico feliz da vida."
+    ],
+    com_sede: [
+      "Alerta! Sua plantinha está virando cacto. Bebe água AGORA!",
+      "Eu tô aqui, de boca aberta, esperando um golinho...",
+      "Eu sou planta, não deserto. Água, por favor!",
+      "Minhas folhinhas estão com cara de quem esqueceu o copo na mesa.",
+      "Já faz um tempinho desde seu último golinho. Eu conto as horas, sabia?",
+      "Se você não beber água, eu começo a fazer drama. E já estou começando."
+    ],
+    murchando: [
+      "Socorro! Estou murchando mais rápido que alface fora da geladeira!",
+      "Vou desmaiar no vaso... dramaticamente... Água, agora!",
+      "Minhas folhas estão caindo como drama de novela. Bebe água, por favor!",
+      "Se eu virar feno, você me deve um copo de água. Combinado?",
+      "Estou sem forças... só um golinho me salva. Só um!",
+      "Estou murchinha, tipo flor de festa no dia seguinte."
+    ],
+    florindo: [
+      "Olha eu florindo! Você é a jardineira mais incrível de todas!",
+      "Estou tão bonita que até as abelhas vieram me visitar.",
+      "Florzinha de respeito! Vou fingir que foi tudo mérito meu.",
+      "Pétala, pétala, pétala! Aplausos, por favor!",
+      "Jardim florido, vida boa e você cuidando de mim. Que combinação!",
+      "Olha esse vaso cheio de cor! Obrigada por cuidar de mim."
+    ],
+    garrafa_vazia: [
+      "Garrafa vazia detectada. Enche essa garrafa antes que eu morra de sede!",
+      "Sua garrafa está mais seca que piada sem graça. Enche ela, vai!",
+      "Eu não sou mágica, não consigo encher essa garrafa sozinha. Vai lá!",
+      "Garrafa vazia? Isso é um pedido de socorro, e eu estou fazendo o pedido.",
+      "Corre até a torneira! Eu espero, mas só um pouquinho.",
+      "Tem uma garrafa vazia aqui e ela está me julgando."
+    ],
+    meta_batida: [
+      "META BATIDA! Você é a maior jardineira que já existiu!",
+      "Hoje a gente bebeu água pra caramba. Estou orgulhosa de nós duas!",
+      "Dia de meta batida! Vou comemorar fazendo uma folhinha nova.",
+      "Você conseguiu! Agora pode se sentir uma lenda do jardim (eu aprovo).",
+      "Meta do dia cumprida. Você é fofa demais e eu mereço um aplauso também.",
+      "Bateu a meta! Vou dormir com cara de satisfação."
+    ]
+  };
+
+  /* =====================================================================
+     CONSTANTES DO JOGO
+     ===================================================================== */
+  const CHAVE = 'plantinha-tais-v1';
+  const META_PADRAO = 2000;
+  const GARRAFA_PADRAO = 500;
+  const GOLE = 50;
+  const COPO = 250;
+  const XP_BONUS_META = 50;
+
+  const NIVEIS = [
+    { nome: 'Semente', xp: 0 },
+    { nome: 'Broto', xp: 100 },
+    { nome: 'Muda', xp: 250 },
+    { nome: 'Roseira', xp: 450 },
+    { nome: 'Girassol', xp: 700 },
+    { nome: 'Jardineira', xp: 1000 },
+    { nome: 'Mestre do Jardim', xp: 1400 },
+    { nome: 'Lenda do Jardim', xp: 1900 }
+  ];
+
+  const ESTAGIOS = [
+    { nome: 'Semente', xp: 0 },
+    { nome: 'Broto', xp: 100 },
+    { nome: 'Plantinha', xp: 300 },
+    { nome: 'Muda Forte', xp: 600 },
+    { nome: 'Flor', xp: 1000 },
+    { nome: 'Jardim Florido', xp: 1600 }
+  ];
+
+  const ROTULO_ESTADO = {
+    feliz: 'Feliz da vida',
+    com_sede: 'Com sede...',
+    murchando: 'Murchando!',
+    florindo: 'Florindo!',
+    garrafa_vazia: 'Garrafa vazia',
+    meta_batida: 'Meta batida!'
+  };
+
+  /* =====================================================================
+     SPRITES DA PLANTA (SVG)
+     ===================================================================== */
+  const COR = {
+    haste: '#3FA46A', folha: '#5CC48A', folha2: '#7BD9A0',
+    vaso: '#E9966B', borda: '#D9784C', terra: '#8B5E3C',
+    petala: '#F7A8C4', miolo: '#FFD166', semente: '#C98B52'
+  };
+
+  function folha(x, y, ang, s = 1, cor = COR.folha) {
+    return `<path d="M0 0Q18 -22 40 0Q18 22 0 0Z" fill="${cor}" transform="translate(${x} ${y}) rotate(${ang}) scale(${s})"/>`;
+  }
+
+  function flor(x, y, r = 9) {
+    let p = '';
+    for (let a = 0; a < 360; a += 60) {
+      const rad = a * Math.PI / 180;
+      p += `<circle cx="${(x + Math.cos(rad) * r * 1.3).toFixed(1)}" cy="${(y + Math.sin(rad) * r * 1.3).toFixed(1)}" r="${r}" fill="${COR.petala}"/>`;
+    }
+    return p + `<circle cx="${x}" cy="${y}" r="${(r * 0.9).toFixed(1)}" fill="${COR.miolo}"/>`;
+  }
+
+  function haste(x1, y1, x2, y2, curva = 4) {
+    const cx = (x1 + x2) / 2 + curva;
+    const cy = (y1 + y2) / 2;
+    return `<path d="M${x1} ${y1}Q${cx} ${cy} ${x2} ${y2}" fill="none" stroke="${COR.haste}" stroke-width="5" stroke-linecap="round"/>`;
+  }
+
+  function sprite(partes, extra = '') {
+    const vaso = `<rect x="50" y="158" width="100" height="20" rx="9" fill="${COR.borda}"/>`
+      + `<path d="M60 170H140L130 212H70Z" fill="${COR.vaso}"/>`;
+    const terra = `<ellipse cx="100" cy="160" rx="42" ry="7" fill="${COR.terra}"/>`;
+    return `<svg viewBox="0 0 200 220" width="100%" aria-hidden="true">${partes}${vaso}${terra}${extra}</svg>`;
+  }
+
+  const SPRITES = [
+    // 0 — Semente
+    sprite('', `<ellipse cx="100" cy="155" rx="8" ry="6" fill="${COR.semente}"/>`),
+    // 1 — Broto
+    sprite(
+      haste(100, 160, 100, 128) +
+      folha(100, 128, -35, 0.9) + folha(100, 128, 215, 0.9)
+    ),
+    // 2 — Plantinha
+    sprite(
+      haste(100, 160, 100, 104) +
+      folha(100, 138, 8, 0.95) + folha(100, 138, 172, 0.95) +
+      folha(100, 116, -30, 0.95) + folha(100, 116, 210, 0.95)
+    ),
+    // 3 — Muda Forte
+    sprite(
+      haste(100, 160, 100, 76, 5) +
+      folha(100, 140, 8, 1.1) + folha(100, 140, 172, 1.1) +
+      folha(100, 114, -30, 1.15, COR.folha2) + folha(100, 114, 210, 1.15, COR.folha2) +
+      folha(100, 90, -60, 1) + folha(100, 90, 240, 1)
+    ),
+    // 4 — Flor
+    sprite(
+      haste(100, 160, 100, 70, 4) +
+      folha(100, 140, 8, 1.1) + folha(100, 140, 172, 1.1) +
+      folha(100, 112, -30, 1.1, COR.folha2) + folha(100, 112, 210, 1.1, COR.folha2) +
+      flor(100, 58, 11)
+    ),
+    // 5 — Jardim Florido
+    sprite(
+      haste(100, 160, 100, 70, 4) +
+      haste(100, 160, 64, 104, -10) + haste(100, 160, 136, 100, 10) +
+      folha(100, 140, 8, 1) + folha(100, 140, 172, 1) +
+      folha(100, 118, -30, 1, COR.folha2) + folha(100, 118, 210, 1, COR.folha2) +
+      folha(64, 104, -150, 0.8) + folha(136, 100, -20, 0.8) +
+      flor(100, 56, 11) + flor(64, 100, 8) + flor(136, 96, 9)
+    )
+  ];
+
+  /* =====================================================================
+     ESTADO E ARMAZENAMENTO
+     ===================================================================== */
+  let armazenamentoOk = true;
+  let estado = padrao();
+  let statusAtual = null;
+  let lastStage = -1;
+  let zerarArmado = false;
+  let timerAviso = null;
+
+  function padrao() {
+    return {
+      metaMl: META_PADRAO,
+      garrafaMl: GARRAFA_PADRAO,
+      garrafaAtual: GARRAFA_PADRAO,
+      totalMl: 0,          // água total registrada na vida (base do XP)
+      dias: {},            // 'AAAA-MM-DD' -> ml bebidos no dia
+      bonusDias: [],       // dias em que a meta foi batida (bônus de XP)
+      melhorSeq: 0,        // maior sequência de dias batendo a meta
+      ultimoRegistro: null,// timestamp do último registro (ou da primeira abertura)
+      premiosVistos: []    // prêmios já anunciados
+    };
+  }
+
+  function carregar() {
+    let bruto = null;
+    try {
+      bruto = window.localStorage.getItem(CHAVE);
+    } catch (e) {
+      armazenamentoOk = false;
+      return;
+    }
+    if (!bruto) return;
+    try {
+      const dados = JSON.parse(bruto);
+      if (dados && typeof dados === 'object') {
+        estado = Object.assign(padrao(), dados);
+      }
+    } catch (e) {
+      // dados corrompidos: começa do zero sem quebrar o app
+    }
+  }
+
+  function salvar() {
+    if (!armazenamentoOk) return;
+    try {
+      window.localStorage.setItem(CHAVE, JSON.stringify(estado));
+    } catch (e) {
+      armazenamentoOk = false;
+      mostrarAviso('Não consegui salvar o progresso neste navegador.');
+    }
+  }
+
+  /* =====================================================================
+     UTILITÁRIOS
+     ===================================================================== */
+  const $ = (id) => document.getElementById(id);
+
+  function chaveData(d = new Date()) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function diaAnterior(chave) {
+    const [a, m, d] = chave.split('-').map(Number);
+    return chaveData(new Date(a, m - 1, d - 1));
+  }
+
+  function mlDoDia(chave) {
+    return estado.dias[chave] || 0;
+  }
+
+  function fmtMl(ml) {
+    return `${Math.round(ml).toLocaleString('pt-BR')} ml`;
+  }
+
+  function escapar(texto) {
+    return String(texto)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function mostrarAviso(msg) {
+    const el = $('aviso');
+    el.textContent = msg;
+    el.classList.add('mostrar');
+    clearTimeout(timerAviso);
+    timerAviso = setTimeout(() => el.classList.remove('mostrar'), 3200);
+  }
+
+  function sortear(chave) {
+    const lista = FRASES[chave];
+    return lista[Math.floor(Math.random() * lista.length)];
+  }
+
+  function falar(chave) {
+    $('fala').textContent = sortear(chave);
+  }
+
+  /* =====================================================================
+     REGRAS DO JOGO
+     ===================================================================== */
+  function xpTotal() {
+    return Math.floor(estado.totalMl / 10) + estado.bonusDias.length * XP_BONUS_META;
+  }
+
+  function indiceAte(lista, xp) {
+    let i = 0;
+    lista.forEach((item, k) => { if (xp >= item.xp) i = k; });
+    return i;
+  }
+
+  function progressoNivel(xp, i) {
+    if (i >= NIVEIS.length - 1) return { frac: 1, falta: 0, proximo: null };
+    const ini = NIVEIS[i].xp;
+    const fim = NIVEIS[i + 1].xp;
+    return { frac: (xp - ini) / (fim - ini), falta: fim - xp, proximo: NIVEIS[i + 1].nome };
+  }
+
+  function progressoEstagio(xp, i) {
+    if (i >= ESTAGIOS.length - 1) return 1;
+    const ini = ESTAGIOS[i].xp;
+    const fim = ESTAGIOS[i + 1].xp;
+    return Math.min(1, Math.max(0, (xp - ini) / (fim - ini)));
+  }
+
+  function sequenciaAtual() {
+    let k = chaveData();
+    if (mlDoDia(k) < estado.metaMl) k = diaAnterior(k); // hoje ainda não bateu: a sequência vale até ontem
+    let seq = 0;
+    while (mlDoDia(k) >= estado.metaMl && seq < 3650) {
+      seq++;
+      k = diaAnterior(k);
+    }
+    return seq;
+  }
+
+  function atualizarRecordes() {
+    const s = sequenciaAtual();
+    if (s > estado.melhorSeq) {
+      estado.melhorSeq = s;
+      salvar();
+    }
+  }
+
+  function statusPlanta(agora = Date.now()) {
+    const horas = estado.ultimoRegistro ? (agora - estado.ultimoRegistro) / 3600000 : 0;
+    const estagio = indiceAte(ESTAGIOS, xpTotal());
+    if (horas >= 4) return 'murchando';
+    if (horas >= 2) return 'com_sede';
+    if (estado.garrafaAtual <= 0) return 'garrafa_vazia';
+    if (mlDoDia(chaveData()) >= estado.metaMl) return 'meta_batida';
+    if (estagio >= 4) return 'florindo';
+    return 'feliz';
+  }
+
+  function chaveRecompensa(p) {
+    return p.nivel !== undefined ? `nivel-${p.nivel}` : `dias-${p.dias}`;
+  }
+
+  function desbloqueada(p, nivelNum) {
+    if (p.nivel !== undefined) return nivelNum >= p.nivel;
+    if (p.dias !== undefined) return estado.melhorSeq >= p.dias;
+    return false;
+  }
+
+  function condicao(p) {
+    if (p.nivel !== undefined) {
+      const nome = NIVEIS[p.nivel - 1] ? NIVEIS[p.nivel - 1].nome : '?';
+      return `Chegue ao nível ${p.nivel} (${nome})`;
+    }
+    return `Bata a meta ${p.dias} ${p.dias === 1 ? 'dia' : 'dias'} seguidos`;
+  }
+
+  // Retorna um texto de aviso se algum prêmio novo foi desbloqueado.
+  function verificarPremios() {
+    const nivelNum = indiceAte(NIVEIS, xpTotal()) + 1;
+    let novo = false;
+    RECOMPENSAS.forEach((p) => {
+      const k = chaveRecompensa(p);
+      if (desbloqueada(p, nivelNum) && !estado.premiosVistos.includes(k)) {
+        estado.premiosVistos.push(k);
+        novo = true;
+      }
+    });
+    if (!novo) return null;
+    salvar();
+    return '🎁 Você desbloqueou um prêmio! Veja na aba Prêmios.';
+  }
+
+  /* =====================================================================
+     RENDERIZAÇÃO
+     ===================================================================== */
+  function renderPlanta(iEst, frac, st) {
+    const box = $('planta-svg');
+    if (lastStage !== iEst) {
+      box.innerHTML = SPRITES[iEst];
+      lastStage = iEst;
+    }
+    const svg = box.querySelector('svg');
+    if (svg) svg.style.width = (150 + iEst * 10 + frac * 8).toFixed(1) + 'px';
+
+    const corpo = $('planta-murcha');
+    corpo.classList.toggle('murcha', st === 'murchando');
+    corpo.classList.toggle('sede', st === 'com_sede');
+  }
+
+  function render() {
+    const agora = new Date();
+    const hoje = chaveData(agora);
+    const ml = mlDoDia(hoje);
+    const meta = estado.metaMl;
+    const xp = xpTotal();
+    const iNivel = indiceAte(NIVEIS, xp);
+    const iEst = indiceAte(ESTAGIOS, xp);
+    const prog = progressoNivel(xp, iNivel);
+    const progE = progressoEstagio(xp, iEst);
+    const seq = sequenciaAtual();
+    const st = statusPlanta();
+
+    $('hoje-texto').textContent = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    $('meta-fill').style.width = Math.min(100, (ml / meta) * 100).toFixed(1) + '%';
+    $('meta-texto').textContent = ml >= meta
+      ? `Meta batida! ${fmtMl(ml)} 🎉`
+      : `${fmtMl(ml)} de ${fmtMl(meta)}`;
+    $('streak').textContent = seq > 0
+      ? `🔥 ${seq} ${seq === 1 ? 'dia seguido' : 'dias seguidos'} batendo a meta`
+      : '🍃 Bata a meta para começar uma sequência';
+    $('melhor-seq').textContent = `Melhor sequência: ${estado.melhorSeq} ${estado.melhorSeq === 1 ? 'dia' : 'dias'}`;
+
+    $('nivel-texto').textContent = `Nível ${iNivel + 1} · ${NIVEIS[iNivel].nome}`;
+    $('xp-fill').style.width = (prog.frac * 100).toFixed(1) + '%';
+    $('xp-texto').textContent = prog.proximo
+      ? `${xp} XP · faltam ${prog.falta} XP para ${prog.proximo}`
+      : `${xp} XP · nível máximo, você é uma lenda!`;
+    $('estagio-texto').textContent = `Estágio: ${ESTAGIOS[iEst].nome}`;
+
+    $('agua').style.height = ((estado.garrafaAtual / estado.garrafaMl) * 100).toFixed(1) + '%';
+    $('garrafa-texto').textContent = estado.garrafaAtual > 0
+      ? `${fmtMl(estado.garrafaAtual)} de ${fmtMl(estado.garrafaMl)} na garrafa`
+      : 'Garrafa vazia! Enche ela de verdade 💧';
+    $('btn-gole').disabled = estado.garrafaAtual <= 0;
+    $('btn-copo').disabled = estado.garrafaAtual <= 0;
+
+    $('estado-planta').textContent = ROTULO_ESTADO[st];
+    renderPlanta(iEst, progE, st);
+  }
+
+  // Atualiza tudo. Se forcarFala, sorteia nova frase mesmo sem mudança de estado.
+  // Retorna aviso de prêmio, se houver.
+  function atualizarTudo(forcarFala = false) {
+    const st = statusPlanta();
+    if (forcarFala || st !== statusAtual) {
+      statusAtual = st;
+      falar(st);
+    }
+    atualizarRecordes();
+    render();
+    return verificarPremios();
+  }
+
+  function pularPlanta() {
+    const el = $('planta-pulo');
+    el.classList.remove('pulo');
+    void el.offsetWidth; // reinicia a animação
+    el.classList.add('pulo');
+    setTimeout(() => el.classList.remove('pulo'), 950);
+  }
+
+  /* =====================================================================
+     AÇÕES
+     ===================================================================== */
+  function beber(qtd) {
+    if (estado.garrafaAtual <= 0) {
+      statusAtual = 'garrafa_vazia';
+      falar('garrafa_vazia');
+      mostrarAviso('A garrafa está vazia. Encha ela primeiro!');
+      return;
+    }
+
+    const xpAntes = xpTotal();
+    const nivelAntes = indiceAte(NIVEIS, xpAntes);
+    const estagioAntes = indiceAte(ESTAGIOS, xpAntes);
+
+    const hoje = chaveData();
+    const antes = mlDoDia(hoje);
+    const ml = Math.min(qtd, estado.garrafaAtual);
+
+    estado.garrafaAtual -= ml;
+    estado.dias[hoje] = antes + ml;
+    estado.totalMl += ml;
+    estado.ultimoRegistro = Date.now();
+
+    let bonus = false;
+    if (antes < estado.metaMl && estado.dias[hoje] >= estado.metaMl && !estado.bonusDias.includes(hoje)) {
+      estado.bonusDias.push(hoje);
+      bonus = true;
+    }
+
+    atualizarRecordes();
+    salvar();
+
+    const xpDepois = xpTotal();
+    const subiuEstagio = indiceAte(ESTAGIOS, xpDepois) > estagioAntes;
+    const subiuNivel = indiceAte(NIVEIS, xpDepois) > nivelAntes;
+
+    const premio = atualizarTudo(true);
+    pularPlanta();
+
+    let msg = `+${ml} ml · +${Math.floor(ml / 10)} XP`;
+    if (bonus) msg += ' · Meta batida: +50 XP!';
+    if (subiuEstagio) msg = `🌱 Sua plantinha virou ${ESTAGIOS[indiceAte(ESTAGIOS, xpDepois)].nome}!`;
+    else if (subiuNivel) msg = `⭐ Novo nível: ${NIVEIS[indiceAte(NIVEIS, xpDepois)].nome}!`;
+    if (premio) msg = premio;
+    mostrarAviso(msg);
+  }
+
+  function encher() {
+    estado.garrafaAtual = estado.garrafaMl;
+    salvar();
+    statusAtual = 'feliz';
+    falar('feliz');
+    atualizarTudo();
+    mostrarAviso('Garrafa cheia de novo! Vamos crescer 💧');
+  }
+
+  /* =====================================================================
+     ABAS, HISTÓRICO E PRÊMIOS
+     ===================================================================== */
+  function mostrarAba(nome) {
+    document.querySelectorAll('.tela').forEach((t) => {
+      t.hidden = t.id !== 'tela-' + nome;
+    });
+    document.querySelectorAll('[data-aba]').forEach((b) => {
+      const on = b.dataset.aba === nome;
+      b.classList.toggle('ativa', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    if (nome === 'historico') renderHistorico();
+    if (nome === 'premios') renderPremios();
+    window.scrollTo(0, 0);
+  }
+
+  function renderHistorico() {
+    const agora = new Date();
+    const dados = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - i);
+      const k = chaveData(d);
+      dados.push({
+        k,
+        ml: mlDoDia(k),
+        rot: d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+        hoje: i === 0
+      });
+    }
+    const max = Math.max(estado.metaMl, ...dados.map((d) => d.ml), 1);
+
+    $('area-graf').querySelectorAll('.coluna').forEach((n) => n.remove());
+    const area = $('area-graf');
+    const linha = $('linha-meta');
+    dados.forEach((d) => {
+      const col = document.createElement('div');
+      col.className = 'coluna';
+      col.innerHTML = `<div class="barra-dia ${d.ml >= estado.metaMl ? 'batida' : ''}" style="height:${((d.ml / max) * 100).toFixed(1)}%"></div>`;
+      area.insertBefore(col, linha);
+    });
+    linha.style.bottom = ((estado.metaMl / max) * 100).toFixed(1) + '%';
+
+    $('rotulos').innerHTML = dados.map((d) => `<div>${d.hoje ? 'Hoje' : d.rot}</div>`).join('');
+    $('lista-hist').innerHTML = dados.slice().reverse().map((d) =>
+      `<li><span>${d.hoje ? 'Hoje' : d.rot}</span><strong>${fmtMl(d.ml)}${d.ml >= estado.metaMl ? ' ✅' : ''}</strong></li>`
+    ).join('');
+  }
+
+  function renderPremios() {
+    const nivelNum = indiceAte(NIVEIS, xpTotal()) + 1;
+    $('lista-premios').innerHTML = RECOMPENSAS.map((p) => {
+      const ok = desbloqueada(p, nivelNum);
+      return `<li class="premio ${ok ? '' : 'bloq'}">
+        <div class="premio-corpo">
+          <div class="premio-cond">${escapar(condicao(p))}</div>
+          <div class="premio-texto">${ok ? escapar(p.texto) : 'Segredo'}</div>
+        </div>
+        <span class="selo ${ok ? 'ok' : 'bloq-selo'}">${ok ? 'Desbloqueado' : 'bloqueado'}</span>
+      </li>`;
+    }).join('');
+  }
+
+  /* =====================================================================
+     CONFIGURAÇÕES
+     ===================================================================== */
+  function abrirConfig() {
+    $('campo-meta').value = estado.metaMl;
+    $('campo-garrafa').value = estado.garrafaMl;
+    $('detalhes-avancado').open = false;
+    zerarArmado = false;
+    $('btn-zerar').textContent = 'Zerar dados';
+    $('config').hidden = false;
+  }
+
+  function fecharConfig() {
+    $('config').hidden = true;
+  }
+
+  function salvarConfig() {
+    const meta = parseInt($('campo-meta').value, 10);
+    const garrafa = parseInt($('campo-garrafa').value, 10);
+    if (!(meta >= 500 && meta <= 6000)) {
+      mostrarAviso('A meta precisa ficar entre 500 e 6000 ml.');
+      return;
+    }
+    if (!(garrafa >= 100 && garrafa <= 3000)) {
+      mostrarAviso('A garrafa precisa ficar entre 100 e 3000 ml.');
+      return;
+    }
+    estado.metaMl = meta;
+    if (garrafa !== estado.garrafaMl) {
+      estado.garrafaMl = garrafa;
+      estado.garrafaAtual = garrafa;
+    }
+    salvar();
+    fecharConfig();
+    atualizarTudo();
+    mostrarAviso('Configurações salvas!');
+  }
+
+  function zerarTudo() {
+    // Sem confirm(): o primeiro toque arma, o segundo confirma (em até 4 segundos).
+    if (!zerarArmado) {
+      zerarArmado = true;
+      $('btn-zerar').textContent = 'Toque de novo para confirmar';
+      setTimeout(() => {
+        if (zerarArmado) {
+          zerarArmado = false;
+          $('btn-zerar').textContent = 'Zerar dados';
+        }
+      }, 4000);
+      return;
+    }
+    zerarArmado = false;
+    estado = padrao();
+    estado.ultimoRegistro = Date.now();
+    salvar();
+    statusAtual = null;
+    lastStage = -1;
+    $('btn-zerar').textContent = 'Zerar dados';
+    fecharConfig();
+    atualizarTudo();
+    mostrarAviso('Tudo zerado. Começo novinho!');
+  }
+
+  /* =====================================================================
+     INICIALIZAÇÃO
+     ===================================================================== */
+  function ligarEventos() {
+    $('btn-gole').addEventListener('click', () => beber(GOLE));
+    $('btn-copo').addEventListener('click', () => beber(COPO));
+    $('btn-encher').addEventListener('click', encher);
+
+    const planta = $('planta');
+    planta.addEventListener('click', () => falar(statusAtual || 'feliz'));
+    planta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        falar(statusAtual || 'feliz');
+      }
+    });
+
+    document.querySelectorAll('[data-aba]').forEach((b) => {
+      b.addEventListener('click', () => mostrarAba(b.dataset.aba));
+    });
+
+    $('btn-config').addEventListener('click', abrirConfig);
+    $('btn-fechar-config').addEventListener('click', fecharConfig);
+    $('btn-salvar-config').addEventListener('click', salvarConfig);
+    $('btn-zerar').addEventListener('click', zerarTudo);
+    $('config').addEventListener('click', (e) => {
+      if (e.target === $('config')) fecharConfig();
+    });
+  }
+
+  function iniciar() {
+    carregar();
+    if (!estado.ultimoRegistro) estado.ultimoRegistro = Date.now();
+    salvar();
+
+    ligarEventos();
+    atualizarTudo(true);
+    mostrarAba('hoje');
+
+    if (!armazenamentoOk) {
+      setTimeout(() => mostrarAviso('Este navegador não guarda dados. O progresso some ao fechar a página.'), 600);
+    }
+
+    setInterval(() => {
+      const premio = atualizarTudo();
+      if (premio) mostrarAviso(premio);
+    }, 30000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) atualizarTudo();
+    });
+  }
+
+  iniciar();
+})();
+</script>
+</body>
+</html>
