@@ -6,20 +6,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Plantinha">
-<meta name="theme-color" content="#5BC0BE">
+<meta name="theme-color" content="#8ED1E8">
 <meta name="color-scheme" content="light">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <title>Plantinha da Taís</title>
 <style>
   :root {
-    --verde-claro: #DFF7EA;
-    --verde: #4CB987;
-    --verde-escuro: #1F5F4A;
-    --agua: #5BC0BE;
-    --agua-claro: #D6F1F0;
-    --laranja: #F28C6B;
-    --sombra: 0 6px 18px rgba(31, 95, 74, 0.12);
+    --verde1: #7BC47F;
+    --verde2: #4CA55A;
+    --verde3: #2E7D4F;
+    --agua: #8ED1E8;
+    --agua-forte: #4FAFD0;
+    --terra: #C9A27E;
+    --rosa: #F4A6C0;
+    --texto: #1F4D35;
+    --laranja: #F2A65A;
+    --branco: #FFFFFF;
+    --sombra: 0 6px 18px rgba(46, 125, 79, 0.14);
     --raio: 22px;
   }
 
@@ -39,8 +43,8 @@
     min-height: 100dvh;
     overflow-x: hidden;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: var(--verde-escuro);
-    background: linear-gradient(180deg, #DFF7EA 0%, #D6F1F0 100%);
+    color: var(--texto);
+    background: linear-gradient(180deg, #BFE9F5 0%, #DDF3EC 45%, #EEF9EE 100%);
     background-attachment: fixed;
     -webkit-user-select: none;
     user-select: none;
@@ -72,14 +76,14 @@
     top: 0;
     z-index: 5;
   }
-  .topo h1 { font-size: 22px; font-weight: 800; }
+  .topo h1 { font-size: 22px; font-weight: 800; color: var(--verde3); }
 
   .btn-icone {
     width: 44px;
     height: 44px;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.9);
     box-shadow: var(--sombra);
     font-size: 20px;
     padding: 0;
@@ -93,7 +97,7 @@
   .tela { animation: entrar 0.35s ease; }
 
   .cartao {
-    background: #fff;
+    background: var(--branco);
     border-radius: var(--raio);
     padding: 16px;
     box-shadow: var(--sombra);
@@ -111,11 +115,44 @@
 
   .pequeno { font-size: 13px; opacity: 0.8; line-height: 1.35; }
 
-  /* ---------- Plantinha ---------- */
-  .cartao-planta { text-align: center; padding-top: 14px; }
+  /* ---------- Cena (céu, nuvens, plantinha, chão) ---------- */
+  .cena {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    padding: 14px 12px 0;
+    margin-bottom: 12px;
+    box-shadow: var(--sombra);
+    background: linear-gradient(180deg, #9ED9F0 0%, #CDEFE9 60%, #E6F8E8 100%);
+    min-height: 380px;
+  }
+
+  .nuvem {
+    position: absolute;
+    height: 22px;
+    width: 74px;
+    background: #fff;
+    border-radius: 40px;
+    opacity: 0.85;
+    z-index: 0;
+    animation: flutua 22s ease-in-out infinite alternate;
+  }
+  .nuvem::before {
+    content: "";
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border-radius: 50%;
+    left: 14px;
+    top: -16px;
+  }
+  .nuvem.n1 { top: 18px; left: 14px; }
+  .nuvem.n2 { top: 60px; right: 18px; width: 56px; animation-duration: 28s; }
 
   .balao {
     position: relative;
+    z-index: 2;
     background: #fff;
     border-radius: 20px;
     padding: 12px 14px;
@@ -123,11 +160,13 @@
     font-size: 16px;
     font-weight: 600;
     line-height: 1.35;
+    color: var(--texto);
     box-shadow: var(--sombra);
     min-height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
   }
   .balao::after {
     content: "";
@@ -140,36 +179,157 @@
     border-bottom: 0;
   }
 
+  .chao {
+    position: absolute;
+    left: -20px;
+    right: -20px;
+    bottom: 0;
+    height: 74px;
+    z-index: 0;
+    border-radius: 50% 50% 0 0 / 46px 46px 0 0;
+    background: radial-gradient(ellipse at 50% 0%, #B9E79A 0%, #7BC47F 45%, #5AAE63 100%);
+  }
+  .chao::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 26px;
+    bottom: 0;
+    background: linear-gradient(180deg, #D9B896, #C9A27E);
+    border-radius: 40px 40px 0 0;
+  }
+
   .planta-area {
-    min-height: 212px;
+    position: relative;
+    z-index: 1;
+    min-height: 258px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    margin-bottom: 26px;
     cursor: pointer;
   }
 
-  .planta-murcha { transition: transform 0.6s ease, filter 0.6s ease; transform-origin: 50% 100%; }
+  .planta-murcha {
+    transition: transform 0.6s ease, filter 0.6s ease;
+    transform-origin: 50% 100%;
+  }
   .planta-murcha.sede { transform: rotate(-2deg); }
-  .planta-murcha.murcha { transform: rotate(-6deg) translateY(4px); filter: saturate(0.6); }
+  .planta-murcha.murcha { transform: rotate(-5deg) translateY(4px); filter: saturate(0.7); }
 
   .planta-pulo { display: flex; justify-content: center; }
   .planta-pulo.pulo { animation: pulo 0.9s ease; }
+
+  #planta-svg { display: flex; justify-content: center; }
+  #planta-svg.nasce { animation: nasce 0.6s ease; transform-origin: 50% 100%; }
 
   #planta-svg svg {
     display: block;
     height: auto;
     max-width: 100%;
-    transform-origin: 50% 100%;
-    animation: balanco 5s ease-in-out infinite;
-    transition: width 0.8s ease;
     overflow: visible;
+    transform-origin: 50% 100%;
+    animation: balanco 4s ease-in-out infinite;
+    transition: width 0.8s ease;
   }
 
-  .estado-planta {
-    margin-top: 8px;
-    font-size: 17px;
-    font-weight: 800;
+  /* Rosto: só o grupo do estado atual aparece */
+  .r { display: none; }
+  #planta[data-estado="feliz"] .r-feliz,
+  #planta[data-estado="com_sede"] .r-sede,
+  #planta[data-estado="murchando"] .r-murchando,
+  #planta[data-estado="florindo"] .r-florindo,
+  #planta[data-estado="garrafa_vazia"] .r-garrafa,
+  #planta[data-estado="meta_batida"] .r-meta { display: inline; }
+
+  .so { display: none; }
+  #planta[data-estado="florindo"] .so-florindo { display: inline; }
+
+  .olhos {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.08s ease;
   }
+  #planta.piscar .olhos { transform: scaleY(0.1); }
+
+  .gota-suor { animation: pingar 1.6s ease-in infinite; }
+  .estrela { animation: brilhar 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .estrela:nth-child(2) { animation-delay: 0.6s; }
+  .estrela:nth-child(3) { animation-delay: 1.1s; }
+  .estrela:nth-child(4) { animation-delay: 0.3s; }
+
+  /* Folhas caem quando murcha e sobem quando recebe água */
+  .fl {
+    transition: transform 0.9s ease;
+  }
+  #planta[data-estado="murchando"] .fl { transform: rotate(var(--q)); }
+  #planta[data-estado="com_sede"] .fl { transform: rotate(calc(var(--q) * 0.4)); }
+
+  .topo-planta { transition: transform 0.9s ease; }
+  #planta[data-estado="murchando"] .topo-planta { transform: rotate(12deg); }
+  #planta[data-estado="com_sede"] .topo-planta { transform: rotate(4deg); }
+
+  /* Garrafa que pede para ser enchida (ao lado da planta) */
+  .pedido {
+    position: absolute;
+    right: 6px;
+    bottom: 48px;
+    width: 58px;
+    height: 108px;
+    display: none;
+    z-index: 2;
+    pointer-events: none;
+  }
+  #planta[data-estado="garrafa_vazia"] .pedido { display: block; animation: pedir 1.6s ease-in-out infinite; }
+
+  /* Camada de efeitos (gotas, confete, folhas) */
+  .camada-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .gota {
+    position: absolute;
+    left: 50%;
+    top: 70px;
+    width: 12px;
+    height: 16px;
+    margin-left: -6px;
+    background: var(--agua-forte);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: cairGota 0.9s ease-in forwards;
+  }
+  .particula {
+    position: absolute;
+    top: -14px;
+    width: 10px;
+    height: 7px;
+    border-radius: 60% 0 60% 0;
+    background: var(--rosa);
+    animation: cairFolha var(--dur, 7s) linear var(--atraso, 0s) infinite;
+  }
+  .particula.verde { background: var(--verde1); border-radius: 0 60% 0 60%; }
+  .confete {
+    position: absolute;
+    top: -12px;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    animation: cairConfete 2.8s ease-in forwards;
+  }
+
+  .info {
+    background: var(--branco);
+    border-radius: var(--raio);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--sombra);
+    text-align: center;
+  }
+  .estado-planta { font-size: 18px; font-weight: 800; color: var(--verde3); }
   .estagio-texto { margin-top: 2px; font-size: 14px; opacity: 0.85; }
 
   .barra {
@@ -182,7 +342,7 @@
   .barra > div {
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, var(--agua), var(--verde));
+    background: linear-gradient(90deg, var(--agua), var(--verde2));
     border-radius: 99px;
     transition: width 0.6s ease;
   }
@@ -196,7 +356,7 @@
   }
 
   /* ---------- Hoje / meta / sequência ---------- */
-  .meta-texto { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .meta-texto { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--verde3); }
   .streak { margin-top: 10px; font-weight: 700; font-size: 15px; }
   .melhor { margin-top: 4px; font-size: 13px; opacity: 0.8; }
 
@@ -216,7 +376,7 @@
     transform: translateX(-50%);
     width: 44px;
     height: 16px;
-    background: var(--agua);
+    background: var(--agua-forte);
     border-radius: 6px 6px 3px 3px;
     z-index: 2;
   }
@@ -226,7 +386,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 3px solid #7CC6E8;
+    border: 3px solid #9ED9F0;
     border-radius: 26px;
     overflow: hidden;
     background: #F4FCFF;
@@ -237,9 +397,21 @@
     right: 0;
     bottom: 0;
     height: 0;
-    background: linear-gradient(180deg, #9EDFF7, #3AA8DC);
+    background: linear-gradient(180deg, #A8E3FA, #4FAFD0);
     transition: height 0.6s ease;
   }
+  /* Ondulação na superfície da água */
+  .agua::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 12px;
+    background: radial-gradient(circle at 50% 100%, #A8E3FA 9px, transparent 10px) 0 0 / 30px 12px repeat-x;
+    animation: onda 1.6s linear infinite;
+  }
+  .agua[style*="height: 0%"]::before { display: none; }
   .texto-garrafa { font-weight: 700; font-size: 15px; margin-bottom: 12px; min-height: 20px; }
 
   .botoes {
@@ -257,12 +429,12 @@
     font-weight: 700;
     font-size: 16px;
     background: #fff;
-    color: var(--verde-escuro);
-    box-shadow: 0 2px 8px rgba(31, 95, 74, 0.12);
+    color: var(--verde3);
+    box-shadow: 0 2px 8px rgba(46, 125, 79, 0.14);
     transition: transform 0.1s ease;
   }
-  .btn:active:not(:disabled) { transform: scale(0.97); }
-  .btn.primario { background: var(--agua); color: #fff; }
+  .btn:active:not(:disabled) { transform: scale(0.96); }
+  .btn.primario { background: var(--verde2); color: #fff; }
   .btn.perigo { background: #FCE3DA; color: #9A3B1E; width: 100%; margin-top: 8px; }
 
   /* ---------- Abas ---------- */
@@ -289,7 +461,7 @@
     gap: 2px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--verde-escuro);
+    color: var(--verde3);
     opacity: 0.6;
   }
   .aba .icone { font-size: 20px; }
@@ -310,10 +482,10 @@
     width: 100%;
     min-height: 2px;
     border-radius: 10px 10px 4px 4px;
-    background: linear-gradient(180deg, #7FD8D6, #8FD3B0);
+    background: linear-gradient(180deg, #A8E3FA, #8ED1E8);
     transition: height 0.6s ease;
   }
-  .barra-dia.batida { background: linear-gradient(180deg, #5BC0BE, var(--verde)); }
+  .barra-dia.batida { background: linear-gradient(180deg, var(--verde1), var(--verde2)); }
   .linha-meta {
     position: absolute;
     left: 0;
@@ -327,7 +499,7 @@
     top: -20px;
     font-size: 11px;
     font-weight: 700;
-    color: #B65A3A;
+    color: #A8602A;
     background: #fff;
     padding: 0 4px;
   }
@@ -367,7 +539,7 @@
     padding: 5px 10px;
     border-radius: 99px;
   }
-  .selo.ok { background: #CFF5E1; color: #1F5F4A; }
+  .selo.ok { background: #CFF5E1; color: var(--verde3); }
   .selo.bloq-selo { background: #E5E7EB; color: #4B5563; }
 
   /* ---------- Configurações ---------- */
@@ -413,11 +585,11 @@
     border: 2px solid #CDEFE0;
     padding: 0 12px;
     font-family: inherit;
-    color: var(--verde-escuro);
+    color: var(--texto);
     background: #fff;
     width: 100%;
   }
-  .campo input:focus { outline: none; border-color: var(--agua); }
+  .campo input:focus { outline: none; border-color: var(--agua-forte); }
   .folha .btn.primario { width: 100%; margin-top: 4px; }
   .avancado {
     margin-top: 22px;
@@ -439,7 +611,7 @@
     left: 16px;
     right: 16px;
     top: calc(env(safe-area-inset-top) + 8px);
-    background: var(--verde-escuro);
+    background: var(--verde3);
     color: #fff;
     padding: 12px 14px;
     border-radius: 16px;
@@ -457,8 +629,8 @@
 
   /* ---------- Animações ---------- */
   @keyframes balanco {
-    0%, 100% { transform: rotate(-1.5deg); }
-    50% { transform: rotate(1.5deg); }
+    0%, 100% { transform: rotate(-1.2deg); }
+    50% { transform: rotate(1.2deg); }
   }
   @keyframes pulo {
     0% { transform: scale(1); }
@@ -466,9 +638,47 @@
     70% { transform: scale(0.98); }
     100% { transform: scale(1); }
   }
+  @keyframes nasce {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
   @keyframes entrar {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: none; }
+  }
+  @keyframes flutua {
+    from { transform: translateX(0); }
+    to { transform: translateX(26px); }
+  }
+  @keyframes onda {
+    from { background-position: 0 0; }
+    to { background-position: 30px 0; }
+  }
+  @keyframes pingar {
+    0% { transform: translateY(0); opacity: 1; }
+    70% { transform: translateY(7px); opacity: 1; }
+    100% { transform: translateY(9px); opacity: 0; }
+  }
+  @keyframes brilhar {
+    0%, 100% { transform: scale(0.6); opacity: 0.4; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+  @keyframes pedir {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-6px) rotate(4deg); }
+  }
+  @keyframes cairGota {
+    0% { transform: translateY(0); opacity: 0.9; }
+    100% { transform: translateY(120px); opacity: 0.2; }
+  }
+  @keyframes cairFolha {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.9; }
+    100% { transform: translate(24px, 260px) rotate(300deg); opacity: 0; }
+  }
+  @keyframes cairConfete {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx, 0px), 330px) rotate(540deg); opacity: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -477,6 +687,7 @@
       transition: none !important;
       scroll-behavior: auto !important;
     }
+    .camada-fx { display: none; }
   }
 </style>
 </head>
@@ -492,18 +703,38 @@
     <!-- ===== Aba: Hoje ===== -->
     <section id="tela-hoje" class="tela">
 
-      <div class="cartao cartao-planta">
+      <div class="cena">
+        <div class="nuvem n1" aria-hidden="true"></div>
+        <div class="nuvem n2" aria-hidden="true"></div>
+
         <div id="fala" class="balao" aria-live="polite">Oi! Eu sou sua plantinha.</div>
 
-        <div id="planta" class="planta-area" role="button" tabindex="0"
+        <div id="planta" class="planta-area" data-estado="feliz" role="button" tabindex="0"
              aria-label="Tocar na plantinha para ouvir uma frase">
           <div id="planta-murcha" class="planta-murcha">
             <div id="planta-pulo" class="planta-pulo">
               <div id="planta-svg"></div>
             </div>
           </div>
+
+          <div class="pedido" aria-hidden="true">
+            <svg viewBox="0 0 60 110" width="58" height="108">
+              <rect x="22" y="2" width="16" height="12" rx="4" fill="#4FAFD0"/>
+              <path d="M22 14H38V22Q52 30 52 52V98Q52 106 44 106H16Q8 106 8 98V52Q8 30 22 22Z"
+                    fill="#EAF9FE" stroke="#4FAFD0" stroke-width="3"/>
+              <circle cx="24" cy="66" r="2.6" fill="#1F4D35"/>
+              <circle cx="36" cy="66" r="2.6" fill="#1F4D35"/>
+              <circle cx="30" cy="82" r="3" fill="none" stroke="#1F4D35" stroke-width="2"/>
+              <text x="46" y="12" font-size="13" font-weight="800" fill="#2E7D4F">?</text>
+            </svg>
+          </div>
         </div>
 
+        <div class="chao" aria-hidden="true"></div>
+        <div id="camada-fx" class="camada-fx" aria-hidden="true"></div>
+      </div>
+
+      <div class="info">
         <p id="estado-planta" class="estado-planta"></p>
         <p id="estagio-texto" class="estagio-texto"></p>
 
@@ -714,13 +945,17 @@
      SPRITES DA PLANTA (SVG)
      ===================================================================== */
   const COR = {
-    haste: '#3FA46A', folha: '#5CC48A', folha2: '#7BD9A0',
+    haste: '#3FA46A', folha: '#7BC47F', folha2: '#A6DCA0',
     vaso: '#E9966B', borda: '#D9784C', terra: '#8B5E3C',
-    petala: '#F7A8C4', miolo: '#FFD166', semente: '#C98B52'
+    petala: '#F4A6C0', miolo: '#FFD166', semente: '#C98B52',
+    tinta: '#1F4D35'
   };
 
+  // Folha: a rotação de queda (--q) aponta para baixo, do lado em que a folha está.
   function folha(x, y, ang, s = 1, cor = COR.folha) {
-    return `<path d="M0 0Q18 -22 40 0Q18 22 0 0Z" fill="${cor}" transform="translate(${x} ${y}) rotate(${ang}) scale(${s})"/>`;
+    const dir = Math.cos(ang * Math.PI / 180) >= 0 ? 1 : -1;
+    return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(${s})">`
+      + `<path class="fl" style="--q:${dir * 42}deg" d="M0 0Q18 -22 40 0Q18 22 0 0Z" fill="${cor}"/></g>`;
   }
 
   function flor(x, y, r = 9) {
@@ -732,55 +967,111 @@
     return p + `<circle cx="${x}" cy="${y}" r="${(r * 0.9).toFixed(1)}" fill="${COR.miolo}"/>`;
   }
 
-  function haste(x1, y1, x2, y2, curva = 4) {
+  // Botão de flor fechado, no topo do caule (Flor).
+  function botao(x, y) {
+    return `<ellipse cx="${x}" cy="${y}" rx="7" ry="9" fill="${COR.petala}"/>`
+      + `<path d="M${x - 6} ${y + 6}Q${x} ${y + 12} ${x + 6} ${y + 6}" fill="none" stroke="${COR.folha}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+
+  function haste(x1, y1, x2, y2, curva = 4, grossura = 5) {
     const cx = (x1 + x2) / 2 + curva;
     const cy = (y1 + y2) / 2;
-    return `<path d="M${x1} ${y1}Q${cx} ${cy} ${x2} ${y2}" fill="none" stroke="${COR.haste}" stroke-width="5" stroke-linecap="round"/>`;
+    return `<path d="M${x1} ${y1}Q${cx} ${cy} ${x2} ${y2}" fill="none" stroke="${COR.haste}" stroke-width="${grossura}" stroke-linecap="round"/>`;
   }
+
+  // Rosto da plantinha, no vaso. Cada estado tem seu grupo; só o atual aparece (ver CSS).
+  const OLHO = (x, y, r = 3.2) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${COR.tinta}"/>`;
+  const ROSTO = `
+    <g class="r r-feliz">
+      <g class="olhos">${OLHO(84, 188)}${OLHO(116, 188)}</g>
+      <path d="M92 197Q100 205 108 197" fill="none" stroke="${COR.tinta}" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <g class="r r-sede">
+      <path d="M80 188H89M111 188H120" stroke="${COR.tinta}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M94 201H106" stroke="${COR.tinta}" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="gota-suor" d="M132 174Q137 182 137 187Q137 193 132 193Q127 193 127 187Q127 182 132 174Z" fill="#8ED1E8"/>
+    </g>
+    <g class="r r-murchando">
+      <g class="olhos">${OLHO(84, 191, 2.8)}${OLHO(116, 191, 2.8)}</g>
+      <path d="M75 180L88 185M125 180L112 185" stroke="${COR.tinta}" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M93 207Q100 199 107 207" fill="none" stroke="${COR.tinta}" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <g class="r r-florindo">
+      <g class="olhos">
+        ${OLHO(84, 187, 4)}${OLHO(116, 187, 4)}
+        <circle cx="85.3" cy="185.6" r="1.3" fill="#fff"/><circle cx="117.3" cy="185.6" r="1.3" fill="#fff"/>
+      </g>
+      <ellipse cx="73" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
+      <ellipse cx="127" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
+      <path d="M90 196Q100 210 110 196Z" fill="${COR.tinta}"/>
+    </g>
+    <g class="r r-garrafa">
+      <g class="olhos">${OLHO(83, 186, 3)}${OLHO(117, 186, 3)}</g>
+      <circle cx="100" cy="201" r="2.8" fill="none" stroke="${COR.tinta}" stroke-width="2"/>
+    </g>
+    <g class="r r-meta">
+      <path d="M77 191Q83 182 89 191M111 191Q117 182 123 191" fill="none" stroke="${COR.tinta}" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M90 196Q100 210 110 196Z" fill="${COR.tinta}"/>
+      <ellipse cx="73" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
+      <ellipse cx="127" cy="197" rx="4.5" ry="2.8" fill="${COR.petala}" opacity="0.9"/>
+    </g>`;
+
+  // Brilhos ao redor da planta (só aparecem quando está florindo).
+  const BRILHOS = `
+    <g class="so so-florindo" fill="#FFD166">
+      <path class="estrela" transform="translate(26 70)" d="M0-7L1.8-1.8L7 0L1.8 1.8L0 7L-1.8 1.8L-7 0L-1.8-1.8Z"/>
+      <path class="estrela" transform="translate(176 56)" d="M0-7L1.8-1.8L7 0L1.8 1.8L0 7L-1.8 1.8L-7 0L-1.8-1.8Z"/>
+      <path class="estrela" transform="translate(182 128)" d="M0-6L1.5-1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5-1.5Z"/>
+      <path class="estrela" transform="translate(18 138)" d="M0-6L1.5-1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5-1.5Z"/>
+    </g>`;
 
   function sprite(partes, extra = '') {
     const vaso = `<rect x="50" y="158" width="100" height="20" rx="9" fill="${COR.borda}"/>`
       + `<path d="M60 170H140L130 212H70Z" fill="${COR.vaso}"/>`;
     const terra = `<ellipse cx="100" cy="160" rx="42" ry="7" fill="${COR.terra}"/>`;
-    return `<svg viewBox="0 0 200 220" width="100%" aria-hidden="true">${partes}${vaso}${terra}${extra}</svg>`;
+    return `<svg viewBox="0 0 200 220" width="100%" aria-hidden="true">`
+      + `${BRILHOS}${partes}${vaso}${terra}${extra}${ROSTO}</svg>`;
   }
 
   const SPRITES = [
-    // 0 — Semente
-    sprite('', `<ellipse cx="100" cy="155" rx="8" ry="6" fill="${COR.semente}"/>`),
-    // 1 — Broto
+    // 0 — Semente: um grão pequeno sobre o monte de terra
+    sprite('',
+      `<ellipse cx="100" cy="153" rx="9" ry="6.5" fill="${COR.semente}"/>`
+      + `<path d="M96 151Q100 147 104 151" fill="none" stroke="#A9764A" stroke-width="1.5" stroke-linecap="round"/>`),
+    // 1 — Broto: duas folhinhas saindo do solo
     sprite(
-      haste(100, 160, 100, 128) +
-      folha(100, 128, -35, 0.9) + folha(100, 128, 215, 0.9)
+      haste(100, 160, 100, 126, 3, 4) +
+      folha(100, 128, -35, 0.8) + folha(100, 128, 215, 0.8)
     ),
-    // 2 — Plantinha
+    // 2 — Plantinha: caule médio com 4 folhas
     sprite(
-      haste(100, 160, 100, 104) +
-      folha(100, 138, 8, 0.95) + folha(100, 138, 172, 0.95) +
+      haste(100, 160, 100, 102, 4, 5) +
+      folha(100, 136, 8, 0.95) + folha(100, 136, 172, 0.95) +
       folha(100, 116, -30, 0.95) + folha(100, 116, 210, 0.95)
     ),
-    // 3 — Muda Forte
+    // 3 — Muda Forte: mais alta, caule mais grosso, folhas maiores
     sprite(
-      haste(100, 160, 100, 76, 5) +
-      folha(100, 140, 8, 1.1) + folha(100, 140, 172, 1.1) +
-      folha(100, 114, -30, 1.15, COR.folha2) + folha(100, 114, 210, 1.15, COR.folha2) +
-      folha(100, 90, -60, 1) + folha(100, 90, 240, 1)
+      haste(100, 160, 100, 76, 5, 7) +
+      folha(100, 142, 8, 1.1) + folha(100, 142, 172, 1.1) +
+      folha(100, 114, -30, 1.2, COR.folha2) + folha(100, 114, 210, 1.2, COR.folha2) +
+      folha(100, 92, -60, 1) + folha(100, 92, 240, 1)
     ),
-    // 4 — Flor
+    // 4 — Flor: caule alto com botão de flor no topo
     sprite(
-      haste(100, 160, 100, 70, 4) +
+      haste(100, 160, 100, 70, 4, 6) +
       folha(100, 140, 8, 1.1) + folha(100, 140, 172, 1.1) +
       folha(100, 112, -30, 1.1, COR.folha2) + folha(100, 112, 210, 1.1, COR.folha2) +
-      flor(100, 58, 11)
+      `<g class="topo-planta" style="transform-origin:100px 160px">${botao(100, 60)}</g>`
     ),
-    // 5 — Jardim Florido
+    // 5 — Jardim Florido: flor completa e flores pequenas ao redor
     sprite(
-      haste(100, 160, 100, 70, 4) +
-      haste(100, 160, 64, 104, -10) + haste(100, 160, 136, 100, 10) +
+      haste(100, 160, 100, 70, 4, 6) +
+      haste(100, 160, 64, 104, -10, 4) + haste(100, 160, 136, 100, 10, 4) +
       folha(100, 140, 8, 1) + folha(100, 140, 172, 1) +
       folha(100, 118, -30, 1, COR.folha2) + folha(100, 118, 210, 1, COR.folha2) +
       folha(64, 104, -150, 0.8) + folha(136, 100, -20, 0.8) +
-      flor(100, 56, 11) + flor(64, 100, 8) + flor(136, 96, 9)
+      `<g class="topo-planta" style="transform-origin:100px 160px">`
+        + flor(100, 56, 11) + flor(64, 100, 8) + flor(136, 96, 9) + `</g>`
     )
   ];
 
@@ -842,6 +1133,8 @@
      ===================================================================== */
   const $ = (id) => document.getElementById(id);
 
+  const REDUZIR_MOVIMENTO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   function chaveData(d = new Date()) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
@@ -878,8 +1171,26 @@
     return lista[Math.floor(Math.random() * lista.length)];
   }
 
+  // Balão de fala com efeito de digitação (letra por letra).
+  let timerDigitacao = null;
+  function digitar(texto) {
+    const el = $('fala');
+    clearInterval(timerDigitacao);
+    if (REDUZIR_MOVIMENTO) {
+      el.textContent = texto;
+      return;
+    }
+    el.textContent = '';
+    let i = 0;
+    timerDigitacao = setInterval(() => {
+      i++;
+      el.textContent = texto.slice(0, i);
+      if (i >= texto.length) clearInterval(timerDigitacao);
+    }, 22);
+  }
+
   function falar(chave) {
-    $('fala').textContent = sortear(chave);
+    digitar(sortear(chave));
   }
 
   /* =====================================================================
@@ -974,6 +1285,80 @@
   }
 
   /* =====================================================================
+     EFEITOS VISUAIS (só apresentação)
+     ===================================================================== */
+  let estadoVisual = null;
+  let timerBlink = null;
+
+  function criarElemento(classe, estilo) {
+    const el = document.createElement('div');
+    el.className = classe;
+    if (estilo) el.setAttribute('style', estilo);
+    $('camada-fx').appendChild(el);
+    return el;
+  }
+
+  function aleatorio(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  // Gotinha caindo de cima quando a água é registrada.
+  function soltarGota() {
+    if (REDUZIR_MOVIMENTO) return;
+    const g = criarElemento('gota');
+    setTimeout(() => g.remove(), 950);
+  }
+
+  // Pétalas e folhinhas caindo enquanto está florindo.
+  function iniciarParticulas() {
+    pararParticulas();
+    if (REDUZIR_MOVIMENTO) return;
+    for (let i = 0; i < 7; i++) {
+      const p = criarElemento(`particula ${i % 2 ? 'verde' : ''}`,
+        `left:${aleatorio(4, 92).toFixed(1)}%;--dur:${aleatorio(6, 10).toFixed(1)}s;--atraso:-${aleatorio(0, 8).toFixed(1)}s`);
+      p.dataset.fx = 'particula';
+    }
+  }
+
+  function pararParticulas() {
+    $('camada-fx').querySelectorAll('[data-fx="particula"]').forEach((n) => n.remove());
+  }
+
+  // Confete quando a meta do dia é batida.
+  function chuvaConfete() {
+    if (REDUZIR_MOVIMENTO) return;
+    const cores = ['#F4A6C0', '#FFD166', '#8ED1E8', '#7BC47F', '#F2A65A'];
+    for (let i = 0; i < 26; i++) {
+      const c = criarElemento('confete',
+        `left:${aleatorio(2, 96).toFixed(1)}%;background:${cores[i % cores.length]};`
+        + `animation-delay:${aleatorio(0, 0.8).toFixed(2)}s;--dx:${aleatorio(-30, 30).toFixed(0)}px`);
+      setTimeout(() => c.remove(), 3800);
+    }
+  }
+
+  function atualizarEfeitosEstado(st) {
+    if (st === estadoVisual) return;
+    const antes = estadoVisual;
+    estadoVisual = st;
+    if (st === 'florindo') iniciarParticulas();
+    else pararParticulas();
+    if (st === 'meta_batida' && antes !== null) chuvaConfete();
+  }
+
+  // Piscar aleatório a cada 3 a 5 segundos.
+  function agendarPiscada() {
+    clearTimeout(timerBlink);
+    timerBlink = setTimeout(() => {
+      if (!REDUZIR_MOVIMENTO) {
+        const p = $('planta');
+        p.classList.add('piscar');
+        setTimeout(() => p.classList.remove('piscar'), 150);
+      }
+      agendarPiscada();
+    }, aleatorio(3000, 5000));
+  }
+
+  /* =====================================================================
      RENDERIZAÇÃO
      ===================================================================== */
   function renderPlanta(iEst, frac, st) {
@@ -981,9 +1366,15 @@
     if (lastStage !== iEst) {
       box.innerHTML = SPRITES[iEst];
       lastStage = iEst;
+      box.classList.remove('nasce');
+      void box.offsetWidth; // reinicia a animação de crescimento
+      box.classList.add('nasce');
     }
     const svg = box.querySelector('svg');
-    if (svg) svg.style.width = (150 + iEst * 10 + frac * 8).toFixed(1) + 'px';
+    if (svg) svg.style.width = (170 + iEst * 10 + frac * 10).toFixed(1) + 'px';
+
+    $('planta').setAttribute('data-estado', st);
+    atualizarEfeitosEstado(st);
 
     const corpo = $('planta-murcha');
     corpo.classList.toggle('murcha', st === 'murchando');
@@ -1089,6 +1480,7 @@
     const subiuEstagio = indiceAte(ESTAGIOS, xpDepois) > estagioAntes;
     const subiuNivel = indiceAte(NIVEIS, xpDepois) > nivelAntes;
 
+    soltarGota();
     const premio = atualizarTudo(true);
     pularPlanta();
 
@@ -1273,6 +1665,7 @@
     ligarEventos();
     atualizarTudo(true);
     mostrarAba('hoje');
+    agendarPiscada();
 
     if (!armazenamentoOk) {
       setTimeout(() => mostrarAviso('Este navegador não guarda dados. O progresso some ao fechar a página.'), 600);
